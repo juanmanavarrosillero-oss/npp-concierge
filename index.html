@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Navarro Private Concierge</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NPP Concierge">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#141413">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #141413; }
+    iframe { width: 100%; height: 100%; border: 0; display: block; }
+  </style>
+</head>
+<body>
+  <iframe id="app-frame" allow="geolocation; clipboard-write"></iframe>
+  <script>
+    const GAS_BASE = "https://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec";
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("clean")) params.set("clean", "1");
+    if (params.has("x")) localStorage.setItem("npp_saved_token", params.get("x"));
+    else if (localStorage.getItem("npp_saved_token")) params.set("x", localStorage.getItem("npp_saved_token"));
+    document.getElementById("app-frame").src = GAS_BASE + "?" + params.toString();
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+  </script>
+</body>
+</html>

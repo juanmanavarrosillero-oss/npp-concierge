@@ -1,0 +1,17 @@
+{
+  "name": "Navarro Private Concierge",
+  "short_name": "NPP Concierge",
+  "start_url": "/?clean=1",
+  "display": "standalone",
+  "background_color": "#141413",
+  "theme_color": "#141413",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
