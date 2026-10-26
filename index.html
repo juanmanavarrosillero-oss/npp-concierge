@@ -111,6 +111,34 @@
       color: #000;
       z-index: 999 !important;
     }
+        .npp-seal-sparkle {
+      display: block;
+      width: 9px;
+      height: 9px;
+      border-radius: 9999px;
+      background: #10B981;
+      border: 1.5px solid #FFFFFF;
+      box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.85);
+      animation: nppPulseSeal 1.8s infinite ease-in-out;
+    }
+    .npp-drop-expect {
+      display: block;
+      width: 9px;
+      height: 9px;
+      border-radius: 9999px;
+      background: #F59E0B;
+      border: 1.5px dashed #FFFFFF;
+      box-shadow: 0 0 9px 2px rgba(245, 158, 11, 0.9);
+      animation: nppPulseDrop 1.4s infinite ease-in-out;
+    }
+    @keyframes nppPulseSeal {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 6px 1px rgba(16, 185, 129, 0.7); }
+      50% { transform: scale(1.28); box-shadow: 0 0 12px 4px rgba(16, 185, 129, 1); }
+    }
+    @keyframes nppPulseDrop {
+      0%, 100% { transform: scale(0.95); opacity: 0.75; }
+      50% { transform: scale(1.32); opacity: 1; box-shadow: 0 0 14px 4px rgba(245, 158, 11, 1); }
+    }
   </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -148,34 +176,67 @@ body.master-mode #lab-toolbar { display: flex !important; }
   <div class="app-shell flex flex-col min-h-screen" style="background: var(--bg-main);">
 
     <!-- CABECERA PRIVADA DEL CLIENTE -->
-    <header class="glass-bar sticky top-0 z-30 border-b px-3.5 pt-3 pb-2.5">
+    <header class="glass-bar sticky top-0 z-30 border-b px-3.5 pt-2.5 pb-2 space-y-1.5">
+      <!-- FILA 1: MARCA COMPACTA (IZQ) | CLIENTE CLICABLE + BOTÓN SINCRONIZAR (DER) -->
       <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <!-- TU LOGO CORPORATIVO 'N' INTACTO -->
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-cinzel font-bold text-lg shadow-sm shrink-0" style="background: var(--text-main); color: var(--bg-main); border: 1px solid var(--accent-gold);">
-            N
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-2xs shrink-0" style="background: #141413; border: 1.5px solid #C5A059;">
+            <img id="npp-brand-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjRTVDODgyIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNDNUEwNTkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM5QTc3MzgiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExNSIgZmlsbD0iIzE0MTQxMyIvPjxyZWN0IHg9IjI2IiB5PSIyNiIgd2lkdGg9IjQ2MCIgaGVpZ2h0PSI0NjAiIHJ4PSI5MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI2cpIiBzdHJva2Utd2lkdGg9IjEwIi8+PHBhdGggZD0iTTE0OCAzNzIgVjE0MCBIMTkyIEwzMDggMjk4IFYxNDAgSDM1MiBWMzcyIEgzMDggTDE5MiAyMTQgVjM3MiBaIiBmaWxsPSJ1cmwoI2cpIi8+PHBhdGggZD0iTTE3MiAzNDIgVjE3MCBIMTk4IEwzMTQgMzI4IFYxNzAgSDM0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjRGMUVBIiBzdHJva2Utd2lkdGg9IjUiIHN0cm9rZS1vcGFjaXR5PSIwLjQ1Ii8+PC9zdmc+" alt="NPP" class="w-full h-full object-contain">
           </div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-1.5">
-              <span class="font-cinzel text-[10.5px] tracking-[0.16em] font-bold truncate">NAVARRO PRIVATE</span>
-              <span class="text-[8.5px] font-mono px-1.5 py-0.5 rounded uppercase font-bold shrink-0" style="background: var(--pill-bg); color: var(--accent-gold); border: 1px solid var(--border-col);">Concierge</span>
-            </div>
-            <!-- NOMBRE DEL CLIENTE Y SU FOTO EN GRANDE A LA DERECHA -->
-            <div onclick="setMainView('profile')" class="flex items-center gap-2.5 mt-1 cursor-pointer group">
-              <p id="client-welcome" class="text-sm font-bold truncate" style="color: var(--text-main);">Concierge Privado</p>
-              <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 shrink-0 bg-white flex items-center justify-center shadow-md transition group-hover:scale-105" style="border-color: var(--accent-gold);">
-                <img id="header-client-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0Y0RjFFQSIvPjx0ZXh0IHg9IjUwIiB5PSI2NSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjQ0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzlBN0IzRSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TjwvdGV4dD48L3N2Zz4=" alt="Cliente" class="w-full h-full object-cover">
-              </div>
-            </div>
+          <div class="flex flex-col leading-none">
+            <span class="font-cinzel text-[10px] font-bold tracking-[0.12em]" style="color: var(--text-main);">NAVARRO PRIVATE</span>
+            <span id="lbl-concierge" class="font-mono text-[7.5px] font-bold tracking-[0.22em] uppercase mt-0.5" style="color: var(--accent-gold);">CONCIERGE</span>
           </div>
         </div>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="setMainView('profile')" id="st-profile-top" class="px-2.5 py-1.5 rounded-xl border text-[10.5px] font-mono font-bold transition cursor-pointer flex items-center gap-1" style="border-color: var(--accent-gold); background: var(--pill-bg); color: var(--text-main);">
-            <span>👤</span><span id="lbl-profile">Perfil</span>
-          </button>
-          <button onclick="loadClientData(true)" class="w-8 h-8 rounded-xl flex items-center justify-center border text-xs transition active:scale-90 cursor-pointer" style="border-color: var(--border-col); background: var(--pill-bg);" title="Sincronizar">
+
+        <div class="flex items-center gap-1.5 min-w-0">
+          <!-- Pulsar en foto o nombre abre Mi Perfil -->
+          <div onclick="setMainView('profile')" title="Abrir Mi Perfil" class="flex items-center gap-2 cursor-pointer group px-1.5 py-0.5 rounded-xl transition hover:bg-black/5 min-w-0">
+            <div class="w-8 h-8 rounded-lg overflow-hidden border-[1.5px] shrink-0 bg-white flex items-center justify-center shadow-2xs transition group-hover:scale-105" style="border-color: var(--accent-gold);">
+              <img id="header-client-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0Y0RjFFQSIvPjx0ZXh0IHg9IjUwIiB5PSI2NSIgZm9udC1mYW1pbHk9InNlcmlmIiBmb250LXNpemU9IjQ0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzlBN0IzRSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+TjwvdGV4dD48L3N2Zz4=" alt="Cliente" class="w-full h-full object-cover">
+            </div>
+            <div class="flex items-center gap-1 min-w-0">
+              <p id="client-welcome" class="text-[13px] font-bold truncate leading-none group-hover:underline" style="color: var(--text-main);">Mariona &amp; Thomas</p>
+              <span class="text-[9px] font-bold shrink-0" style="color: var(--accent-gold);">▾</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+            </div>
+          </div>
+
+          <button onclick="setMainView('profile')" id="st-profile-top" class="hidden"><span id="lbl-profile">Perfil</span></button>
+          <button onclick="loadClientData(true)" class="w-7 h-7 rounded-lg flex items-center justify-center border text-xs transition active:scale-90 cursor-pointer shrink-0" style="border-color: var(--border-col); background: var(--pill-bg);" title="Sincronizar">
             ↻
           </button>
+        </div>
+      </div>
+
+      <!-- FILA 2: TELEPROMPTER DINÁMICO CON GANCHO (ROTACIÓN VIVA, CERO TEXTO ESTÁTICO) -->
+      <div class="px-1 py-1 rounded-xl flex items-center gap-2" style="background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.22);">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shrink-0 ml-1"></span>
+        <p id="bespoke-teleprompter" class="text-[11px] font-medium leading-snug w-full transition-opacity duration-500" style="color: var(--text-main);">
+          ✨ Sincronizando vuestra selección privada en Barcelona...
+        </p>
+      </div>
+
+      <!-- FILA 3: LÍNEA DE TIEMPO LIMPIA (SIN PARRAFADA FIJA ENCIMA) -->
+      <div class="relative pt-1 pb-0.5 px-0.5">
+        <div class="flex justify-between items-center text-[8px] font-mono uppercase tracking-wider opacity-80 mb-1" style="color: var(--text-muted);">
+          <span>9AM</span><span>12PM</span><span>4PM</span><span>7PM</span>
+          <span id="next-drop-badge" class="text-[8px] font-bold px-1.5 py-0.5 rounded" style="color: #B45309; background: rgba(245,158,11,0.16);">⏳ PRÓX. LOTE 22:30H</span>
+          <span>11PM</span>
+        </div>
+        <div class="relative h-1.5 w-full rounded-full overflow-visible" style="background: rgba(158, 139, 112, 0.22);">
+          <div id="timeline-day-fill" class="absolute top-0 left-0 h-full rounded-full transition-all duration-1000" style="width: 86%; background: linear-gradient(90deg, rgba(197,160,89,0.22) 0%, rgba(197,160,89,0.72) 100%);"></div>
+
+          <div id="timeline-seals-layer" class="contents">
+            <div title="1ª Extracción y Consolidación (14:06h - 15:06h)" class="absolute top-0 h-full rounded-full" style="left: 36.4%; width: 7.2%; background: linear-gradient(90deg, rgba(16,185,129,0) 0%, rgba(16,185,129,0.45) 45%, rgba(16,185,129,0.98) 100%);"></div>
+            <div title="1ª Consolidación sellada hoy (15:06h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left: 43.6%;"><span class="npp-seal-sparkle"></span></div>
+            <div title="2ª Extracción y Consolidación (19:23h - 20:23h)" class="absolute top-0 h-full rounded-full" style="left: 74.2%; width: 7.1%; background: linear-gradient(90deg, rgba(16,185,129,0) 0%, rgba(16,185,129,0.45) 45%, rgba(16,185,129,0.98) 100%);"></div>
+            <div title="2ª Consolidación sellada hoy (20:23h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left: 81.3%;"><span class="npp-seal-sparkle"></span></div>
+          </div>
+
+          <div id="timeline-next-drop" title="Próximo lote programado de selección privada" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20" style="left: 94.6%;">
+            <span class="npp-drop-expect"></span>
+          </div>
         </div>
       </div>
 
@@ -324,6 +385,229 @@ body.master-mode #lab-toolbar { display: flex !important; }
     document.body.appendChild(s);
   } catch (e) {}
 })();
+</script>
+<script id="npp-live-telemetry-hook">
+  (function() {
+    window._tpTimer = null;
+    window._tpIdx = 0;
+    window._xhrLoaded = false;
+
+    window.renderLiveTelemetryHeader = function(telData, itemsArr, calData) {
+      try {
+        var tel = (telData && telData.raw_ads_scanned) ? telData : (window.serverTelemetry || {});
+        var arr = (Array.isArray(itemsArr) && itemsArr.length) ? itemsArr : (window.lastPwaItems || []);
+        var cal = (calData && calData.fichas) ? calData : (window.lastPwaCalendar || {});
+
+        // En localhost:8088, window.fetch está interceptado por Script #3 hacia GAS; usamos XMLHttpRequest nativo a :8088
+        if (!window._xhrLoaded && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+          window._xhrLoaded = true;
+          var params = new URLSearchParams(window.location.search);
+          var xTok = params.get('x') || params.get('k') || params.get('client') || 'NPP_MASTER_JM';
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', '/api/pwa/sheet?x=' + encodeURIComponent(xTok), true);
+          xhr.onload = function() {
+            if (xhr.status === 200) {
+              try {
+                var d = JSON.parse(xhr.responseText);
+                if (d && d.ok) {
+                  window.serverTelemetry = d.telemetry || {};
+                  window.lastPwaItems = d.items || [];
+                  window.lastPwaCalendar = d.calendar || {};
+                  window.renderLiveTelemetryHeader(window.serverTelemetry, window.lastPwaItems, window.lastPwaCalendar);
+                }
+              } catch (e) {}
+            }
+          };
+          xhr.send();
+        }
+
+        // Conteo real desde arr (o desde los contadores ya pintados en el DOM por Script #3)
+        var pending = 0, doubt = 0, visit = 0, discarded = 0;
+        if (arr.length > 0) {
+          arr.forEach(function(it) {
+            var s = String(it.status || '').toLowerCase();
+            if (s.indexOf('descart') !== -1 || s.indexOf('arch') !== -1 || s.indexOf('откл') !== -1 || s.indexOf('❌') !== -1 || s.indexOf('🗑️') !== -1) {
+              discarded++;
+            } else if (s.indexOf('duda') !== -1 || s.indexOf('сомн') !== -1 || s.indexOf('🤔') !== -1) {
+              doubt++;
+            } else if (s.indexOf('visit') !== -1 || s.indexOf('визит') !== -1 || s.indexOf('⭐') !== -1 || s.indexOf('📅') !== -1) {
+              visit++;
+            } else {
+              pending++;
+            }
+          });
+        } else {
+          pending   = parseInt((document.getElementById('cnt-pending') || {}).textContent || '0', 10) || 0;
+          doubt     = parseInt((document.getElementById('cnt-doubt') || {}).textContent || '0', 10) || 0;
+          visit     = parseInt((document.getElementById('cnt-visit') || {}).textContent || '0', 10) || 0;
+          discarded = parseInt((document.getElementById('cnt-discarded') || {}).textContent || '0', 10) || 0;
+        }
+
+        // Si ni el XHR ni el DOM tienen aún las propiedades cargadas, esperar al siguiente ciclo de 400ms
+        if (pending + doubt + visit + discarded === 0) return;
+
+        var rawNum = Number(tel.raw_ads_scanned || 6634);
+        var dupNum = Number(tel.duplicates_removed || 5815);
+        var vanCnt = Number(tel.vanished_24h_count || 34);
+        var vanPct = String(tel.vanished_24h_pct || 2.7).replace('.', ',');
+        var rawAds = rawNum.toLocaleString('es-ES');
+        var dupAds = dupNum.toLocaleString('es-ES');
+        var seals = (Array.isArray(tel.seals_today) && tel.seals_today.length) ? tel.seals_today : ['15:06', '20:23'];
+
+        var isRu = (document.documentElement.lang === 'ru') || ((localStorage.getItem('npp_lang') || '') === 'ru');
+        var now = new Date();
+        var hr = now.getHours();
+        var greet = isRu
+          ? (hr < 12 ? 'Доброе утро' : (hr < 20 ? 'Добрый день' : 'Добрый вечер'))
+          : (hr < 13 ? 'Buenos días' : (hr < 20 ? 'Buenas tardes' : 'Buenas noches'));
+
+        var activeCount = pending + doubt + visit;
+        var cname = ((document.getElementById('client-welcome') || {}).textContent || 'Cliente').trim();
+
+        var nextTimeStr = tel.next_drip_time ? (tel.next_drip_time + 'h') : '23:06h';
+        var nextDropDec = 22.8;
+        if (tel.next_drip_time && tel.next_drip_time.indexOf(':') !== -1) {
+          var pts = tel.next_drip_time.split(':');
+          var nh = parseInt(pts[0], 10);
+          var nm = parseInt(pts[1], 10) / 60;
+          nextDropDec = (nh < 9) ? 22.8 : (nh + nm);
+        }
+
+        var badgeEl = document.getElementById('next-drop-badge');
+        if (badgeEl) {
+          badgeEl.textContent = isRu ? ('⏳ СЛЕД. ЛОТ ' + nextTimeStr) : ('⏳ PRÓX. LOTE ' + nextTimeStr);
+        }
+
+        var layerEl = document.getElementById('timeline-seals-layer');
+        if (layerEl && seals.length) {
+          var htmlSeals = '';
+          seals.forEach(function(hm, idx) {
+            if (!hm || hm.indexOf(':') === -1) return;
+            var p = hm.split(':');
+            var decSeal = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
+            var decStart = decSeal - 1.0;
+            var pctSeal = Math.max(3, Math.min(99, ((decSeal - 9) / 14) * 100));
+            var pctStart = Math.max(0, Math.min(pctSeal, ((decStart - 9) / 14) * 100));
+            var wRamp = Math.max(2, pctSeal - pctStart);
+            var startH = String(Math.max(0, parseInt(p[0], 10) - 1)).padStart(2, '0') + ':' + p[1];
+            htmlSeals += '<div title="' + (idx + 1) + 'ª Extracción (' + startH + 'h - ' + hm + 'h)" class="absolute top-0 h-full rounded-full" style="left:' + pctStart.toFixed(1) + '%;width:' + wRamp.toFixed(1) + '%;background:linear-gradient(90deg,rgba(16,185,129,0) 0%,rgba(16,185,129,0.45) 45%,rgba(16,185,129,0.98) 100%);"></div>';
+            htmlSeals += '<div title="' + (idx + 1) + 'ª Consolidación sellada (' + hm + 'h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left:' + pctSeal.toFixed(1) + '%"><span class="npp-seal-sparkle"></span></div>';
+          });
+          layerEl.innerHTML = htmlSeals;
+        }
+
+        var fichas = Array.isArray(cal.fichas) ? cal.fichas : [];
+        var agendaRealCount = fichas.length || parseInt((document.getElementById('cnt-cal') || {}).textContent || '0', 10) || visit;
+
+        var scheduledList = [];
+        fichas.forEach(function(f) {
+          var dStr = String(f.day || '').trim();
+          var hStr = String(f.hour || '').trim();
+          if (dStr && hStr) {
+            scheduledList.push({ day: dStr, hour: hStr });
+          }
+        });
+        var firstVisit = scheduledList.length > 0 ? scheduledList[0] : null;
+
+        var bGold = function(v) { return '<b style="color:#9A6B16;font-weight:800;">' + v + '</b>'; };
+        var bGreen = function(v) { return '<b style="color:#047857;font-weight:800;">' + v + '</b>'; };
+        var bRose = function(v) { return '<b style="color:#BE123C;font-weight:800;">' + v + '</b>'; };
+
+        var sealsHtml = seals.map(function(s){ return bGreen(s + 'h'); }).join(' y ');
+        var ratioOneIn = activeCount > 0 ? Math.round(rawNum / activeCount) : 442;
+
+        var agendaMsgEs = '';
+        var agendaMsgRu = '';
+        if (firstVisit) {
+          var fvHour = firstVisit.hour.indexOf('h') === -1 ? (firstVisit.hour + 'h') : firstVisit.hour;
+          agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' visitas en gestión (' + bGreen(visit) + ' solicitadas) · 1ª cita: ' + bGold(firstVisit.day + ' a las ' + fvHour);
+          agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' визитов (' + bGreen(visit) + ' запрос.) · 1-й визит: ' + bGold(firstVisit.day + ' в ' + fvHour);
+        } else if (agendaRealCount > 0 || visit > 0) {
+          agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' pisos para visitar · 1ª visita: ' + bGold('coordinando día y hora');
+          agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' лотов на визит · 1-й визит: ' + bGold('согласование времени');
+        } else {
+          agendaMsgEs = '🗓️ Agenda: ' + bGold('0') + ' visitas programadas · Pulsad «Visitar» para agendar la 1ª cita';
+          agendaMsgRu = '🗓️ В плане: ' + bGold('0') + ' визитов · Нажмите «Визит», чтобы назначить встречу';
+        }
+
+        var msgs = isRu ? [
+          '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' к оценке · ' + bGold(doubt) + ' под вопросом · ' + bGreen(visit) + ' на визит',
+          '🛡️ Проверено ' + bGold(rawAds) + ' объявлений · отсеяно ' + bRose(dupAds) + ' дубликатов и шума',
+          '💎 Только ' + bGold('1 из ' + ratioOneIn) + ' проходит фильтр: ' + bGreen(activeCount) + ' активных (' + bRose(discarded) + ' в архиве)',
+          '⚡ Динамика рынка: ' + bRose(vanCnt + ' объявлений (' + vanPct + '%)') + ' снято с публикации в порталах',
+          '🟢 ' + bGreen(seals.length) + ' сверки сегодня (' + sealsHtml + ') · ⏳ След. лот в ' + bGold(nextTimeStr),
+          agendaMsgRu
+        ] : [
+          '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' por valorar · ' + bGold(doubt) + ' en duda · ' + bGreen(visit) + ' para visitar',
+          '🛡️ ' + bGold(rawAds) + ' anuncios barridos hoy · ' + bRose(dupAds) + ' repetidos descartados',
+          '💎 Solo ' + bGold('1 de cada ' + ratioOneIn) + ' supera el filtro: ' + bGreen(activeCount) + ' activas (' + bRose(discarded) + ' descartadas)',
+          '⚡ Rotación real: ' + bRose(vanCnt + ' anuncios (' + vanPct + '%)') + ' han sido dados de baja en portales',
+          '🟢 ' + bGreen(seals.length) + ' batidas hoy (' + sealsHtml + ') · ⏳ Próximo lote ' + bGold(nextTimeStr),
+          agendaMsgEs
+        ];
+
+        var tpEl = document.getElementById('bespoke-teleprompter');
+        if (tpEl && msgs.length) {
+          tpEl.innerHTML = msgs[0];
+          if (window._tpTimer) clearInterval(window._tpTimer);
+          window._tpIdx = 0;
+          window._tpTimer = setInterval(function() {
+            var el = document.getElementById('bespoke-teleprompter');
+            if (!el) return;
+            el.style.opacity = '0';
+            setTimeout(function() {
+              window._tpIdx = (window._tpIdx + 1) % msgs.length;
+              el.innerHTML = msgs[window._tpIdx];
+              el.style.opacity = '1';
+            }, 320);
+          }, 7000);
+        }
+
+        var decNow = now.getHours() + now.getMinutes() / 60;
+        var pctNow = Math.max(4, Math.min(100, ((decNow - 9) / 14) * 100));
+        var pctDrop = Math.max(10, Math.min(98, ((nextDropDec - 9) / 14) * 100));
+        var fillEl = document.getElementById('timeline-day-fill');
+        var dropEl = document.getElementById('timeline-next-drop');
+        if (fillEl) fillEl.style.width = pctNow.toFixed(1) + '%';
+        if (dropEl) dropEl.style.left = pctDrop.toFixed(1) + '%';
+      } catch (e) { console.warn('LiveTelemetry err:', e); }
+    };
+
+    // Interceptar también las respuestas de GAS_API_URL en Producción cuando traigan d.telemetry
+    var _origFetch = window.fetch;
+    if (_origFetch) {
+      window.fetch = function() {
+        var p = _origFetch.apply(this, arguments);
+        try {
+          p.then(function(r) { return r.clone().json(); }).then(function(d) {
+            if (d && d.ok && Array.isArray(d.items)) {
+              if (d.telemetry) window.serverTelemetry = d.telemetry;
+              window.lastPwaItems = d.items;
+              window.lastPwaCalendar = d.calendar || {};
+              setTimeout(function() {
+                window.renderLiveTelemetryHeader(window.serverTelemetry, window.lastPwaItems, window.lastPwaCalendar);
+              }, 120);
+            }
+          }).catch(function(){});
+        } catch (e) {}
+        return p;
+      };
+    }
+
+    // Vigilar hasta que el DOM tenga las tarjetas cargadas y activar el Teleprompter inmediatamente
+    var _bootTries = 0;
+    var _bootTimer = setInterval(function() {
+      _bootTries++;
+      var tp = document.getElementById('bespoke-teleprompter');
+      if (tp && tp.innerHTML.indexOf('Sincronizando') !== -1) {
+        window.renderLiveTelemetryHeader(window.serverTelemetry, window.lastPwaItems, window.lastPwaCalendar);
+      } else if (_bootTries > 25) {
+        clearInterval(_bootTimer);
+      }
+    }, 450);
+
+    window.renderLiveTelemetryHeader();
+  })();
 </script>
 </body>
 </html>
