@@ -167,7 +167,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
         <span class="text-emerald-400 font-bold">👤 CLIENTE (SHEET REAL):</span>
         <button onclick="switchClient('mariona')" id="btn-cl-mariona" class="px-2.5 py-1 rounded-md bg-emerald-600 text-white font-bold transition cursor-pointer">Mariona & Thomas</button>
         <button onclick="switchClient('olga')" id="btn-cl-olga" class="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition cursor-pointer">Olga (RU 🇷🇺)</button>
-        <button onclick="switchClient('larisa')" id="btn-cl-larisa" class="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition cursor-pointer">Larisa (RU 🇷🇺)</button>
+        <!-- Cliente en BAJA oculto: <button onclick="switchClient('larisa')" id="btn-cl-larisa" class="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition cursor-pointer">Larisa (RU 🇷🇺)</button> -->
       </div>
     </div>
   </div>
@@ -381,6 +381,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
   } catch (e) {}
 })();
 </script>
+<script id="npp-baja-clients-state">window.bajaClients = ["larisa"]; (function(){ try { (window.bajaClients||[]).forEach(function(s){ var b=document.getElementById("btn-cl-"+s); if(b) b.style.display="none"; }); } catch(e){} })();</script>
 <script id="npp-live-telemetry-hook">
   (function() {
     window._tpTimer = null;
