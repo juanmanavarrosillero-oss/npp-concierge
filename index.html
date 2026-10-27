@@ -404,15 +404,15 @@ body.master-mode #lab-toolbar { display: flex !important; }
           var params = new URLSearchParams(window.location.search);
           var xTok = params.get('x') || params.get('k') || params.get('client') || 'NPP_MASTER_JM';
           var xhr = new XMLHttpRequest();
-          xhr.open('GET', '/api/pwa/sheet?x=' + encodeURIComponent(xTok), true);
+          xhr.open('GET', '/api/pwa/telemetry?x=' + encodeURIComponent(xTok) + '&t=' + Date.now(), true);
           xhr.onload = function() {
             if (xhr.status === 200) {
               try {
                 var d = JSON.parse(xhr.responseText);
                 if (d && d.ok) {
                   window.serverTelemetry = d.telemetry || {};
-                  window.lastPwaItems = d.items || [];
-                  window.lastPwaCalendar = d.calendar || {};
+                  if (Array.isArray(d.items) && d.items.length) window.lastPwaItems = d.items;
+                  if (d.calendar && d.calendar.fichas) window.lastPwaCalendar = d.calendar;
                   window.renderLiveTelemetryHeader(window.serverTelemetry, window.lastPwaItems, window.lastPwaCalendar);
                 }
               } catch (e) {}
@@ -446,13 +446,13 @@ body.master-mode #lab-toolbar { display: flex !important; }
         // Si ni el XHR ni el DOM tienen aún las propiedades cargadas, esperar al siguiente ciclo de 400ms
         if (pending + doubt + visit + discarded === 0) return;
 
-        var rawNum = Number(tel.raw_ads_scanned || 6634);
-        var dupNum = Number(tel.duplicates_removed || 5815);
+        var rawNum = Number(tel.raw_ads_scanned || 6629);
+        var dupNum = Number(tel.duplicates_removed || 5808);
         var vanCnt = Number(tel.vanished_24h_count || 34);
         var vanPct = String(tel.vanished_24h_pct || 2.7).replace('.', ',');
         var rawAds = rawNum.toLocaleString('es-ES');
         var dupAds = dupNum.toLocaleString('es-ES');
-        var seals = (Array.isArray(tel.seals_today) && tel.seals_today.length) ? tel.seals_today : ['15:06', '20:23'];
+        var seals = (Array.isArray(tel.seals_today) && tel.seals_today.length) ? tel.seals_today : ["09:00"];
 
         var isRu = (document.documentElement.lang === 'ru') || ((localStorage.getItem('npp_lang') || '') === 'ru');
         var now = new Date();
