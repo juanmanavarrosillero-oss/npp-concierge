@@ -217,24 +217,19 @@ body.master-mode #lab-toolbar { display: flex !important; }
         </p>
       </div>
 
-      <!-- FILA 3: LÍNEA DE TIEMPO LIMPIA (SIN PARRAFADA FIJA ENCIMA) -->
+      <!-- FILA 3: LÍNEA DE TIEMPO LIMPIA (100% DÍA DE HOY, CERO DATOS DE AYER) -->
       <div class="relative pt-1 pb-0.5 px-0.5">
         <div class="flex justify-between items-center text-[8px] font-mono uppercase tracking-wider opacity-80 mb-1" style="color: var(--text-muted);">
           <span>9AM</span><span>12PM</span><span>4PM</span><span>7PM</span>
-          <span id="next-drop-badge" class="text-[8px] font-bold px-1.5 py-0.5 rounded" style="color: #B45309; background: rgba(245,158,11,0.16);">⏳ PRÓX. LOTE 22:30H</span>
+          <span id="next-drop-badge" class="text-[8px] font-bold px-1.5 py-0.5 rounded" style="color: #B45309; background: rgba(245,158,11,0.16);">⏳ HOY · EN CURSO</span>
           <span>11PM</span>
         </div>
         <div class="relative h-1.5 w-full rounded-full overflow-visible" style="background: rgba(158, 139, 112, 0.22);">
-          <div id="timeline-day-fill" class="absolute top-0 left-0 h-full rounded-full transition-all duration-1000" style="width: 86%; background: linear-gradient(90deg, rgba(197,160,89,0.22) 0%, rgba(197,160,89,0.72) 100%);"></div>
+          <div id="timeline-day-fill" class="absolute top-0 left-0 h-full rounded-full transition-all duration-1000" style="width: 0%; background: linear-gradient(90deg, rgba(197,160,89,0.22) 0%, rgba(197,160,89,0.72) 100%);"></div>
 
-          <div id="timeline-seals-layer" class="contents">
-            <div title="1ª Extracción y Consolidación (14:06h - 15:06h)" class="absolute top-0 h-full rounded-full" style="left: 36.4%; width: 7.2%; background: linear-gradient(90deg, rgba(16,185,129,0) 0%, rgba(16,185,129,0.45) 45%, rgba(16,185,129,0.98) 100%);"></div>
-            <div title="1ª Consolidación sellada hoy (15:06h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left: 43.6%;"><span class="npp-seal-sparkle"></span></div>
-            <div title="2ª Extracción y Consolidación (19:23h - 20:23h)" class="absolute top-0 h-full rounded-full" style="left: 74.2%; width: 7.1%; background: linear-gradient(90deg, rgba(16,185,129,0) 0%, rgba(16,185,129,0.45) 45%, rgba(16,185,129,0.98) 100%);"></div>
-            <div title="2ª Consolidación sellada hoy (20:23h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left: 81.3%;"><span class="npp-seal-sparkle"></span></div>
-          </div>
+          <div id="timeline-seals-layer" class="contents"></div>
 
-          <div id="timeline-next-drop" title="Próximo lote programado de selección privada" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20" style="left: 94.6%;">
+          <div id="timeline-next-drop" title="Próximo lote programado hoy" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20" style="left: 0%; opacity: 0;">
             <span class="npp-drop-expect"></span>
           </div>
         </div>
@@ -428,7 +423,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
             var s = String(it.status || '').toLowerCase();
             if (s.indexOf('descart') !== -1 || s.indexOf('arch') !== -1 || s.indexOf('откл') !== -1 || s.indexOf('❌') !== -1 || s.indexOf('🗑️') !== -1) {
               discarded++;
-            } else if (s.indexOf('duda') !== -1 || s.indexOf('сомн') !== -1 || s.indexOf('🤔') !== -1) {
+            } else if (s.indexOf('duda') !== -1 || s.indexOf('вопрос') !== -1 || s.indexOf('сомн') !== -1 || s.indexOf('🤔') !== -1) {
               doubt++;
             } else if (s.indexOf('visit') !== -1 || s.indexOf('визит') !== -1 || s.indexOf('⭐') !== -1 || s.indexOf('📅') !== -1) {
               visit++;
@@ -443,133 +438,169 @@ body.master-mode #lab-toolbar { display: flex !important; }
           discarded = parseInt((document.getElementById('cnt-discarded') || {}).textContent || '0', 10) || 0;
         }
 
-        // Si ni el XHR ni el DOM tienen aún las propiedades cargadas, esperar al siguiente ciclo de 400ms
-        if (pending + doubt + visit + discarded === 0) return;
-
-        var rawNum = Number(tel.raw_ads_scanned || 6629);
-        var dupNum = Number(tel.duplicates_removed || 5808);
-        var vanCnt = Number(tel.vanished_24h_count || 34);
-        var vanPct = String(tel.vanished_24h_pct || 2.7).replace('.', ',');
-        var rawAds = rawNum.toLocaleString('es-ES');
-        var dupAds = dupNum.toLocaleString('es-ES');
-        var seals = (Array.isArray(tel.seals_today) && tel.seals_today.length) ? tel.seals_today : ["09:00"];
-
         var isRu = (document.documentElement.lang === 'ru') || ((localStorage.getItem('npp_lang') || '') === 'ru');
-        var now = new Date();
-        var hr = now.getHours();
-        var greet = isRu
-          ? (hr < 12 ? 'Доброе утро' : (hr < 20 ? 'Добрый день' : 'Добрый вечер'))
-          : (hr < 13 ? 'Buenos días' : (hr < 20 ? 'Buenas tardes' : 'Buenas noches'));
+          var now = new Date();
+          var hr = now.getHours();
+          var todayStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
 
-        var activeCount = pending + doubt + visit;
-        var cname = ((document.getElementById('client-welcome') || {}).textContent || 'Cliente').trim();
+          // 1. PINTAR SIEMPRE LA BARRA DE TIEMPO DEL DÍA DE HOY (Sin esperar a que carguen las tarjetas)
+          var decNow = hr + (now.getMinutes() / 60);
+          var pctNow = Math.max(0, Math.min(100, ((decNow - 9) / 14) * 100));
+          var fillEl = document.getElementById('timeline-day-fill');
+          if (fillEl) fillEl.style.width = pctNow.toFixed(1) + '%';
 
-        var nextTimeStr = tel.next_drip_time ? (tel.next_drip_time + 'h') : '23:06h';
-        var nextDropDec = 22.8;
-        if (tel.next_drip_time && tel.next_drip_time.indexOf(':') !== -1) {
-          var pts = tel.next_drip_time.split(':');
-          var nh = parseInt(pts[0], 10);
-          var nm = parseInt(pts[1], 10) / 60;
-          nextDropDec = (nh < 9) ? 22.8 : (nh + nm);
-        }
-
-        var badgeEl = document.getElementById('next-drop-badge');
-        if (badgeEl) {
-          badgeEl.textContent = isRu ? ('⏳ СЛЕД. ЛОТ ' + nextTimeStr) : ('⏳ PRÓX. LOTE ' + nextTimeStr);
-        }
-
-        var layerEl = document.getElementById('timeline-seals-layer');
-        if (layerEl && seals.length) {
-          var htmlSeals = '';
-          seals.forEach(function(hm, idx) {
-            if (!hm || hm.indexOf(':') === -1) return;
+          // Filtrar sellos: SOLO si seals_date es HOY y la hora del sello <= hora actual de hoy
+          var rawSeals = (!tel.seals_date || tel.seals_date === todayStr) && Array.isArray(tel.seals_today) ? tel.seals_today : [];
+          var seals = rawSeals.filter(function(hm) {
+            if (!hm || hm.indexOf(':') === -1) return false;
             var p = hm.split(':');
-            var decSeal = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
-            var decStart = decSeal - 1.0;
-            var pctSeal = Math.max(3, Math.min(99, ((decSeal - 9) / 14) * 100));
-            var pctStart = Math.max(0, Math.min(pctSeal, ((decStart - 9) / 14) * 100));
-            var wRamp = Math.max(2, pctSeal - pctStart);
-            var startH = String(Math.max(0, parseInt(p[0], 10) - 1)).padStart(2, '0') + ':' + p[1];
-            htmlSeals += '<div title="' + (idx + 1) + 'ª Extracción (' + startH + 'h - ' + hm + 'h)" class="absolute top-0 h-full rounded-full" style="left:' + pctStart.toFixed(1) + '%;width:' + wRamp.toFixed(1) + '%;background:linear-gradient(90deg,rgba(16,185,129,0) 0%,rgba(16,185,129,0.45) 45%,rgba(16,185,129,0.98) 100%);"></div>';
-            htmlSeals += '<div title="' + (idx + 1) + 'ª Consolidación sellada (' + hm + 'h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left:' + pctSeal.toFixed(1) + '%"><span class="npp-seal-sparkle"></span></div>';
+            var decS = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
+            return decS <= (decNow + 0.05);
           });
-          layerEl.innerHTML = htmlSeals;
-        }
 
-        var fichas = Array.isArray(cal.fichas) ? cal.fichas : [];
-        var agendaRealCount = fichas.length || parseInt((document.getElementById('cnt-cal') || {}).textContent || '0', 10) || visit;
-
-        var scheduledList = [];
-        fichas.forEach(function(f) {
-          var dStr = String(f.day || '').trim();
-          var hStr = String(f.hour || '').trim();
-          if (dStr && hStr) {
-            scheduledList.push({ day: dStr, hour: hStr });
+          // Calcular próximo lote real de HOY (si el guardado ya pasó de hora hoy, avanzar al siguiente intervalo de hoy)
+          var ivMin = Number(tel.interval_minutes || 45);
+          var nextDropDec = decNow + (ivMin / 60);
+          var nextTimeStr = '';
+          if (tel.next_drip_time && tel.next_drip_time.indexOf(':') !== -1) {
+            var pts = tel.next_drip_time.split(':');
+            var candDec = parseInt(pts[0], 10) + (parseInt(pts[1], 10) / 60);
+            while (candDec <= decNow + 0.02 && candDec < 23) {
+              candDec += (ivMin / 60);
+            }
+            nextDropDec = Math.min(23, Math.max(9.2, candDec));
           }
-        });
-        var firstVisit = scheduledList.length > 0 ? scheduledList[0] : null;
+          var nH = Math.floor(nextDropDec);
+          var nM = Math.round((nextDropDec - nH) * 60);
+          if (nM === 60) { nH += 1; nM = 0; }
+          nextTimeStr = String(nH).padStart(2, '0') + ':' + String(nM).padStart(2, '0') + 'h';
 
-        var bGold = function(v) { return '<b style="color:#9A6B16;font-weight:800;">' + v + '</b>'; };
-        var bGreen = function(v) { return '<b style="color:#047857;font-weight:800;">' + v + '</b>'; };
-        var bRose = function(v) { return '<b style="color:#BE123C;font-weight:800;">' + v + '</b>'; };
+          var bolsaCnt = Number(tel.bolsa_pending || 0);
+          var badgeEl = document.getElementById('next-drop-badge');
+          if (badgeEl) {
+            var bolsaSuffixEs = bolsaCnt > 0 ? (' · ' + bolsaCnt + ' EN BOLSA') : '';
+            var bolsaSuffixRu = bolsaCnt > 0 ? (' · ' + bolsaCnt + ' В РЕЗЕРВЕ') : '';
+            badgeEl.textContent = isRu ? ('⏳ СЛЕД. ЛОТ ' + nextTimeStr + bolsaSuffixRu) : ('⏳ PRÓX. LOTE ' + nextTimeStr + bolsaSuffixEs);
+          }
 
-        var sealsHtml = seals.map(function(s){ return bGreen(s + 'h'); }).join(' y ');
-        var ratioOneIn = activeCount > 0 ? Math.round(rawNum / activeCount) : 442;
+          var layerEl = document.getElementById('timeline-seals-layer');
+          if (layerEl) {
+            var htmlSeals = '';
+            seals.forEach(function(hm, idx) {
+              var p = hm.split(':');
+              var decSeal = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
+              var decStart = Math.max(9, decSeal - 1.0);
+              var pctSeal = Math.max(2, Math.min(99, ((decSeal - 9) / 14) * 100));
+              var pctStart = Math.max(0, Math.min(pctSeal, ((decStart - 9) / 14) * 100));
+              var wRamp = Math.max(1.5, pctSeal - pctStart);
+              var startH = String(Math.max(9, parseInt(p[0], 10) - 1)).padStart(2, '0') + ':' + p[1];
+              htmlSeals += '<div title="Hoy · ' + (idx + 1) + 'ª Extracción (' + startH + 'h - ' + hm + 'h)" class="absolute top-0 h-full rounded-full" style="left:' + pctStart.toFixed(1) + '%;width:' + wRamp.toFixed(1) + '%;background:linear-gradient(90deg,rgba(16,185,129,0) 0%,rgba(16,185,129,0.45) 45%,rgba(16,185,129,0.98) 100%);"></div>';
+              htmlSeals += '<div title="Hoy · ' + (idx + 1) + 'ª Consolidación sellada (' + hm + 'h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left:' + pctSeal.toFixed(1) + '%"><span class="npp-seal-sparkle"></span></div>';
+            });
+            layerEl.innerHTML = htmlSeals;
+          }
 
-        var agendaMsgEs = '';
-        var agendaMsgRu = '';
-        if (firstVisit) {
-          var fvHour = firstVisit.hour.indexOf('h') === -1 ? (firstVisit.hour + 'h') : firstVisit.hour;
-          agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' visitas en gestión (' + bGreen(visit) + ' solicitadas) · 1ª cita: ' + bGold(firstVisit.day + ' a las ' + fvHour);
-          agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' визитов (' + bGreen(visit) + ' запрос.) · 1-й визит: ' + bGold(firstVisit.day + ' в ' + fvHour);
-        } else if (agendaRealCount > 0 || visit > 0) {
-          agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' pisos para visitar · 1ª visita: ' + bGold('coordinando día y hora');
-          agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' лотов на визит · 1-й визит: ' + bGold('согласование времени');
-        } else {
-          agendaMsgEs = '🗓️ Agenda: ' + bGold('0') + ' visitas programadas · Pulsad «Visitar» para agendar la 1ª cita';
-          agendaMsgRu = '🗓️ В плане: ' + bGold('0') + ' визитов · Нажмите «Визит», чтобы назначить встречу';
-        }
+          var pctDrop = Math.max(2, Math.min(99, ((nextDropDec - 9) / 14) * 100));
+          var dropEl = document.getElementById('timeline-next-drop');
+          if (dropEl) {
+            dropEl.style.left = pctDrop.toFixed(1) + '%';
+            dropEl.style.opacity = (decNow < 23) ? '1' : '0';
+          }
 
-        var msgs = isRu ? [
-          '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' к оценке · ' + bGold(doubt) + ' под вопросом · ' + bGreen(visit) + ' на визит',
-          '🛡️ Проверено ' + bGold(rawAds) + ' объявлений · отсеяно ' + bRose(dupAds) + ' дубликатов и шума',
-          '💎 Только ' + bGold('1 из ' + ratioOneIn) + ' проходит фильтр: ' + bGreen(activeCount) + ' активных (' + bRose(discarded) + ' в архиве)',
-          '⚡ Динамика рынка: ' + bRose(vanCnt + ' объявлений (' + vanPct + '%)') + ' снято с публикации в порталах',
-          '🟢 ' + bGreen(seals.length) + ' сверки сегодня (' + sealsHtml + ') · ⏳ След. лот в ' + bGold(nextTimeStr),
-          agendaMsgRu
-        ] : [
-          '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' por valorar · ' + bGold(doubt) + ' en duda · ' + bGreen(visit) + ' para visitar',
-          '🛡️ ' + bGold(rawAds) + ' anuncios barridos hoy · ' + bRose(dupAds) + ' repetidos descartados',
-          '💎 Solo ' + bGold('1 de cada ' + ratioOneIn) + ' supera el filtro: ' + bGreen(activeCount) + ' activas (' + bRose(discarded) + ' descartadas)',
-          '⚡ Rotación real: ' + bRose(vanCnt + ' anuncios (' + vanPct + '%)') + ' han sido dados de baja en portales',
-          '🟢 ' + bGreen(seals.length) + ' batidas hoy (' + sealsHtml + ') · ⏳ Próximo lote ' + bGold(nextTimeStr),
-          agendaMsgEs
-        ];
+          // 2. Si ni el XHR ni el DOM tienen aún las propiedades cargadas, esperar al siguiente ciclo para los mensajes de conteo
+          if (pending + doubt + visit + discarded === 0) return;
 
-        var tpEl = document.getElementById('bespoke-teleprompter');
-        if (tpEl && msgs.length) {
-          tpEl.innerHTML = msgs[0];
-          if (window._tpTimer) clearInterval(window._tpTimer);
-          window._tpIdx = 0;
-          window._tpTimer = setInterval(function() {
-            var el = document.getElementById('bespoke-teleprompter');
-            if (!el) return;
-            el.style.opacity = '0';
-            setTimeout(function() {
-              window._tpIdx = (window._tpIdx + 1) % msgs.length;
-              el.innerHTML = msgs[window._tpIdx];
-              el.style.opacity = '1';
-            }, 320);
-          }, 7000);
-        }
+          var rawNum = Number(tel.raw_ads_scanned || 6629);
+          var dupNum = Number(tel.duplicates_removed || 5808);
+          var vanCnt = Number(tel.vanished_24h_count || 34);
+          var vanPct = String(tel.vanished_24h_pct || 2.7).replace('.', ',');
+          var rawAds = rawNum.toLocaleString('es-ES');
+          var dupAds = dupNum.toLocaleString('es-ES');
 
-        var decNow = now.getHours() + now.getMinutes() / 60;
-        var pctNow = Math.max(4, Math.min(100, ((decNow - 9) / 14) * 100));
-        var pctDrop = Math.max(10, Math.min(98, ((nextDropDec - 9) / 14) * 100));
-        var fillEl = document.getElementById('timeline-day-fill');
-        var dropEl = document.getElementById('timeline-next-drop');
-        if (fillEl) fillEl.style.width = pctNow.toFixed(1) + '%';
-        if (dropEl) dropEl.style.left = pctDrop.toFixed(1) + '%';
+          var greet = isRu
+            ? (hr < 12 ? 'Доброе утро' : (hr < 20 ? 'Добрый день' : 'Добрый вечер'))
+            : (hr < 13 ? 'Buenos días' : (hr < 20 ? 'Buenas tardes' : 'Buenas noches'));
+
+          var activeCount = pending + doubt + visit;
+          var totalSelectedForClient = activeCount + discarded;
+          var cname = (((document.getElementById('client-welcome') || {}).textContent || 'Cliente').replace(/\s*\([^)]*\)/g, '')).trim();
+
+          var fichas = Array.isArray(cal.fichas) ? cal.fichas : [];
+          var agendaRealCount = Math.max(fichas.length, parseInt((document.getElementById('cnt-cal') || {}).textContent || '0', 10) || 0, visit);
+
+          var scheduledList = [];
+          var todayShort = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0');
+          fichas.forEach(function(f) {
+            var dStr = String(f.day || '').trim();
+            var hStr = String(f.hour || '').trim();
+            if (dStr && hStr) {
+              // Si la cita es de HOY pero la hora ya pasó, no anunciarla como próxima cita pendiente
+              if (dStr.indexOf(todayShort) !== -1 && hStr.indexOf(':') !== -1) {
+                var hp = hStr.replace('h', '').split(':');
+                var visitDec = parseInt(hp[0], 10) + (parseInt(hp[1] || '0', 10) / 60);
+                if (visitDec + 0.5 < decNow) return;
+              }
+              scheduledList.push({ day: dStr, hour: hStr });
+            }
+          });
+          var firstVisit = scheduledList.length > 0 ? scheduledList[0] : null;
+
+          var bGold = function(v) { return '<b style="color:#9A6B16;font-weight:800;">' + v + '</b>'; };
+          var bGreen = function(v) { return '<b style="color:#047857;font-weight:800;">' + v + '</b>'; };
+          var bRose = function(v) { return '<b style="color:#BE123C;font-weight:800;">' + v + '</b>'; };
+
+          var sealsHtml = seals.length ? seals.map(function(s){ return bGreen(s + 'h'); }).join(' y ') : bGreen('09:00h');
+          var sealsCount = Math.max(1, seals.length);
+          var sealsWordEs = sealsCount === 1 ? 'batida hoy' : 'batidas hoy';
+          var sealsWordRu = sealsCount === 1 ? 'сверка сегодня' : 'сверки сегодня';
+          var ratioOneIn = totalSelectedForClient > 0 ? Math.max(1, Math.round(rawNum / totalSelectedForClient)) : 45;
+
+          var agendaMsgEs = '';
+          var agendaMsgRu = '';
+          if (firstVisit) {
+            var fvHour = firstVisit.hour.indexOf('h') === -1 ? (firstVisit.hour + 'h') : firstVisit.hour;
+            agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' visitas en gestión (' + bGreen(visit) + ' solicitadas) · 1ª cita: ' + bGold(firstVisit.day + ' a las ' + fvHour);
+            agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' визитов (' + bGreen(visit) + ' запрос.) · 1-й визит: ' + bGold(firstVisit.day + ' в ' + fvHour);
+          } else if (agendaRealCount > 0 || visit > 0) {
+            agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' pisos para visitar · 1ª visita: ' + bGold('coordinando día y hora');
+            agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' лотов на визит · 1-й визит: ' + bGold('согласование времени');
+          } else {
+            agendaMsgEs = '🗓️ Agenda: ' + bGold('0') + ' visitas programadas · Pulsad «Visitar» para agendar la 1ª cita';
+            agendaMsgRu = '🗓️ В плане: ' + bGold('0') + ' визитов · Нажмите «Визит», чтобы назначить встречу';
+          }
+
+          var msgs = isRu ? [
+            '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' к оценке · ' + bGold(doubt) + ' под вопросом · ' + bGreen(visit) + ' на визит',
+            '🛡️ Проверено ' + bGold(rawAds) + ' объявлений · отсеяно ' + bRose(dupAds) + ' дубликатов и шума',
+            '💎 Только ' + bGold('1 из ' + ratioOneIn) + ' проходит фильтр: ' + bGreen(activeCount) + ' активных (' + bRose(discarded) + ' в архиве)',
+            '⚡ Динамика рынка: ' + bRose(vanCnt + ' объявлений (' + vanPct + '%)') + ' снято с публикации в порталах',
+            '🟢 ' + bGreen(sealsCount) + ' ' + sealsWordRu + ' (' + sealsHtml + ') · ⏳ След. лот в ' + bGold(nextTimeStr + (bolsaCnt > 0 ? ' (+' + bolsaCnt + ' в резерве)' : '')),
+            agendaMsgRu
+          ] : [
+            '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' por valorar · ' + bGold(doubt) + ' en duda · ' + bGreen(visit) + ' para visitar',
+            '🛡️ ' + bGold(rawAds) + ' anuncios barridos hoy · ' + bRose(dupAds) + ' repetidos descartados',
+            '💎 Solo ' + bGold('1 de cada ' + ratioOneIn) + ' supera el filtro: ' + bGreen(activeCount) + ' activas (' + bRose(discarded) + ' descartadas)',
+            '⚡ Rotación real: ' + bRose(vanCnt + ' anuncios (' + vanPct + '%)') + ' han sido dados de baja en portales',
+            '🟢 ' + bGreen(sealsCount) + ' ' + sealsWordEs + ' (' + sealsHtml + ') · ⏳ Próximo lote ' + bGold(nextTimeStr + (bolsaCnt > 0 ? ' (+' + bolsaCnt + ' en bolsa)' : '')),
+            agendaMsgEs
+          ];
+
+          var tpEl = document.getElementById('bespoke-teleprompter');
+          if (tpEl && msgs.length) {
+            tpEl.innerHTML = msgs[0];
+            if (window._tpTimer) clearInterval(window._tpTimer);
+            window._tpIdx = 0;
+            window._tpTimer = setInterval(function() {
+              var el = document.getElementById('bespoke-teleprompter');
+              if (!el) return;
+              el.style.opacity = '0';
+              setTimeout(function() {
+                window._tpIdx = (window._tpIdx + 1) % msgs.length;
+                el.innerHTML = msgs[window._tpIdx];
+                el.style.opacity = '1';
+              }, 320);
+            }, 7000);
+          }
       } catch (e) { console.warn('LiveTelemetry err:', e); }
     };
 
