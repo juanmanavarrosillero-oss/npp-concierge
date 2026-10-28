@@ -168,6 +168,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
         <button onclick="switchClient('mariona')" id="btn-cl-mariona" class="px-2.5 py-1 rounded-md bg-emerald-600 text-white font-bold transition cursor-pointer">Mariona & Thomas</button>
         <button onclick="switchClient('olga')" id="btn-cl-olga" class="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition cursor-pointer">Olga (RU 🇷🇺)</button>
         <button onclick="switchClient('larisa')" id="btn-cl-larisa" class="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition cursor-pointer">Larisa (RU 🇷🇺)</button>
+          <button onclick="switchClient(\'andrii_anastasia\')" id="btn-cl-andrii_anastasia" class="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 transition text-white/80">Andrii + Anastasia (RU)</button>
       </div>
     </div>
   </div>
@@ -402,7 +403,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
               if (xt.status === 200) {
                 try {
                   var activeTargets = JSON.parse(xt.responseText) || {};
-                  ['mariona', 'olga', 'larisa'].forEach(function(slug) {
+                  ['mariona', 'olga', 'larisa', 'andrii_anastasia'].forEach(function(slug) {
                     var btn = document.getElementById('btn-cl-' + slug);
                     if (btn) {
                       btn.style.display = activeTargets[slug] ? '' : 'none';
