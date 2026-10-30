@@ -804,5 +804,423 @@ body.master-mode #lab-toolbar { display: flex !important; }
 })();
 </script>
 <!-- DREAMLIFE_SKIN_END -->
+<!-- NPP_AGENDA_URL_AUDITOR_START -->
+<div id="npp-url-auditor-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-3">
+  <div class="w-full max-w-md rounded-3xl p-4 sm:p-5 space-y-3.5 border shadow-2xl max-h-[90vh] overflow-y-auto" style="background: var(--bg-main); border-color: var(--accent-gold); color: var(--text-main);">
+    <div class="flex items-center justify-between border-b pb-2.5" style="border-color: var(--border-col);">
+      <div>
+        <span id="ua-kicker" class="text-[9.5px] font-mono font-bold uppercase tracking-wider" style="color: var(--accent-gold);">🔍 AUDITORÍA & ALTA DE ENLACE EXTERNO</span>
+        <h3 id="ua-title" class="font-serif-ed text-xl font-bold leading-tight">Cruzar Anuncio con Radar :8088</h3>
+      </div>
+      <button type="button" onclick="window.nppCloseUrlAuditor()" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border cursor-pointer" style="background: var(--pill-bg); border-color: var(--border-col);">✕</button>
+    </div>
+
+    <p id="ua-desc" class="text-[11.5px] leading-snug" style="color: var(--text-muted);">
+      Pega el enlace de cualquier anuncio y pulsa el botón. <b>Espera unos segundos mientras se hace la magia ✨</b>: extraeremos los datos en vivo, comprobaremos si ya existía en las batidas de <b>:8088</b> (y por qué motivo no se había incluido) y prepararemos su ficha para <b>«Valorar»</b>.
+    </p>
+
+    <div class="space-y-2">
+      <div class="flex gap-1.5">
+        <input id="ua-url-input" type="url" oninput="if(this.value.trim().startsWith('http') && this.value.trim().length > 18){clearTimeout(window._uaAutoT);window._uaAutoT=setTimeout(function(){window.nppAnalyzeExternalUrl();},220);}" onkeydown="if(event.key==='Enter'){event.preventDefault();window.nppAnalyzeExternalUrl();}" placeholder="https://www.idealista.com/inmueble/..." class="flex-1 rounded-xl px-3 py-2.5 text-xs font-mono border focus:outline-none" style="background: var(--bg-card); border-color: var(--border-col); color: var(--text-main);">
+        <button type="button" id="ua-btn-analyze" onclick="window.nppAnalyzeExternalUrl()" class="px-3.5 py-2.5 rounded-xl text-xs font-mono font-bold text-white shrink-0 cursor-pointer transition active:scale-95 shadow" style="background: var(--accent-sage);">
+          ✨ Extraer
+        </button>
+      </div>
+
+      <!-- CÁPSULA ANIMADA DE "MAGIA EN CURSO" -->
+      <div id="ua-magic-loader" class="hidden p-3.5 rounded-2xl border space-y-2 transition-all" style="background: var(--curated-bg); border-color: var(--accent-gold);">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg animate-spin inline-block">✨</span>
+          <div class="min-w-0 flex-1">
+            <p id="ua-magic-title" class="text-xs font-mono font-bold" style="color: var(--text-main);">
+              Haciendo magia... Espera unos segundos por favor
+            </p>
+            <p id="ua-magic-step" class="text-[11px] font-mono opacity-80 mt-0.5" style="color: var(--text-muted);">
+              1/3 · Abriendo enlace, extrayendo ficha y cruzando con las batidas de :8088...
+            </p>
+          </div>
+        </div>
+        <div class="w-full h-1.5 rounded-full overflow-hidden bg-black/10">
+          <div id="ua-magic-bar" class="h-full rounded-full transition-all duration-700" style="width: 35%; background: var(--accent-gold);"></div>
+        </div>
+      </div>
+
+      <div id="ua-error-box" class="hidden p-2.5 rounded-xl text-xs font-mono bg-rose-100 text-rose-800 border border-rose-300"></div>
+    </div>
+
+    <!-- RESULTADO DEL CRUCE CON :8088 Y MINIFICHA EDITABLE -->
+    <div id="ua-result-panel" class="hidden space-y-3 pt-1">
+      <div id="ua-verdict-banner" class="p-3 rounded-2xl border text-xs space-y-1"></div>
+
+      <div class="p-3 rounded-2xl border space-y-2.5" style="background: var(--bg-card); border-color: var(--border-col);">
+        <div class="flex items-center gap-3">
+          <img id="ua-prev-img" src="" alt="Preview" class="w-20 h-20 rounded-xl object-cover shrink-0 border bg-black/10" style="border-color: var(--border-col);" onerror="this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80'">
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex items-center justify-between gap-1">
+              <span id="ua-prev-boxid" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold text-white" style="background: var(--accent-gold);">NPP-ALQ-0000</span>
+              <span id="ua-prev-origin" class="text-[10px] font-mono opacity-75">Radar :8088</span>
+            </div>
+            <input id="ua-edit-title" type="text" class="w-full rounded-lg px-2 py-1 text-xs font-semibold border" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);" placeholder="Título del anuncio">
+            <input id="ua-edit-zone" type="text" class="w-full rounded-lg px-2 py-1 text-[11px] font-mono border" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);" placeholder="Barrio / Zona">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-1.5 text-[10px] font-mono">
+          <div>
+            <label class="block opacity-70 mb-0.5">Precio (€)</label>
+            <input id="ua-edit-price" type="number" step="25" class="w-full rounded-lg p-1.5 text-xs font-bold border text-center" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);">
+          </div>
+          <div>
+            <label class="block opacity-70 mb-0.5">Superf. (m²)</label>
+            <input id="ua-edit-m2" type="number" class="w-full rounded-lg p-1.5 text-xs font-bold border text-center" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);">
+          </div>
+          <div>
+            <label class="block opacity-70 mb-0.5">Habitac.</label>
+            <input id="ua-edit-rooms" type="number" class="w-full rounded-lg p-1.5 text-xs font-bold border text-center" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);">
+          </div>
+          <div>
+            <label class="block opacity-70 mb-0.5">Baños</label>
+            <input id="ua-edit-baths" type="number" class="w-full rounded-lg p-1.5 text-xs font-bold border text-center" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5 text-[10px] font-mono">
+          <div>
+            <label class="block opacity-70 mb-0.5">Agencia / Portal</label>
+            <input id="ua-edit-agency" type="text" class="w-full rounded-lg p-1.5 text-[11px] border" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);">
+          </div>
+          <div>
+            <label class="block opacity-70 mb-0.5">Pestaña en Valorar</label>
+            <select id="ua-edit-tab" class="w-full rounded-lg p-1.5 text-[11px] font-bold border" style="background: var(--pill-bg); border-color: var(--border-col); color: var(--text-main);"></select>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" id="ua-btn-commit" onclick="window.nppCommitExternalUrl()" class="w-full py-3 px-4 rounded-2xl text-xs font-mono font-bold text-white shadow-lg cursor-pointer transition active:scale-95 flex items-center justify-center gap-2" style="background: var(--accent-gold);">
+        <span>👉🏼</span> <span id="ua-lbl-commit">Incorporar Ficha a «Valorar»</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  window._uaLastAnalysis = null;
+  window._uaMagicTimer = null;
+
+  function isRuLang() {
+    return document.documentElement.lang === 'ru';
+  }
+
+  function injectAgendaAuditorBanner() {
+    var calSec = document.getElementById('calendar-section');
+    if (!calSec || document.getElementById('npp-agenda-auditor-launcher')) return;
+
+    var launcher = document.createElement('div');
+    launcher.id = 'npp-agenda-auditor-launcher';
+    launcher.className = 'prime-card rounded-3xl p-3.5 flex items-center justify-between gap-3 border-2';
+    launcher.style.borderColor = 'var(--accent-gold)';
+    launcher.style.background = 'var(--curated-bg)';
+    launcher.innerHTML =
+      '<div class="min-w-0 flex-1 space-y-0.5">' +
+        '<span id="ua-launch-kicker" class="text-[9.5px] font-mono font-bold uppercase tracking-wider block" style="color: var(--accent-gold);">🔗 AUDITORÍA DE ANUNCIOS EXTERNOS (:8088)</span>' +
+        '<h3 id="ua-launch-title" class="font-serif-ed text-lg font-bold leading-tight">¿Has visto un enlace fuera de tu selección?</h3>' +
+        '<p id="ua-launch-sub" class="text-[11px] leading-snug" style="color: var(--text-muted);">Pega la URL para extraer su ficha, verificar por qué no entró en las batidas y enviarla a <b>Valorar</b>.</p>' +
+      '</div>' +
+      '<button type="button" onclick="window.nppOpenUrlAuditor()" class="px-3.5 py-2.5 rounded-2xl text-xs font-mono font-bold text-white shrink-0 cursor-pointer shadow-md transition active:scale-95" style="background: var(--accent-sage);">' +
+        '<span id="ua-launch-btn">➕ Añadir URL</span>' +
+      '</button>';
+
+    calSec.insertBefore(launcher, calSec.firstChild);
+  }
+
+  function syncAuditorTranslations() {
+    var ru = isRuLang();
+    var mapTxt = {
+      'ua-launch-kicker': ru ? '🔗 ПРОВЕРКА ВНЕШНИХ ОБЪЯВЛЕНИЙ (:8088)' : '🔗 AUDITORÍA DE ANUNCIOS EXTERNOS (:8088)',
+      'ua-launch-title': ru ? 'Нашли объявление вне подборки?' : '¿Has visto un enlace fuera de tu selección?',
+      'ua-launch-sub': ru ? 'Вставьте ссылку: мы извлечем данные, проверим почему объект не попал в отбор, и добавим его в «Оценить».' : 'Pega la URL para extraer su ficha, verificar por qué no entró en las batidas y enviarla a <b>Valorar</b>.',
+      'ua-launch-btn': ru ? '➕ Добавить URL' : '➕ Añadir URL',
+      'ua-kicker': ru ? '🔍 АУДИТ И ИМПОРТ ПО ССЫЛКЕ' : '🔍 AUDITORÍA & ALTA DE ENLACE EXTERNO',
+      'ua-title': ru ? 'Проверка в базе радарa :8088' : 'Cruzar Anuncio con Radar :8088',
+      'ua-desc': ru ? 'Вставьте ссылку и нажмите кнопку. <b>Подождите несколько секунд, пока происходит магия ✨</b>: мы извлечем данные, проверим объект в базе <b>:8088</b> (и причину фильтрации) и подготовим карточку для <b>«Оценить»</b>.' : 'Pega el enlace de cualquier anuncio y pulsa el botón. <b>Espera unos segundos mientras se hace la magia ✨</b>: extraeremos los datos en vivo, comprobaremos si ya existía en las batidas de <b>:8088</b> (y por qué motivo no se había incluido) y prepararemos su ficha para <b>«Valorar»</b>.',
+      'ua-btn-analyze': ru ? '✨ Извлечь' : '✨ Extraer',
+      'ua-lbl-commit': ru ? 'Добавить карточку в «Оценить»' : 'Incorporar Ficha a «Valorar»'
+    };
+    Object.keys(mapTxt).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = mapTxt[id];
+    });
+  }
+
+  function startMagicLoader() {
+    var ru = isRuLang();
+    var loader = document.getElementById('ua-magic-loader');
+    var titleEl = document.getElementById('ua-magic-title');
+    var stepEl = document.getElementById('ua-magic-step');
+    var barEl = document.getElementById('ua-magic-bar');
+    if (!loader) return;
+
+    loader.classList.remove('hidden');
+    if (titleEl) {
+      titleEl.textContent = ru
+        ? 'Творим магию... Пожалуйста, подождите несколько секунд ✨'
+        : 'Haciendo magia... Espera unos segundos por favor ✨';
+    }
+    var steps = ru ? [
+      { pct: '35%', txt: '1/3 · Открываем объявление и сверяем с базой сканеров :8088...' },
+      { pct: '72%', txt: '2/3 · Извлекаем фото, цену, м² и проверяем критерии вашего профиля...' },
+      { pct: '92%', txt: '3/3 · Формируем персональную карточку для раздела «Оценить»...' }
+    ] : [
+      { pct: '35%', txt: '1/3 · Cruzando enlace con las batidas y el histórico de :8088...' },
+      { pct: '72%', txt: '2/3 · Extrayendo fotografía, precio, m² y auditando el motivo de filtro...' },
+      { pct: '92%', txt: '3/3 · Preparando tu ficha inteligente lista para pasar a «Valorar»...' }
+    ];
+    var idx = 0;
+    if (stepEl) stepEl.textContent = steps[0].txt;
+    if (barEl) barEl.style.width = steps[0].pct;
+
+    if (window._uaMagicTimer) clearInterval(window._uaMagicTimer);
+    window._uaMagicTimer = setInterval(function() {
+      idx = Math.min(steps.length - 1, idx + 1);
+      if (stepEl) stepEl.textContent = steps[idx].txt;
+      if (barEl) barEl.style.width = steps[idx].pct;
+    }, 1150);
+  }
+
+  function stopMagicLoader() {
+    if (window._uaMagicTimer) {
+      clearInterval(window._uaMagicTimer);
+      window._uaMagicTimer = null;
+    }
+    var loader = document.getElementById('ua-magic-loader');
+    if (loader) loader.classList.add('hidden');
+  }
+
+  function sendHybridAuditorRequest(payload, onSuccess, onError) {
+    var isLocal = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    if (!isLocal && typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onError)
+        .apiImportExternalUrl(payload);
+      return;
+    }
+    var targetUrl = isLocal ? '/api/pwa/import-url' : 'https://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec';
+    if (!isLocal) payload._endpoint = 'import_url';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', targetUrl, true);
+    xhr.setRequestHeader('Content-Type', isLocal ? 'application/json;charset=UTF-8' : 'text/plain;charset=utf-8');
+    xhr.onload = function() {
+      try {
+        var d = JSON.parse(xhr.responseText || '{}');
+        onSuccess(d);
+      } catch (e) {
+        onError(e);
+      }
+    };
+    xhr.onerror = onError;
+    xhr.send(JSON.stringify(payload));
+  }
+
+  function getActiveClientToken() {
+    var params = new URLSearchParams(window.location.search);
+    var activeBtn = document.querySelector('#lab-toolbar button.bg-emerald-600');
+    if (activeBtn && activeBtn.id) {
+      return activeBtn.id.replace('btn-cl-', '');
+    }
+    return params.get('client') || params.get('x') || params.get('k') || 'mariona';
+  }
+
+  window.nppOpenUrlAuditor = function() {
+    syncAuditorTranslations();
+    stopMagicLoader();
+    var modal = document.getElementById('npp-url-auditor-modal');
+    if (!modal) return;
+    document.getElementById('ua-error-box').classList.add('hidden');
+    document.getElementById('ua-result-panel').classList.add('hidden');
+    var inp = document.getElementById('ua-url-input');
+    if (inp) {
+      inp.value = '';
+      setTimeout(function() { inp.focus(); }, 100);
+    }
+    modal.classList.remove('hidden');
+  };
+
+  window.nppCloseUrlAuditor = function() {
+    stopMagicLoader();
+    var modal = document.getElementById('npp-url-auditor-modal');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.nppAnalyzeExternalUrl = function() {
+    var ru = isRuLang();
+    var inp = document.getElementById('ua-url-input');
+    var errBox = document.getElementById('ua-error-box');
+    var resPanel = document.getElementById('ua-result-panel');
+    var btn = document.getElementById('ua-btn-analyze');
+    var url = (inp && inp.value) ? inp.value.trim() : '';
+
+    if (!url || url.indexOf('http') !== 0) {
+      errBox.textContent = ru ? '⚠️ Вставьте корректную ссылку (начинающуюся с http:// или https://)' : '⚠️ Pega un enlace válido que empiece por http:// o https://';
+      errBox.classList.remove('hidden');
+      return;
+    }
+
+    errBox.classList.add('hidden');
+    resPanel.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = ru ? '⏳ Магия...' : '⏳ Magia...';
+    startMagicLoader();
+
+    sendHybridAuditorRequest({
+      mode: 'analyze',
+      client: getActiveClientToken(),
+      url: url
+    }, function(d) {
+      stopMagicLoader();
+      btn.disabled = false;
+      btn.textContent = ru ? '✨ Извлечь' : '✨ Extraer';
+      if (!d || !d.ok) {
+        errBox.textContent = (d && d.error) ? d.error : 'Error analizando el enlace';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      window._uaLastAnalysis = d;
+      var c = d.card || {};
+      var banner = document.getElementById('ua-verdict-banner');
+      var reasonsHtml = (d.reasons || []).map(function(r) { return '<li>• ' + r + '</li>'; }).join('');
+
+      if (d.status_code === 'EXISTS_IN_8088_EXCLUDED') {
+        banner.style.background = '#FEF3C7';
+        banner.style.borderColor = '#F59E0B';
+        banner.style.color = '#78350F';
+        banner.innerHTML =
+          '<div class="font-mono font-bold text-[11px] uppercase">⚡ ' +
+          (ru ? 'ОБЪЕКТ УЖЕ ЕСТЬ В БАЗЕ :8088 (' + c.box_id + ')' : 'YA EXISTE EN LAS BATIDAS DE :8088 (' + c.box_id + ')') +
+          '</div>' +
+          '<div class="text-[11.5px] font-semibold mt-0.5">' +
+          (ru ? 'Почему не был включен в вашу подборку:' : 'Motivo por el que no se había incluido en este cliente:') +
+          '</div>' +
+          '<ul class="text-[11px] space-y-0.5 mt-1 font-medium">' + reasonsHtml + '</ul>';
+      } else if (d.status_code === 'ALREADY_DISCARDED_IN_CLIENT' || d.status_code === 'ALREADY_ACTIVE_IN_CLIENT') {
+        banner.style.background = '#E0E7FF';
+        banner.style.borderColor = '#6366F1';
+        banner.style.color = '#1E1B4B';
+        banner.innerHTML =
+          '<div class="font-mono font-bold text-[11px] uppercase">📌 ' +
+          (ru ? 'УЖЕ В ВАШЕЙ ТАБЛИЦЕ (' + c.box_id + ')' : 'YA REGISTRADO EN ESTE CLIENTE (' + c.box_id + ')') +
+          '</div>' +
+          '<ul class="text-[11px] space-y-0.5 mt-1 font-medium">' + reasonsHtml + '</ul>';
+      } else {
+        banner.style.background = '#D1FAE5';
+        banner.style.borderColor = '#10B981';
+        banner.style.color = '#064E3B';
+        banner.innerHTML =
+          '<div class="font-mono font-bold text-[11px] uppercase">✨ ' +
+          (ru ? 'НОВЫЙ ВНЕШНИЙ ОБЪЕКТ · ПРИСВОЕН ' + c.box_id : 'NUEVA FICHA EXTERNA · NUMERACIÓN ASIGNADA: ' + c.box_id) +
+          '</div>' +
+          '<ul class="text-[11px] space-y-0.5 mt-1 font-medium">' + reasonsHtml + '</ul>';
+      }
+
+      document.getElementById('ua-prev-boxid').textContent = c.box_id || 'NPP-ALQ-NEW';
+      document.getElementById('ua-prev-origin').textContent = d.found_origin || 'Radar :8088';
+      document.getElementById('ua-prev-img').src = c.img || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80';
+      document.getElementById('ua-edit-title').value = c.title || '';
+      document.getElementById('ua-edit-zone').value = c.zone || 'Barcelona';
+      document.getElementById('ua-edit-price').value = c.price_num || '';
+      document.getElementById('ua-edit-m2').value = c.m2 || '';
+      document.getElementById('ua-edit-rooms').value = c.rooms || 2;
+      document.getElementById('ua-edit-baths').value = c.baths || 1;
+      document.getElementById('ua-edit-agency').value = c.agency || '';
+
+      var tabSel = document.getElementById('ua-edit-tab');
+      var tabs = Array.isArray(d.available_tabs) && d.available_tabs.length ? d.available_tabs : ['1. LAU Habitual'];
+      tabSel.innerHTML = tabs.map(function(t) {
+        var sel = (t === c.target_tab) ? 'selected' : '';
+        return '<option value="' + t.replace(/"/g, '&quot;') + '" ' + sel + '>' + t + '</option>';
+      }).join('');
+
+      resPanel.classList.remove('hidden');
+    }, function(err) {
+      stopMagicLoader();
+      btn.disabled = false;
+      btn.textContent = ru ? '✨ Извлечь' : '✨ Extraer';
+      errBox.textContent = 'Error conectando con el servidor: ' + err;
+      errBox.classList.remove('hidden');
+    });
+  };
+
+  window.nppCommitExternalUrl = function() {
+    var ru = isRuLang();
+    var inp = document.getElementById('ua-url-input');
+    var btn = document.getElementById('ua-btn-commit');
+    var errBox = document.getElementById('ua-error-box');
+    var url = (inp && inp.value) ? inp.value.trim() : '';
+    if (!url) return;
+
+    btn.disabled = true;
+    var lbl = document.getElementById('ua-lbl-commit');
+    if (lbl) lbl.textContent = ru ? '✨ Сохраняем магию в «Оценить»...' : '✨ Haciendo magia y guardando en «Valorar»...';
+
+    var overrides = {
+      title: document.getElementById('ua-edit-title').value,
+      zone: document.getElementById('ua-edit-zone').value,
+      price_num: document.getElementById('ua-edit-price').value,
+      m2: document.getElementById('ua-edit-m2').value,
+      rooms: document.getElementById('ua-edit-rooms').value,
+      baths: document.getElementById('ua-edit-baths').value,
+      agency: document.getElementById('ua-edit-agency').value,
+      target_tab: document.getElementById('ua-edit-tab').value,
+      img: (window._uaLastAnalysis && window._uaLastAnalysis.card) ? window._uaLastAnalysis.card.img : ''
+    };
+
+    sendHybridAuditorRequest({
+      mode: 'commit',
+      client: getActiveClientToken(),
+      url: url,
+      overrides: overrides
+    }, function(d) {
+      btn.disabled = false;
+      if (lbl) lbl.textContent = ru ? 'Добавить карточку в «Оценить»' : 'Incorporar Ficha a «Valorar»';
+      if (!d || !d.ok) {
+        errBox.textContent = (d && d.error) ? d.error : 'No se pudo guardar la ficha';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      window.nppCloseUrlAuditor();
+      var pendingBtn = document.getElementById('st-pending');
+      if (pendingBtn) pendingBtn.click();
+      var syncBtn = document.querySelector('header button[title="Sincronizar"]');
+      if (syncBtn) syncBtn.click();
+
+      setTimeout(function() {
+        if (d.uid) {
+          var newCard = document.getElementById('card-' + d.uid);
+          if (newCard) {
+            newCard.style.boxShadow = '0 0 0 3px #D4AF37, 0 20px 45px rgba(212,175,55,0.4)';
+            newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 1200);
+    }, function(err) {
+      btn.disabled = false;
+      if (lbl) lbl.textContent = ru ? 'Добавить карточку в «Оценить»' : 'Incorporar Ficha a «Valorar»';
+      errBox.textContent = 'Error al guardar: ' + err;
+      errBox.classList.remove('hidden');
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    injectAgendaAuditorBanner();
+    setInterval(function() {
+      injectAgendaAuditorBanner();
+      syncAuditorTranslations();
+    }, 1000);
+  });
+  injectAgendaAuditorBanner();
+})();
+</script>
+<!-- NPP_AGENDA_URL_AUDITOR_END -->
 </body>
 </html>
