@@ -1232,50 +1232,67 @@ body.master-mode #lab-toolbar { display: flex !important; }
 <div id="yuliia-pin-modal" style="display:none; position:fixed; inset:0; z-index:10000; background:rgba(15,23,42,0.82); backdrop-filter:blur(6px); padding:20px;">
   <div style="max-width:340px; margin:14vh auto 0 auto; background:#0F172A; color:#F8FAFC; border-radius:22px; border:2px solid #C5A059; box-shadow:0 24px 48px rgba(0,0,0,0.5); padding:20px; text-align:center;">
     <div style="font-size:26px; margin-bottom:6px;">🔐</div>
-    <h4 style="margin:0; font-size:15px; font-weight:800; color:#FFE066; letter-spacing:0.03em;">MODO SOPORTE · YULIIA QA</h4>
-    <p style="margin:4px 0 14px 0; font-size:11px; color:#94A3B8; font-family:monospace;">Introduce el PIN privado / Введите ПИН-код</p>
+    <h4 style="margin:0; font-size:15px; font-weight:800; color:#FFE066; letter-spacing:0.03em;">MODO SOPORTE · EQUIPO NPP</h4>
+    <p style="margin:4px 0 14px 0; font-size:11px; color:#94A3B8; font-family:monospace;">Introduce tu PIN personal / Введите личный ПИН-код</p>
     <input id="yqa-pin-input" type="password" inputmode="numeric" maxlength="8" placeholder="••••"
       onkeydown="if(event.key==='Enter'){event.preventDefault();window.confirmYuliiaPinModal();}"
       style="width:100%; text-align:center; font-size:20px; font-weight:800; letter-spacing:0.35em; padding:10px 12px; border-radius:12px; border:1.5px solid #C5A059; background:#1E293B; color:#FFFFFF; outline:none; margin-bottom:8px;" />
-    <div id="yqa-pin-err" style="display:none; font-size:11px; color:#F87171; font-weight:700; margin-bottom:8px;">❌ PIN incorrecto</div>
+    <div id="yqa-pin-err" style="display:none; font-size:11px; color:#F87171; font-weight:700; margin-bottom:8px;">❌ PIN no reconocido</div>
     <div style="display:flex; gap:8px; margin-top:6px;">
       <button type="button" onclick="window.closeYuliiaPinModal()" style="flex:1; padding:9px; border-radius:11px; font-size:12px; font-weight:700; background:#334155; color:#E2E8F0; border:none; cursor:pointer;">Cancelar</button>
-      <button type="button" onclick="window.confirmYuliiaPinModal()" style="flex:1; padding:9px; border-radius:11px; font-size:12px; font-weight:800; background:#C5A059; color:#0F172A; border:none; cursor:pointer;">Desbloquear</button>
+      <button type="button" onclick="window.confirmYuliiaPinModal()" style="flex:1; padding:9px; border-radius:11px; font-size:12px; font-weight:800; background:#C5A059; color:#0F172A; border:none; cursor:pointer;">Entrar</button>
     </div>
   </div>
 </div>
 
 <div id="yuliia-qa-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.78); backdrop-filter:blur(5px); overflow-y:auto; padding:16px;">
-  <div style="max-width:680px; margin:20px auto; background:#FFFFFF; color:#0F172A; border-radius:24px; border:2px solid #C5A059; box-shadow:0 25px 50px -12px rgba(0,0,0,0.45); overflow:hidden;">
-    <div style="background:#0F172A; color:#F8FAFC; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #C5A059;">
+  <div style="max-width:720px; margin:16px auto; background:#FFFFFF; color:#0F172A; border-radius:24px; border:2px solid #C5A059; box-shadow:0 25px 50px -12px rgba(0,0,0,0.45); overflow:hidden;">
+    <div style="background:#0F172A; color:#F8FAFC; padding:15px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #C5A059; flex-wrap:wrap; gap:8px;">
       <div style="display:flex; align-items:center; gap:10px;">
         <span style="font-size:22px;">🎙️</span>
         <div>
-          <h3 style="margin:0; font-size:16px; font-weight:800; letter-spacing:0.02em; color:#FFE066;">YULIIA · AUDIO &amp; QA FEEDBACK</h3>
+          <h3 id="yqa-modal-header-title" style="margin:0; font-size:16px; font-weight:800; letter-spacing:0.02em; color:#FFE066;">EQUIPO · AUDIO &amp; QA FEEDBACK</h3>
           <p style="margin:2px 0 0 0; font-size:11px; color:#94A3B8; font-family:monospace;">Pestaña privada (invisible para clientes) · Dicta o escribe fallos</p>
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
-        <button type="button" onclick="window.lockYuliiaQaMode()" title="Ocultar pestaña Yuliia en este navegador" style="padding:6px 10px; border-radius:10px; font-size:11px; font-weight:700; background:#1E293B; color:#CBD5E1; border:1px solid #475569; cursor:pointer;">🔒 Ocultar</button>
+        <button type="button" onclick="window.switchStaffUserPin()" title="Cambiar de usuario con otro PIN" style="padding:6px 10px; border-radius:10px; font-size:11px; font-weight:700; background:#1E293B; color:#FFE066; border:1px solid #C5A059; cursor:pointer;">👤 Cambiar PIN</button>
+        <button type="button" onclick="window.lockYuliiaQaMode()" title="Ocultar modo QA en este navegador" style="padding:6px 10px; border-radius:10px; font-size:11px; font-weight:700; background:#1E293B; color:#CBD5E1; border:1px solid #475569; cursor:pointer;">🔒 Ocultar</button>
         <button type="button" onclick="window.closeYuliiaQaModal()" style="padding:6px 12px; border-radius:10px; font-size:12px; font-weight:800; background:#EF4444; color:#FFFFFF; border:none; cursor:pointer;">✕ Cerrar</button>
       </div>
     </div>
 
-    <div style="padding:20px;">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+    <div style="padding:18px 20px;">
+      <div style="display:grid; grid-template-columns:180px 1fr; gap:10px; margin-bottom:12px;">
         <div style="background:#F8FAFC; padding:10px 12px; border-radius:14px; border:1px solid #E2E8F0;">
-          <div style="font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase;">Idioma de tu voz / Язык</div>
-          <select id="yqa-lang" style="width:100%; margin-top:4px; font-size:13px; font-weight:700; padding:6px 8px; border-radius:8px; border:1px solid #CBD5E1; background:#FFFFFF; color:#0F172A;">
+          <div style="font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase;">Idioma de voz / Язык</div>
+          <select id="yqa-lang" style="width:100%; margin-top:6px; font-size:13px; font-weight:700; padding:7px 8px; border-radius:8px; border:1px solid #CBD5E1; background:#FFFFFF; color:#0F172A;">
             <option value="ru-RU">🇷🇺 Русский (Ruso)</option>
             <option value="es-ES">🇪🇸 Español</option>
-            <option value="uk-UA">🇺🇦 Українська (Ucraniano)</option>
+            <option value="uk-UA">🇺🇦 Українська</option>
           </select>
         </div>
-        <div style="background:#F8FAFC; padding:10px 12px; border-radius:14px; border:1px solid #E2E8F0;">
-          <div style="font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase;">Piso afectado / Квартира</div>
-          <select id="yqa-property" style="width:100%; margin-top:4px; font-size:12px; font-weight:700; padding:6px 8px; border-radius:8px; border:1px solid #CBD5E1; background:#FFFFFF; color:#0F172A;">
-            <option value="General">🌐 General de la pantalla actual</option>
-          </select>
+
+        <div style="background:#F8FAFC; padding:10px 12px; border-radius:14px; border:1px solid #E2E8F0; position:relative;">
+          <div style="font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase; margin-bottom:4px;">Piso afectado (con Foto y Precio) / Квартира</div>
+          <input type="hidden" id="yqa-property" value="General" />
+          <input type="hidden" id="yqa-property-img" value="" />
+          <input type="hidden" id="yqa-property-price" value="" />
+
+          <button type="button" id="yqa-prop-trigger" onclick="window.toggleYqaPropertyDropdown()" style="width:100%; text-align:left; padding:6px 10px; border-radius:10px; border:1.5px solid #CBD5E1; background:#FFFFFF; color:#0F172A; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <div id="yqa-prop-selected-view" style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+              <span style="font-size:16px;">🌐</span>
+              <span style="font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">General de la pantalla actual / Общий вопрос</span>
+            </div>
+            <span style="font-size:11px; color:#64748B; font-weight:800;">▼</span>
+          </button>
+
+          <div id="yqa-prop-dropdown" style="display:none; position:absolute; left:0; right:0; top:100%; margin-top:6px; background:#FFFFFF; border:2px solid #0F172A; border-radius:14px; box-shadow:0 20px 35px rgba(0,0,0,0.28); z-index:10020; max-height:340px; overflow:hidden; flex-direction:column;">
+            <div style="padding:8px; background:#F1F5F9; border-bottom:1px solid #CBD5E1;">
+              <input id="yqa-prop-search" type="text" placeholder="🔍 Buscar por precio (ej: 1492), calle, zona o código..." oninput="window.filterYqaPropertyList(this.value)" style="width:100%; padding:7px 10px; border-radius:8px; border:1px solid #94A3B8; font-size:12px; font-weight:600; color:#0F172A; outline:none; background:#FFFFFF;" />
+            </div>
+            <div id="yqa-prop-options" style="max-height:275px; overflow-y:auto; padding:6px; display:flex; flex-direction:column; gap:5px;"></div>
+          </div>
         </div>
       </div>
 
@@ -1288,9 +1305,9 @@ body.master-mode #lab-toolbar { display: flex !important; }
         </button>
       </div>
 
-      <textarea id="yqa-text" rows="4" placeholder="Habla con el micrófono o escribe aquí qué error has visto en la App (ej: este piso está duplicado, falta la foto, el filtro ha dejado pasar un temporal...)" style="width:100%; padding:12px 14px; border-radius:14px; border:1.5px solid #94A3B8; font-size:14px; line-height:1.45; color:#0F172A; background:#FFFFFF; margin-bottom:12px;"></textarea>
+      <textarea id="yqa-text" rows="3" placeholder="Habla con el micrófono o escribe aquí qué ajuste o incidencia quieres reportar..." style="width:100%; padding:12px 14px; border-radius:14px; border:1.5px solid #94A3B8; font-size:14px; line-height:1.45; color:#0F172A; background:#FFFFFF; margin-bottom:12px;"></textarea>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
         <span id="yqa-ctx-badge" style="font-size:11px; font-family:monospace; color:#475569; font-weight:700;"></span>
         <button type="button" id="yqa-send-btn" onclick="window.submitYuliiaQaReport()" style="padding:10px 22px; border-radius:14px; font-size:13px; font-weight:800; background:#0F172A; color:#FFE066; border:1.5px solid #C5A059; cursor:pointer;">
           📩 Guardar y Enviar Incidencia / Отправить
@@ -1299,10 +1316,10 @@ body.master-mode #lab-toolbar { display: flex !important; }
 
       <div style="border-top:1px solid #E2E8F0; padding-top:14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-size:12px; font-weight:800; color:#334155; text-transform:uppercase;">📋 Historial de Audio-Reportes de Yuliia</span>
-          <button type="button" onclick="window.loadYuliiaQaHistory()" style="font-size:11px; font-weight:700; color:#2563EB; background:none; border:none; cursor:pointer;">🔄 Actualizar</button>
+          <span style="font-size:12px; font-weight:800; color:#334155; text-transform:uppercase;">📋 Historial de Incidencias (🟢 Resuelto / 🟠 En Revisión)</span>
+          <button type="button" onclick="window.loadYuliiaQaHistory()" style="font-size:11px; font-weight:700; color:#2563EB; background:none; border:none; cursor:pointer;">🔄 Actualizar estado</button>
         </div>
-        <div id="yqa-history-list" style="max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+        <div id="yqa-history-list" style="max-height:290px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
   </div>
@@ -1310,6 +1327,12 @@ body.master-mode #lab-toolbar { display: flex !important; }
 
 <script>
 (function() {
+  var STAFF_PINS = {
+    "1981": { name: "YULIIA", label: "Yuliia", lang: "ru-RU" },
+    "1974": { name: "JUANMA", label: "Juanma", lang: "es-ES" }
+  };
+  var DEFAULT_THUMB = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=75";
+
   var tapCount = 0;
   var tapTimer = null;
   var lastTapTime = 0;
@@ -1317,15 +1340,41 @@ body.master-mode #lab-toolbar { display: flex !important; }
   var isRecording = false;
   var GAS_QA_URL = "https" + "://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec";
   window._yqaLoadedItems = [];
+  window._yqaPropertyCatalog = [];
+
+  function getActiveStaffProfile() {
+    try {
+      var savedPin = String(localStorage.getItem("npp_yuliia_qa_pin") || "").trim();
+      if (STAFF_PINS[savedPin]) {
+        return STAFF_PINS[savedPin];
+      }
+    } catch (e) {}
+    return null;
+  }
 
   function isYuliiaUnlocked() {
-    try {
-      var p = new URLSearchParams(window.location.search);
-      if (p.get("yuliia") === "1981") {
-        localStorage.setItem("npp_yuliia_qa_pin", "1981");
-      }
-      return localStorage.getItem("npp_yuliia_qa_pin") === "1981";
-    } catch (e) { return false; }
+    return Boolean(getActiveStaffProfile());
+  }
+
+  function applyStaffProfileToUi() {
+    var prof = getActiveStaffProfile();
+    if (!prof) return;
+    var btn = document.getElementById("btn-tab-yuliia-qa");
+    if (btn) {
+      var pendCnt = (window._yqaLoadedItems || []).filter(function(x){ return x.status !== "resuelto"; }).length;
+      var badgeHtml = pendCnt > 0
+        ? '<span style="background:#DC2626;color:#FFF;padding:1px 6px;border-radius:999px;font-size:10px;">' + pendCnt + '</span>'
+        : '<span style="background:#16A34A;color:#FFF;padding:1px 6px;border-radius:999px;font-size:10px;">✓</span>';
+      btn.innerHTML = '<span>🎙️</span><span>' + prof.label + ' QA</span>' + badgeHtml;
+    }
+    var hdr = document.getElementById("yqa-modal-header-title");
+    if (hdr) {
+      hdr.textContent = prof.name + " · AUDIO & QA FEEDBACK";
+    }
+    var langSel = document.getElementById("yqa-lang");
+    if (langSel && !langSel.dataset.userChanged) {
+      langSel.value = prof.lang;
+    }
   }
 
   function ensureYuliiaTabButton() {
@@ -1337,16 +1386,18 @@ body.master-mode #lab-toolbar { display: flex !important; }
       existing = document.createElement("button");
       existing.id = "btn-tab-yuliia-qa";
       existing.type = "button";
-      existing.className = "px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold flex items-center gap-1 cursor-pointer shrink-0 transition active:scale-95";
+      existing.className = "px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold flex items-center gap-1.5 cursor-pointer shrink-0 transition active:scale-95";
       existing.style.cssText = "background:#0F172A; color:#FFE066; border:1.5px solid #C5A059; font-weight:800; display:none;";
-      existing.innerHTML = '<span>🎙️</span><span>Yuliia QA</span>';
+      existing.innerHTML = '<span>🎙️</span><span>QA</span>';
       existing.onclick = function(ev) {
         if (ev && ev.stopPropagation) ev.stopPropagation();
         window.openYuliiaQaModal();
       };
       host.insertBefore(existing, host.firstChild);
     }
-    existing.style.display = isYuliiaUnlocked() ? "inline-flex" : "none";
+    var unlocked = isYuliiaUnlocked();
+    existing.style.display = unlocked ? "inline-flex" : "none";
+    if (unlocked) applyStaffProfileToUi();
   }
 
   window.openYuliiaPinModal = function() {
@@ -1365,12 +1416,26 @@ body.master-mode #lab-toolbar { display: flex !important; }
     if (pm) pm.style.display = "none";
   };
 
+  window.switchStaffUserPin = function() {
+    window.closeYuliiaQaModal();
+    window.openYuliiaPinModal();
+  };
+
   window.confirmYuliiaPinModal = function() {
     var inp = document.getElementById("yqa-pin-input");
     var err = document.getElementById("yqa-pin-err");
     var val = String((inp && inp.value) || "").trim();
-    if (val === "1981") {
-      try { localStorage.setItem("npp_yuliia_qa_pin", "1981"); } catch (e) {}
+    var prof = STAFF_PINS[val];
+    if (prof) {
+      try {
+        localStorage.setItem("npp_yuliia_qa_pin", val);
+        localStorage.setItem("npp_qa_staff_name", prof.name);
+      } catch (e) {}
+      var langSel = document.getElementById("yqa-lang");
+      if (langSel) {
+        delete langSel.dataset.userChanged;
+        langSel.value = prof.lang;
+      }
       window.closeYuliiaPinModal();
       ensureYuliiaTabButton();
       window.openYuliiaQaModal();
@@ -1422,28 +1487,129 @@ body.master-mode #lab-toolbar { display: flex !important; }
   }
 
   window.lockYuliiaQaMode = function() {
-    try { localStorage.removeItem("npp_yuliia_qa_pin"); } catch (e) {}
+    try {
+      localStorage.removeItem("npp_yuliia_qa_pin");
+      localStorage.removeItem("npp_qa_staff_name");
+    } catch (e) {}
     ensureYuliiaTabButton();
     window.closeYuliiaQaModal();
+  };
+
+  function buildPropertyCatalog() {
+    var list = [];
+    if (typeof allItems !== "undefined" && Array.isArray(allItems)) {
+      allItems.forEach(function(it) {
+        var pRaw = String(it.price || "").replace(/[^\d]/g, "");
+        var priceFmt = pRaw ? (Number(pRaw).toLocaleString("es-ES") + " €/mes") : "S/P";
+        list.push({
+          val: (it.box_id || "") + " | " + String(it.title || "").replace(/"/g, ""),
+          box_id: it.box_id || "",
+          row: it.row ? ("F" + it.row) : "",
+          title: String(it.title || "Vivienda"),
+          zone: String(it.zone || ""),
+          price: priceFmt,
+          img: it.img || DEFAULT_THUMB,
+          status: String(it.status || "")
+        });
+      });
+    }
+    window._yqaPropertyCatalog = list;
+  }
+
+  window.toggleYqaPropertyDropdown = function() {
+    var dd = document.getElementById("yqa-prop-dropdown");
+    if (!dd) return;
+    if (dd.style.display === "flex") {
+      dd.style.display = "none";
+    } else {
+      buildPropertyCatalog();
+      window.filterYqaPropertyList("");
+      var sInp = document.getElementById("yqa-prop-search");
+      if (sInp) sInp.value = "";
+      dd.style.display = "flex";
+      setTimeout(function(){ if (sInp) sInp.focus(); }, 50);
+    }
+  };
+
+  window.selectYqaPropertyOption = function(idx) {
+    var hidVal = document.getElementById("yqa-property");
+    var hidImg = document.getElementById("yqa-property-img");
+    var hidPrice = document.getElementById("yqa-property-price");
+    var view = document.getElementById("yqa-prop-selected-view");
+    var dd = document.getElementById("yqa-prop-dropdown");
+
+    if (idx === -1) {
+      if (hidVal) hidVal.value = "General";
+      if (hidImg) hidImg.value = "";
+      if (hidPrice) hidPrice.value = "";
+      if (view) {
+        view.innerHTML = '<span style="font-size:16px;">🌐</span><span style="font-size:12px; font-weight:700;">General de la pantalla actual / Общий вопрос</span>';
+      }
+    } else {
+      var item = window._yqaPropertyCatalog[idx];
+      if (item) {
+        if (hidVal) hidVal.value = item.val;
+        if (hidImg) hidImg.value = item.img;
+        if (hidPrice) hidPrice.value = item.price;
+        if (view) {
+          view.innerHTML =
+            '<img src="' + item.img + '" onerror="this.onerror=null;this.src=\'' + DEFAULT_THUMB + '\';" style="width:44px; height:32px; object-fit:cover; border-radius:6px; border:1px solid #CBD5E1; flex-shrink:0;" />' +
+            '<div style="overflow:hidden; line-height:1.2;">' +
+              '<div style="display:flex; align-items:center; gap:6px;">' +
+                '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:11px; font-weight:800; padding:1px 6px; border-radius:5px;">' + item.price + '</span>' +
+                '<span style="font-family:monospace; font-size:10px; font-weight:800; color:#475569;">' + (item.row ? item.row + " · " : "") + item.box_id + '</span>' +
+              '</div>' +
+              '<div style="font-size:11px; font-weight:700; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + item.title + '</div>' +
+            '</div>';
+        }
+      }
+    }
+    if (dd) dd.style.display = "none";
+  };
+
+  window.filterYqaPropertyList = function(query) {
+    var box = document.getElementById("yqa-prop-options");
+    if (!box) return;
+    var q = String(query || "").toLowerCase().trim();
+    var html = [];
+    html.push(
+      '<div onclick="window.selectYqaPropertyOption(-1)" style="padding:8px 10px; border-radius:10px; background:#F8FAFC; border:1px solid #E2E8F0; cursor:pointer; display:flex; align-items:center; gap:10px;">' +
+        '<span style="font-size:18px;">🌐</span>' +
+        '<div style="font-size:12px; font-weight:800; color:#0F172A;">General de la pantalla actual / Общий вопрос</div>' +
+      '</div>'
+    );
+    window._yqaPropertyCatalog.forEach(function(it, idx) {
+      var hay = (it.box_id + " " + it.row + " " + it.title + " " + it.zone + " " + it.price).toLowerCase();
+      if (q && hay.indexOf(q) === -1) return;
+      html.push(
+        '<div onclick="window.selectYqaPropertyOption(' + idx + ')" style="padding:6px 8px; border-radius:10px; background:#FFFFFF; border:1px solid #E2E8F0; cursor:pointer; display:flex; align-items:center; gap:10px; transition:background 0.15s;" onmouseover="this.style.background=\'#FEFCE8\'" onmouseout="this.style.background=\'#FFFFFF\'">' +
+          '<img src="' + it.img + '" onerror="this.onerror=null;this.src=\'' + DEFAULT_THUMB + '\';" style="width:58px; height:44px; object-fit:cover; border-radius:8px; border:1px solid #CBD5E1; flex-shrink:0;" />' +
+          '<div style="flex:1; min-width:0;">' +
+            '<div style="display:flex; align-items:center; gap:6px; margin-bottom:2px; flex-wrap:wrap;">' +
+              '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:11px; font-weight:800; padding:1px 7px; border-radius:6px;">💶 ' + it.price + '</span>' +
+              '<span style="font-family:monospace; font-size:10px; font-weight:800; color:#1D4ED8; background:#EFF6FF; padding:1px 6px; border-radius:5px;">' + (it.row ? it.row + " · " : "") + it.box_id + '</span>' +
+            '</div>' +
+            '<div style="font-size:12px; font-weight:800; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + it.title + '</div>' +
+            '<div style="font-size:10px; color:#64748B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📍 ' + it.zone + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    });
+    box.innerHTML = html.join("");
   };
 
   window.openYuliiaQaModal = function() {
     var m = document.getElementById("yuliia-qa-modal");
     if (!m) return;
+    applyStaffProfileToUi();
+    buildPropertyCatalog();
+    window.selectYqaPropertyOption(-1);
     m.style.display = "block";
-    var sel = document.getElementById("yqa-property");
-    if (sel && typeof allItems !== "undefined" && Array.isArray(allItems)) {
-      var opts = ['<option value="General">🌐 Fallo general de la pantalla / Общая ошибка</option>'];
-      allItems.forEach(function(it) {
-        var lbl = (it.row ? "F" + it.row + " · " : "") + (it.box_id || "") + " · " + String(it.title || "").substring(0, 42);
-        opts.push('<option value="' + (it.box_id || "") + ' | ' + String(it.title || "").replace(/"/g, "") + '">' + lbl + '</option>');
-      });
-      sel.innerHTML = opts.join("");
-    }
     var badge = document.getElementById("yqa-ctx-badge");
+    var prof = getActiveStaffProfile() || { name: "YULIIA" };
     var cl = (typeof currentClient !== "undefined") ? currentClient : "andrii_anastasia";
     var flt = (typeof currentFilter !== "undefined") ? currentFilter : "pending";
-    if (badge) badge.textContent = "📍 Cliente: " + cl + " | Pestaña: " + flt;
+    if (badge) badge.textContent = "👤 " + prof.name + " | 📍 Cliente: " + cl + " | Pestaña: " + flt;
     window.loadYuliiaQaHistory();
   };
 
@@ -1452,6 +1618,8 @@ body.master-mode #lab-toolbar { display: flex !important; }
       try { recognition.stop(); } catch (e) {}
       isRecording = false;
     }
+    var dd = document.getElementById("yqa-prop-dropdown");
+    if (dd) dd.style.display = "none";
     var m = document.getElementById("yuliia-qa-modal");
     if (m) m.style.display = "none";
   };
@@ -1476,7 +1644,8 @@ body.master-mode #lab-toolbar { display: flex !important; }
     }
     recognition = new SR();
     var langSel = document.getElementById("yqa-lang");
-    recognition.lang = langSel ? langSel.value : "ru-RU";
+    var prof = getActiveStaffProfile();
+    recognition.lang = (langSel && langSel.value) ? langSel.value : (prof ? prof.lang : "ru-RU");
     recognition.continuous = true;
     recognition.interimResults = true;
     var baseText = txtArea.value ? (txtArea.value.trim() + " ") : "";
@@ -1523,16 +1692,20 @@ body.master-mode #lab-toolbar { display: flex !important; }
     var txtArea = document.getElementById("yqa-text");
     var text = String((txtArea && txtArea.value) || "").trim();
     if (!text) return;
+    var prof = getActiveStaffProfile() || { name: "YULIIA", lang: "ru-RU" };
     var sendBtn = document.getElementById("yqa-send-btn");
     if (sendBtn) sendBtn.textContent = "⏳ Guardando...";
     var payload = {
       _endpoint: "yuliia-qa",
       action: "yuliia_qa",
       qa_action: "add",
+      author: prof.name,
       client: (typeof currentClient !== "undefined") ? currentClient : "andrii_anastasia",
       active_tab: (typeof currentFilter !== "undefined") ? currentFilter : "pending",
       box_id: (document.getElementById("yqa-property") || {}).value || "General",
-      lang: (document.getElementById("yqa-lang") || {}).value || "ru-RU",
+      box_img: (document.getElementById("yqa-property-img") || {}).value || "",
+      box_price: (document.getElementById("yqa-property-price") || {}).value || "",
+      lang: (document.getElementById("yqa-lang") || {}).value || prof.lang,
       text: text,
       device: navigator.userAgent.substring(0, 65)
     };
@@ -1548,15 +1721,55 @@ body.master-mode #lab-toolbar { display: flex !important; }
     if (sendBtn) sendBtn.textContent = "📩 Guardar y Enviar Incidencia / Отправить";
   };
 
+  window.toggleYqaResolvedFromModal = async function(idx) {
+    var it = window._yqaLoadedItems[idx];
+    if (!it || !it.id) return;
+    try {
+      await fetch(getQaApiEndpoint(), {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          _endpoint: "yuliia-qa",
+          action: "yuliia_qa",
+          qa_action: "toggle_status",
+          id: it.id
+        })
+      });
+      await window.loadYuliiaQaHistory();
+    } catch (e) {}
+  };
+
   window.copyYuliiaReportByIdx = function(idx) {
     var it = window._yqaLoadedItems[idx];
     if (!it) return;
-    var fullCopy = "[🎙️ YULIIA QA · " + (it.created_at || "") + "] Cliente: " + (it.client || "") + " | Pestaña: " + (it.active_tab || "") + " | Piso: " + (it.box_id || "General") + " — " + (it.text || "");
+    var who = String(it.author || "YULIIA").toUpperCase();
+    var pr = it.box_price ? (" (" + it.box_price + ")") : "";
+    var fullCopy = "[🎙️ " + who + " QA · " + (it.created_at || "") + "] Cliente: " + (it.client || "") + " | Pestaña: " + (it.active_tab || it.tab || "") + " | Piso: " + (it.box_id || "General") + pr + "\nMensaje: " + (it.text || "");
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(fullCopy);
     }
-    alert("✅ Reporte de Yuliia copiado al portapapeles.");
+    alert("✅ Reporte de " + who + " copiado al portapapeles.");
   };
+
+  function resolveItemMetaFromLoaded(boxIdStr, savedImg, savedPrice) {
+    var img = savedImg || "";
+    var price = savedPrice || "";
+    if ((!img || !price) && typeof allItems !== "undefined" && Array.isArray(allItems)) {
+      var codeMatch = String(boxIdStr || "").match(/NPP-ALQ-[A-Z0-9]+/);
+      var code = codeMatch ? codeMatch[0] : "";
+      if (code) {
+        var found = allItems.find(function(x){ return x.box_id === code; });
+        if (found) {
+          if (!img) img = found.img || "";
+          if (!price && found.price) {
+            var pNum = String(found.price).replace(/[^\d]/g, "");
+            if (pNum) price = Number(pNum).toLocaleString("es-ES") + " €/mes";
+          }
+        }
+      }
+    }
+    return { img: img, price: price };
+  }
 
   window.loadYuliiaQaHistory = async function() {
     var box = document.getElementById("yqa-history-list");
@@ -1568,18 +1781,42 @@ body.master-mode #lab-toolbar { display: flex !important; }
       var d = await r.json();
       var items = (d && d.items) ? d.items : [];
       window._yqaLoadedItems = items;
+      applyStaffProfileToUi();
       if (!items.length) {
         box.innerHTML = '<div style="font-size:12px; color:#64748B; padding:10px;">No hay incidencias registradas todavía.</div>';
         return;
       }
       box.innerHTML = items.map(function(it, idx) {
-        return '<div style="padding:10px 12px; border-radius:12px; background:#F8FAFC; border:1px solid #CBD5E1; font-size:12px;">' +
-          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">' +
-            '<span style="font-family:monospace; font-weight:800; color:#0F172A;">🕒 ' + (it.created_at || "") + ' · ' + (it.client || "") + ' (' + (it.active_tab || "") + ')</span>' +
-            '<button type="button" onclick="window.copyYuliiaReportByIdx(' + idx + ')" style="padding:3px 8px; border-radius:6px; font-size:10px; font-weight:800; background:#E2E8F0; color:#0F172A; border:none; cursor:pointer;">📋 Copiar</button>' +
+        var who = String(it.author || "YULIIA").toUpperCase();
+        var isRes = it.status === "resuelto";
+        var statusBadge = isRes
+          ? '<span style="background:#16A34A; color:#FFFFFF; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">🟢 RESUELTO / ВЫПОЛНЕНО ✅</span>'
+          : '<span style="background:#F59E0B; color:#FFFFFF; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">🟠 EN REVISIÓN / В РАБОТЕ ⏳</span>';
+        var meta = resolveItemMetaFromLoaded(it.box_id, it.box_img, it.box_price);
+        var thumbHtml = meta.img
+          ? '<img src="' + meta.img + '" onerror="this.style.display=\'none\'" style="width:54px; height:42px; object-fit:cover; border-radius:8px; border:1px solid #CBD5E1; flex-shrink:0;" />'
+          : '';
+        var priceBadge = meta.price
+          ? '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:11px; font-weight:800; padding:1px 7px; border-radius:6px; margin-right:6px;">💶 ' + meta.price + '</span>'
+          : '';
+        return '<div style="padding:11px 13px; border-radius:14px; background:' + (isRes ? '#DCFCE7' : '#FEFCE8') + '; border:1.5px solid ' + (isRes ? '#4ADE80' : '#FACC15') + '; font-size:12px;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">' +
+            '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+              statusBadge +
+              '<span style="font-family:monospace; font-weight:800; color:#0F172A;">👤 ' + who + ' · 🕒 ' + (it.created_at || "") + ' · ' + (it.client || "") + '</span>' +
+            '</div>' +
+            '<div style="display:flex; gap:5px;">' +
+              '<button type="button" onclick="window.toggleYqaResolvedFromModal(' + idx + ')" style="padding:3px 8px; border-radius:6px; font-size:10px; font-weight:800; background:' + (isRes ? '#E2E8F0' : '#16A34A') + '; color:' + (isRes ? '#0F172A' : '#FFFFFF') + '; border:none; cursor:pointer;">' + (isRes ? '↩️ Reabrir' : '✅ Resuelto') + '</button>' +
+              '<button type="button" onclick="window.copyYuliiaReportByIdx(' + idx + ')" style="padding:3px 8px; border-radius:6px; font-size:10px; font-weight:800; background:#0F172A; color:#FFE066; border:none; cursor:pointer;">📋 Copiar</button>' +
+            '</div>' +
           '</div>' +
-          '<div style="font-size:11px; font-weight:700; color:#1D4ED8; margin-bottom:4px;">🏠 ' + (it.box_id || "General") + '</div>' +
-          '<div style="color:#1E293B; font-weight:600; white-space:pre-wrap;">' + (it.text || "") + '</div>' +
+          '<div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">' +
+            thumbHtml +
+            '<div style="min-width:0;">' +
+              '<div style="font-size:11px; font-weight:800; color:#1D4ED8;">' + priceBadge + '🏠 ' + (it.box_id || "General") + '</div>' +
+              '<div style="color:#0F172A; font-weight:700; white-space:pre-wrap; margin-top:2px;">' + (it.text || "") + '</div>' +
+            '</div>' +
+          '</div>' +
         '</div>';
       }).join("");
     } catch (e) {
@@ -1587,8 +1824,15 @@ body.master-mode #lab-toolbar { display: flex !important; }
     }
   };
 
+  document.addEventListener("change", function(ev) {
+    if (ev.target && ev.target.id === "yqa-lang") {
+      ev.target.dataset.userChanged = "1";
+    }
+  });
+
   attachTripleTapLogo();
   ensureYuliiaTabButton();
+  setTimeout(function() { if (isYuliiaUnlocked()) window.loadYuliiaQaHistory(); }, 1500);
   setInterval(function() {
     ensureYuliiaTabButton();
     attachTripleTapLogo();
