@@ -328,16 +328,16 @@ body.master-mode #lab-toolbar { display: flex !important; }
           <div class="flex items-center gap-0.5"><span>🗓️</span><span id="cnt-cal" class="font-mono text-[9.5px] px-1 rounded bg-black/15">0</span></div>
           <span id="lbl-calendar" class="truncate max-w-full">Agenda</span>
         </button>
-        <div class="grid grid-cols-2 gap-0.5 rounded-xl p-0.5 border min-w-0" style="background: var(--pill-bg); border-color: var(--border-col);">
-            <button onclick="setMainView('discarded')" id="st-discarded" title="Descartados por Cliente" class="py-1 px-0.5 rounded-lg text-[8.5px] font-bold transition flex flex-col items-center justify-center gap-0.5 cursor-pointer border min-w-0" style="background: rgba(220,38,38,0.12); color: #DC2626; border-color: rgba(220,38,38,0.35);">
-              <div class="flex items-center gap-0.5"><span>🔴</span><span id="cnt-discarded" class="font-mono text-[9px] px-1 rounded bg-red-600 text-white font-extrabold">0</span></div>
-              <span id="lbl-discarded" class="truncate max-w-full leading-none">Cliente</span>
-            </button>
-            <button onclick="setMainView('unpub')" id="st-unpub" title="Despublicados / Bajas de Portal (Dudas, Visitas, Agenda)" class="py-1 px-0.5 rounded-lg text-[8.5px] font-bold transition flex flex-col items-center justify-center gap-0.5 cursor-pointer border min-w-0" style="background: rgba(234,88,12,0.12); color: #EA580C; border-color: rgba(234,88,12,0.35);">
-              <div class="flex items-center gap-0.5"><span>🟠</span><span id="cnt-unpub" class="font-mono text-[9px] px-1 rounded bg-orange-600 text-white font-extrabold">0</span></div>
-              <span id="lbl-unpub" class="truncate max-w-full leading-none">Bajas</span>
-            </button>
-          </div>
+        <div class="flex flex-col justify-between gap-1 rounded-xl p-1 border min-w-0" style="background: var(--pill-bg); border-color: var(--border-col);">
+              <button onclick="setMainView('discarded')" id="st-discarded" title="Descartados por Cliente" class="w-full py-0.5 px-1.5 rounded-lg text-[9px] font-bold transition flex items-center justify-between gap-1 cursor-pointer border min-w-0" style="background: rgba(220,38,38,0.12); color: #DC2626; border-color: rgba(220,38,38,0.35);">
+                <span class="flex items-center gap-1 min-w-0"><span class="text-[8px] leading-none">🔴</span><span id="lbl-discarded" class="truncate leading-tight">Cliente</span></span>
+                <span id="cnt-discarded" class="font-mono text-[9px] px-1.5 py-0.2 rounded-md bg-red-600 text-white font-extrabold leading-tight shrink-0">0</span>
+              </button>
+              <button onclick="setMainView('unpub')" id="st-unpub" title="Despublicados / Bajas de Portal (Dudas, Visitas, Agenda)" class="w-full py-0.5 px-1.5 rounded-lg text-[9px] font-bold transition flex items-center justify-between gap-1 cursor-pointer border min-w-0" style="background: rgba(234,88,12,0.12); color: #EA580C; border-color: rgba(234,88,12,0.35);">
+                <span class="flex items-center gap-1 min-w-0"><span class="text-[8px] leading-none">🟠</span><span id="lbl-unpub" class="truncate leading-tight">Bajas</span></span>
+                <span id="cnt-unpub" class="font-mono text-[9px] px-1.5 py-0.2 rounded-md bg-orange-600 text-white font-extrabold leading-tight shrink-0">0</span>
+              </button>
+            </div>
       </div>
       <!-- SUB-FILTRO POR CATEGORÍA CON FLEX-WRAP (TODOS LOS BOTONES SE VEN ENTEROS SIN CORTARSE) -->
       <div id="tabs-bar" class="grid grid-cols-3 gap-1.5 mt-2 pt-2 border-t" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;border-color: var(--border-col);"></div>
