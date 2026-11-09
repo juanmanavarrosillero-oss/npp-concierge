@@ -278,12 +278,24 @@ body.master-mode #lab-toolbar { display: flex !important; }
         </div>
       </div>
 
-      <!-- FILA 2: TELEPROMPTER DINÁMICO CON GANCHO (ROTACIÓN VIVA, CERO TEXTO ESTÁTICO) -->
-      <div class="px-1 py-1 rounded-xl flex items-center gap-2" style="background: rgba(197, 160, 89, 0.08); border: 1px solid rgba(197, 160, 89, 0.22);">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shrink-0 ml-1"></span>
-        <p id="bespoke-teleprompter" class="text-[11px] font-medium leading-snug w-full transition-opacity duration-500" style="color: var(--text-main);">
+      <!-- FILA 2: TELEPROMPTER EJECUTIVO V3 CON FONDOS FOTOGRÁFICOS DE BARCELONA EN LOCAL -->
+      <div id="bespoke-tp-card" onclick="if(window._tpCurrentAction){window.openNppPromoModal(window._tpCurrentAction);}" class="relative rounded-2xl overflow-hidden border transition-all duration-500 select-none shadow-md" style="min-height: 148px; background: linear-gradient(135deg, #FAF6EE 0%, #F1E9DA 100%); border-color: rgba(197, 160, 89, 0.55);">
+        <!-- Capa 1: Fotografía Panorámica IA de Barcelona (/api/pwa/ad-bg/1.jpg .. 4.jpg) -->
+        <div id="bespoke-tp-bg" class="absolute inset-0 bg-cover bg-center transition-all duration-700 pointer-events-none" style="opacity: 0.14; background-image: url('/api/pwa/ad-bg/1.jpg'); background-position: center 45%; filter: contrast(1.05) saturate(1.08);"></div>
+        <!-- Capa 2: Velo Editorial Lateral (mitad derecha despejada para lucir la foto de Barcelona) -->
+        <div id="bespoke-tp-overlay" class="absolute inset-0 transition-opacity duration-500 pointer-events-none" style="opacity: 0; background: linear-gradient(90deg, rgba(10,12,18,0.84) 0%, rgba(10,12,18,0.52) 55%, rgba(10,12,18,0.05) 100%);"></div>
+        <!-- Sello Esquina Derecha en Anuncios (Ubicación Barcelona) -->
+        <div id="bespoke-tp-loc-pill" class="hidden absolute top-2 right-2.5 z-20 px-2 py-0.5 rounded-full text-[8.5px] font-mono font-bold uppercase tracking-wider backdrop-blur-md border pointer-events-none" style="background: rgba(10,12,18,0.55); color: #FDE68A; border-color: rgba(251,191,36,0.45);">📍 Barcelona Prime</div>
+        <!-- Capa 3: Contenido Dinámico de las 6 Diapositivas -->
+        <div id="bespoke-teleprompter" class="relative z-10 px-3.5 pt-2.5 pb-1.5 text-[11px] font-medium leading-snug w-full transition-opacity duration-300 flex flex-col justify-between" style="color: var(--text-main); min-height: 112px;">
           ✨ Sincronizando vuestra selección privada en Barcelona...
-        </p>
+        </div>
+        <!-- Capa 4: Barra Inferior con Selector Directo de las 6 Diapositivas -->
+        <div id="bespoke-tp-footer" class="relative z-10 flex items-center justify-between px-3 py-1 border-t backdrop-blur-xs" style="border-color: rgba(197, 160, 89, 0.28); background: rgba(0,0,0,0.08);">
+          <button type="button" id="tp-btn-prev" onclick="window.stepTeleprompter(-1, event)" class="px-2 py-0.5 rounded-md text-[9.5px] font-mono font-bold transition hover:scale-105 cursor-pointer" style="background: rgba(197,160,89,0.22); color: var(--text-main);">‹ Ant</button>
+          <div id="bespoke-tp-dots" class="flex items-center gap-1.5"></div>
+          <button type="button" id="tp-btn-next" onclick="window.stepTeleprompter(1, event)" class="px-2 py-0.5 rounded-md text-[9.5px] font-mono font-bold transition hover:scale-105 cursor-pointer" style="background: rgba(197,160,89,0.22); color: var(--text-main);">Sig ›</button>
+        </div>
       </div>
 
       <!-- FILA 3: LÍNEA DE TIEMPO LIMPIA (100% DÍA DE HOY, CERO DATOS DE AYER) -->
@@ -459,295 +471,18 @@ body.master-mode #lab-toolbar { display: flex !important; }
   } catch (e) {}
 })();
 </script>
-<script id="npp-baja-clients-state">window.bajaClients = ["larisa"];</script>
-<script id="npp-live-telemetry-hook">
-  (function() {
-      // Ocultar automáticamente clientes en BAJA en la barra superior de la APP
-      (function hideBajaClientsInPwa() {
-        try {
-          var bajas = Array.isArray(window.bajaClients) ? window.bajaClients : [];
-          bajas.forEach(function(slug) {
-            var btn = document.getElementById('btn-cl-' + slug);
-            if (btn) btn.style.display = 'none';
-          });
-          if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            var xt = new XMLHttpRequest();
-            xt.open('GET', '/api/targets', true);
-            xt.onload = function() {
-              if (xt.status === 200) {
-                try {
-                  var activeTargets = JSON.parse(xt.responseText) || {};
-                  ['mariona', 'olga', 'larisa', 'andrii_anastasia', 'vladimir'].forEach(function(slug) {
-                    var btn = document.getElementById('btn-cl-' + slug);
-                    if (btn) {
-                      btn.style.display = activeTargets[slug] ? '' : 'none';
-                    }
-                  });
-                } catch(e) {}
-              }
-            };
-            xt.send();
-          }
-        } catch(e) {}
-      })();
-
-    window._tpTimer = null;
-    window._tpIdx = 0;
-    window._xhrLoaded = false;
-
-    window.renderLiveTelemetryHeader = function(telData, itemsArr, calData) {
-      try {
-        var tel = (telData && telData.raw_ads_scanned) ? telData : (window.serverTelemetry || {});
-        var arr = (Array.isArray(itemsArr) && itemsArr.length) ? itemsArr : (window.lastPwaItems || []);
-        var cal = (calData && calData.fichas) ? calData : (window.lastPwaCalendar || {});
-
-        // En localhost:8088, window.fetch está interceptado por Script #3 hacia GAS; usamos XMLHttpRequest nativo a :8088
-        if (!window._xhrLoaded && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-          window._xhrLoaded = true;
-          var params = new URLSearchParams(window.location.search);
-          var xTok = params.get('x') || params.get('k') || params.get('client') || 'NPP_MASTER_JM';
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', '/api/pwa/telemetry?x=' + encodeURIComponent(xTok) + '&t=' + Date.now(), true);
-          xhr.onload = function() {
-            if (xhr.status === 200) {
-              try {
-                var d = JSON.parse(xhr.responseText);
-                if (d && d.ok) {
-                  window.serverTelemetry = d.telemetry || {};
-                  if (Array.isArray(d.items) && d.items.length) window.lastPwaItems = d.items;
-                  if (d.calendar && d.calendar.fichas) window.lastPwaCalendar = d.calendar;
-                  window.renderLiveTelemetryHeader(window.serverTelemetry, window.lastPwaItems, window.lastPwaCalendar);
-                }
-              } catch (e) {}
-            }
-          };
-          xhr.send();
-        }
-
-        // Conteo real desde arr (o desde los contadores ya pintados en el DOM por Script #3)
-        var pending = 0, doubt = 0, visit = 0, discarded = 0;
-        if (arr.length > 0) {
-          arr.forEach(function(it) {
-            var s = String(it.status || '').toLowerCase();
-            if (s.indexOf('descart') !== -1 || s.indexOf('arch') !== -1 || s.indexOf('откл') !== -1 || s.indexOf('❌') !== -1 || s.indexOf('🗑️') !== -1) {
-              discarded++;
-            } else if (s.indexOf('duda') !== -1 || s.indexOf('вопрос') !== -1 || s.indexOf('сомн') !== -1 || s.indexOf('🤔') !== -1) {
-              doubt++;
-            } else if (s.indexOf('visit') !== -1 || s.indexOf('визит') !== -1 || s.indexOf('⭐') !== -1 || s.indexOf('📅') !== -1) {
-              visit++;
-            } else {
-              pending++;
-            }
-          });
-        } else {
-          pending   = parseInt((document.getElementById('cnt-pending') || {}).textContent || '0', 10) || 0;
-          doubt     = parseInt((document.getElementById('cnt-doubt') || {}).textContent || '0', 10) || 0;
-          visit     = parseInt((document.getElementById('cnt-visit') || {}).textContent || '0', 10) || 0;
-          discarded = parseInt((document.getElementById('cnt-discarded') || {}).textContent || '0', 10) || 0;
-        }
-
-        var _uSearch = window.location.search || ''; var _wTxt = ((document.getElementById('client-welcome') || {}).textContent || '').toLowerCase(); var isRu = (document.documentElement.lang === 'ru') || ((localStorage.getItem('npp_lang') || '') === 'ru') || _uSearch.indexOf('t_8us0') !== -1 || _uSearch.indexOf('andrii') !== -1 || _uSearch.indexOf('1Q63') !== -1 || _uSearch.indexOf('olga') !== -1 || _wTxt.indexOf('andrii') !== -1 || _wTxt.indexOf('olga') !== -1;
-          var now = new Date();
-          var hr = now.getHours();
-          var todayStr = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
-
-          // 1. PINTAR SIEMPRE LA BARRA DE TIEMPO DEL DÍA DE HOY (Sin esperar a que carguen las tarjetas)
-          var decNow = hr + (now.getMinutes() / 60);
-          var pctNow = Math.max(0, Math.min(100, ((decNow - 9) / 14) * 100));
-          var fillEl = document.getElementById('timeline-day-fill');
-          if (fillEl) fillEl.style.width = pctNow.toFixed(1) + '%';
-
-          // Filtrar sellos: SOLO si seals_date es HOY y la hora del sello <= hora actual de hoy
-          var rawSeals = (!tel.seals_date || tel.seals_date === todayStr) && Array.isArray(tel.seals_today) ? tel.seals_today : [];
-          var seals = rawSeals.filter(function(hm) {
-            if (!hm || hm.indexOf(':') === -1) return false;
-            var p = hm.split(':');
-            var decS = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
-            return decS <= (decNow + 0.05);
-          });
-
-          // Calcular próximo lote real de HOY (si el guardado ya pasó de hora hoy, avanzar al siguiente intervalo de hoy)
-          var ivMin = Number(tel.interval_minutes || 45);
-          var nextDropDec = decNow + (ivMin / 60);
-          var nextTimeStr = '';
-          if (tel.next_drip_time && tel.next_drip_time.indexOf(':') !== -1) {
-            var pts = tel.next_drip_time.split(':');
-            var candDec = parseInt(pts[0], 10) + (parseInt(pts[1], 10) / 60);
-            while (candDec <= decNow + 0.02 && candDec < 23) {
-              candDec += (ivMin / 60);
-            }
-            nextDropDec = Math.min(23, Math.max(9.2, candDec));
-          }
-          var nH = Math.floor(nextDropDec);
-          var nM = Math.round((nextDropDec - nH) * 60);
-          if (nM === 60) { nH += 1; nM = 0; }
-          nextTimeStr = String(nH).padStart(2, '0') + ':' + String(nM).padStart(2, '0') + 'h';
-
-          var bolsaCnt = Number(tel.bolsa_pending || 0);
-          var badgeEl = document.getElementById('next-drop-badge');
-          if (badgeEl) {
-            var bolsaSuffixEs = bolsaCnt > 0 ? (' · ' + bolsaCnt + ' EN BOLSA') : '';
-            var bolsaSuffixRu = bolsaCnt > 0 ? (' · ' + bolsaCnt + ' В РЕЗЕРВЕ') : '';
-            badgeEl.textContent = isRu ? ('⏳ СЛЕД. ЛОТ ' + nextTimeStr + bolsaSuffixRu) : ('⏳ PRÓX. LOTE ' + nextTimeStr + bolsaSuffixEs);
-          }
-
-          var layerEl = document.getElementById('timeline-seals-layer');
-          if (layerEl) {
-            var htmlSeals = '';
-            seals.forEach(function(hm, idx) {
-              var p = hm.split(':');
-              var decSeal = parseInt(p[0], 10) + (parseInt(p[1], 10) / 60);
-              var decStart = Math.max(9, decSeal - 1.0);
-              var pctSeal = Math.max(2, Math.min(99, ((decSeal - 9) / 14) * 100));
-              var pctStart = Math.max(0, Math.min(pctSeal, ((decStart - 9) / 14) * 100));
-              var wRamp = Math.max(1.5, pctSeal - pctStart);
-              var startH = String(Math.max(9, parseInt(p[0], 10) - 1)).padStart(2, '0') + ':' + p[1];
-              htmlSeals += '<div title="Hoy · ' + (idx + 1) + 'ª Extracción (' + startH + 'h - ' + hm + 'h)" class="absolute top-0 h-full rounded-full" style="left:' + pctStart.toFixed(1) + '%;width:' + wRamp.toFixed(1) + '%;background:linear-gradient(90deg,rgba(16,185,129,0) 0%,rgba(16,185,129,0.45) 45%,rgba(16,185,129,0.98) 100%);"></div>';
-              htmlSeals += '<div title="Hoy · ' + (idx + 1) + 'ª Consolidación sellada (' + hm + 'h)" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left:' + pctSeal.toFixed(1) + '%"><span class="npp-seal-sparkle"></span></div>';
-            });
-            layerEl.innerHTML = htmlSeals;
-          }
-
-          var pctDrop = Math.max(2, Math.min(99, ((nextDropDec - 9) / 14) * 100));
-          var dropEl = document.getElementById('timeline-next-drop');
-          if (dropEl) {
-            dropEl.style.left = pctDrop.toFixed(1) + '%';
-            dropEl.style.opacity = (decNow < 23) ? '1' : '0';
-          }
-
-          // 2. Si ni el XHR ni el DOM tienen aún las propiedades cargadas, esperar al siguiente ciclo para los mensajes de conteo
-          if (pending + doubt + visit + discarded === 0) return;
-
-          var rawNum = Number(tel.raw_ads_scanned || 6629);
-          var dupNum = Number(tel.duplicates_removed || 5808);
-          var vanCnt = Number(tel.vanished_24h_count || 34);
-          var vanPct = String(tel.vanished_24h_pct || 2.7).replace('.', ',');
-          var rawAds = rawNum.toLocaleString('es-ES');
-          var dupAds = dupNum.toLocaleString('es-ES');
-
-          var greet = isRu
-            ? (hr < 12 ? 'Доброе утро' : (hr < 20 ? 'Добрый день' : 'Добрый вечер'))
-            : (hr < 13 ? 'Buenos días' : (hr < 20 ? 'Buenas tardes' : 'Buenas noches'));
-
-          var activeCount = pending + doubt + visit;
-          var totalSelectedForClient = activeCount + discarded;
-          var rawWelcome = (((document.getElementById('client-welcome') || {}).textContent || '').replace(/\s*\([^)]*\)/g, '')).trim(); if (!rawWelcome || rawWelcome === 'Cliente' || rawWelcome === 'Concierge Privado') { if ((window.location.search || '').indexOf('t_8us0') !== -1 || (window.location.search || '').indexOf('andrii') !== -1) rawWelcome = 'Andrii + Anastasia'; else if ((window.location.search || '').indexOf('1Q63') !== -1 || (window.location.search || '').indexOf('olga') !== -1) rawWelcome = 'Olga'; else rawWelcome = 'Mariona & Thomas'; } var cname = rawWelcome;
-
-          var fichas = Array.isArray(cal.fichas) ? cal.fichas : [];
-          var agendaRealCount = Math.max(fichas.length, parseInt((document.getElementById('cnt-cal') || {}).textContent || '0', 10) || 0, visit);
-
-          var scheduledList = [];
-          var todayShort = String(now.getDate()).padStart(2, '0') + '/' + String(now.getMonth() + 1).padStart(2, '0');
-          fichas.forEach(function(f) {
-            var dStr = String(f.day || '').trim();
-            var hStr = String(f.hour || '').trim();
-            if (dStr && hStr) {
-              // Si la cita es de HOY pero la hora ya pasó, no anunciarla como próxima cita pendiente
-              if (dStr.indexOf(todayShort) !== -1 && hStr.indexOf(':') !== -1) {
-                var hp = hStr.replace('h', '').split(':');
-                var visitDec = parseInt(hp[0], 10) + (parseInt(hp[1] || '0', 10) / 60);
-                if (visitDec + 0.5 < decNow) return;
-              }
-              scheduledList.push({ day: dStr, hour: hStr });
-            }
-          });
-          var firstVisit = scheduledList.length > 0 ? scheduledList[0] : null;
-
-          var bGold = function(v) { return '<b style="color:#9A6B16;font-weight:800;">' + v + '</b>'; };
-          var bGreen = function(v) { return '<b style="color:#047857;font-weight:800;">' + v + '</b>'; };
-          var bRose = function(v) { return '<b style="color:#BE123C;font-weight:800;">' + v + '</b>'; };
-
-          var sealsHtml = seals.length ? seals.map(function(s){ return bGreen(s + 'h'); }).join(' y ') : bGreen('09:00h');
-          var sealsCount = Math.max(1, seals.length);
-          var sealsWordEs = sealsCount === 1 ? 'batida hoy' : 'batidas hoy';
-          var sealsWordRu = sealsCount === 1 ? 'сверка сегодня' : 'сверки сегодня';
-          var ratioOneIn = totalSelectedForClient > 0 ? Math.max(1, Math.round(rawNum / totalSelectedForClient)) : 45;
-
-          var agendaMsgEs = '';
-          var agendaMsgRu = '';
-          if (firstVisit) {
-            var fvHour = firstVisit.hour.indexOf('h') === -1 ? (firstVisit.hour + 'h') : firstVisit.hour;
-            agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' visitas en gestión (' + bGreen(visit) + ' solicitadas) · 1ª cita: ' + bGold(firstVisit.day + ' a las ' + fvHour);
-            agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' визитов (' + bGreen(visit) + ' запрос.) · 1-й визит: ' + bGold(firstVisit.day + ' в ' + fvHour);
-          } else if (agendaRealCount > 0 || visit > 0) {
-            agendaMsgEs = '🗓️ Agenda: ' + bGreen(agendaRealCount) + ' pisos para visitar · 1ª visita: ' + bGold('coordinando día y hora');
-            agendaMsgRu = '🗓️ В плане: ' + bGreen(agendaRealCount) + ' лотов на визит · 1-й визит: ' + bGold('согласование времени');
-          } else {
-            agendaMsgEs = '🗓️ Agenda: ' + bGold('0') + ' visitas programadas · Pulsad «Visitar» para agendar la 1ª cita';
-            agendaMsgRu = '🗓️ В плане: ' + bGold('0') + ' визитов · Нажмите «Визит», чтобы назначить встречу';
-          }
-
-          var msgs = isRu ? [
-            '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' к оценке · ' + bGold(doubt) + ' под вопросом · ' + bGreen(visit) + ' на визит',
-            '🛡️ Проверено ' + bGold(rawAds) + ' объявлений · отсеяно ' + bRose(dupAds) + ' дубликатов и шума',
-            '💎 Только ' + bGold('1 из ' + ratioOneIn) + ' проходит фильтр: ' + bGreen(activeCount) + ' активных (' + bRose(discarded) + ' в архиве)',
-            '⚡ Динамика рынка: ' + bRose(vanCnt + ' объявлений (' + vanPct + '%)') + ' снято с публикации в порталах',
-            '🟢 ' + bGreen(sealsCount) + ' ' + sealsWordRu + ' (' + sealsHtml + ') · ⏳ След. лот в ' + bGold(nextTimeStr + (bolsaCnt > 0 ? ' (+' + bolsaCnt + ' в резерве)' : '')),
-            agendaMsgRu
-          ] : [
-            '✨ ' + greet + ', ' + cname + ' · ' + bGold(pending) + ' por valorar · ' + bGold(doubt) + ' en duda · ' + bGreen(visit) + ' para visitar',
-            '🛡️ ' + bGold(rawAds) + ' anuncios barridos hoy · ' + bRose(dupAds) + ' repetidos descartados',
-            '💎 Solo ' + bGold('1 de cada ' + ratioOneIn) + ' supera el filtro: ' + bGreen(activeCount) + ' activas (' + bRose(discarded) + ' descartadas)',
-            '⚡ Rotación real: ' + bRose(vanCnt + ' anuncios (' + vanPct + '%)') + ' han sido dados de baja en portales',
-            '🟢 ' + bGreen(sealsCount) + ' ' + sealsWordEs + ' (' + sealsHtml + ') · ⏳ Próximo lote ' + bGold(nextTimeStr + (bolsaCnt > 0 ? ' (+' + bolsaCnt + ' en bolsa)' : '')),
-            agendaMsgEs
-          ];
-
-          var tpEl = document.getElementById('bespoke-teleprompter');
-          if (tpEl && msgs.length) {
-            tpEl.innerHTML = msgs[0];
-            if (window._tpTimer) clearInterval(window._tpTimer);
-            window._tpIdx = 0;
-            window._tpTimer = setInterval(function() {
-              var el = document.getElementById('bespoke-teleprompter');
-              if (!el) return;
-              el.style.opacity = '0';
-              setTimeout(function() {
-                window._tpIdx = (window._tpIdx + 1) % msgs.length;
-                el.innerHTML = msgs[window._tpIdx];
-                el.style.opacity = '1';
-              }, 320);
-            }, 7000);
-          }
-      } catch (e) { console.warn('LiveTelemetry err:', e); }
-    };
-
-    // Interceptar también las respuestas de GAS_API_URL en Producción cuando traigan d.telemetry
-    var _origFetch = window.fetch;
-    if (_origFetch) {
-      window.fetch = function() {
-        var p = _origFetch.apply(this, arguments);
-        try {
-          p.then(function(r) { return r.clone().json(); }).then(function(d) {
-            if (d && d.ok && Array.isArray(d.items)) {
-              if (d.telemetry) window.serverTelemetry = d.telemetry;
-              window.lastPwaItems = d.items;
-              window.lastPwaCalendar = d.calendar || {};
-              setTimeout(function() {
-                window.renderLiveTelemetryHeader(window.serverTelemetry, window.lastPwaItems, window.lastPwaCalendar);
-              }, 120);
-            }
-          }).catch(function(){});
-        } catch (e) {}
-        return p;
-      };
-    }
-
-    // Vigilar hasta que el DOM tenga las tarjetas cargadas y activar el Teleprompter inmediatamente
-    var _bootTries = 0;
-    var _bootTimer = setInterval(function() {
-      _bootTries++;
-      var tp = document.getElementById('bespoke-teleprompter');
-      if (tp && tp.innerHTML.indexOf('Sincronizando') !== -1) {
-        window.renderLiveTelemetryHeader(window.serverTelemetry, window.lastPwaItems, window.lastPwaCalendar);
-      } else if (_bootTries > 25) {
-        clearInterval(_bootTimer);
-      }
-    }, 450);
-
-    window.renderLiveTelemetryHeader();
-  })();
+<script id="npp-baja-clients-state">window.bajaClients = ["larisa", "andrii_anastasia"];
+(function(){
+  var q = window.location.search || "";
+  if (q.indexOf("t_8us0") !== -1 || q.toLowerCase().indexOf("andrii") !== -1) {
+    try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
+    document.addEventListener("DOMContentLoaded", function(){
+      document.body.innerHTML = '<div style="font-family:sans-serif;background:#14110F;color:#D4AF37;height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px;"><h2 style="font-size:20px;margin-bottom:8px;">🔒 NAVARRO PRIVATE CONCIERGE</h2><p style="color:#A39B90;font-size:14px;">Acceso finalizado · Sin datos disponibles.</p></div>';
+    });
+  }
+})();
 </script>
+
 <!-- DREAMLIFE_SKIN_START -->
 <script>
 (function() {
@@ -1608,7 +1343,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
     m.style.display = "block";
     var badge = document.getElementById("yqa-ctx-badge");
     var prof = getActiveStaffProfile() || { name: "YULIIA" };
-    var cl = (typeof currentClient !== "undefined") ? currentClient : "andrii_anastasia";
+    var cl = (typeof currentClient !== "undefined") ? currentClient : "mariona";
     var flt = (typeof currentFilter !== "undefined") ? currentFilter : "pending";
     if (badge) badge.textContent = "👤 " + prof.name + " | 📍 Cliente: " + cl + " | Pestaña: " + flt;
     window.loadYuliiaQaHistory();
@@ -1701,7 +1436,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
       action: "yuliia_qa",
       qa_action: "add",
       author: prof.name,
-      client: (typeof currentClient !== "undefined") ? currentClient : "andrii_anastasia",
+      client: (typeof currentClient !== "undefined") ? currentClient : "mariona",
       active_tab: (typeof currentFilter !== "undefined") ? currentFilter : "pending",
       box_id: (document.getElementById("yqa-property") || {}).value || "General",
       box_img: (document.getElementById("yqa-property-img") || {}).value || "",
@@ -1841,5 +1576,485 @@ body.master-mode #lab-toolbar { display: flex !important; }
 })();
 </script>
 <!-- END_YULIIA_QA_MODULE -->
+
+<!-- [npp-live-telemetry-hook legacy eliminado: 100% Backend O(1)] -->
+<!-- === [NPP_PASSIVE_TELEPROMPTER_V2_START] === -->
+<style id="npp-passive-tp-styles">
+  #bespoke-tp-card, #bespoke-teleprompter {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 124px !important;
+    max-height: none !important;
+  }
+  #npp-ad-drawer-backdrop {
+    position: fixed; inset: 0; z-index: 99998;
+    background: rgba(5, 7, 11, 0.82); backdrop-filter: blur(8px);
+    display: none; align-items: flex-end; justify-content: center;
+    padding: 0 10px;
+  }
+  #npp-ad-drawer-backdrop.open { display: flex; }
+  #npp-ad-drawer-panel {
+    width: 100%; max-width: 42rem; height: 92vh; max-height: 92vh;
+    background: #0B0E14; color: #F8FAFC;
+    border-top-left-radius: 20px; border-top-right-radius: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.75);
+    display: flex; flex-direction: column; overflow: hidden;
+    animation: nppSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes nppSlideUp {
+    from { transform: translateY(28px); opacity: 0.4; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .npp-pill-choice {
+    background: #131822; color: #CBD5E1; border: 1px solid rgba(255,255,255,0.14);
+    padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s ease;
+  }
+  .npp-pill-choice.active {
+    background: rgba(212, 175, 55, 0.2); color: #F5E7B2;
+    border-color: #D4AF37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.28);
+  }
+</style>
+
+<div id="npp-ad-drawer-backdrop" onclick="if(event.target===this)window.closeNppAdModal()">
+  <div id="npp-ad-drawer-panel" role="dialog" aria-modal="true"></div>
+</div>
+
+<script id="npp-passive-tp-script">
+(function() {
+  window.nppTpState = {
+    payload: null,
+    idx: 0,
+    paused: false,
+    timer: null,
+    selectedBudget: "1M€ – 1.5M€",
+    includeLegal: true,
+    selectedDest: "Pedralbes / Zona Alta"
+  };
+
+  function killLegacyTpTimers() {
+    var keys = ["_tpTimer", "_tpInterval", "_tpThumbTimer", "_tpThumbInterval"];
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (window[k]) {
+        try { clearInterval(window[k]); } catch(e) {}
+        try { clearTimeout(window[k]); } catch(e) {}
+        window[k] = null;
+      }
+    }
+  }
+
+  function findTpMount() {
+    var ids = ["bespoke-tp-card", "bespoke-teleprompter", "teleprompter-content", "teleprompter-bar", "teleprompter-box", "npp-teleprompter", "tp-container", "promo-banner"];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) return el;
+    }
+    var q = document.querySelector("[data-teleprompter], .teleprompter-box, .teleprompter-bar, #teleprompter");
+    return q || null;
+  }
+
+  // Lee los contadores directamente de los 4 botones inferiores (#count-new, #count-doubt, #count-visit, #count-calendar)
+  function readBottomNavNumber(ids, keywordList) {
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) {
+        var m = (el.textContent || "").match(/\d+/);
+        if (m) return parseInt(m[0], 10);
+      }
+    }
+    var btns = document.querySelectorAll("button, a, div");
+    for (var j = 0; j < btns.length; j++) {
+      var b = btns[j];
+      var txt = (b.textContent || "").trim();
+      if (txt.length > 0 && txt.length < 36) {
+        for (var k = 0; k < keywordList.length; k++) {
+          if (txt.indexOf(keywordList[k]) !== -1) {
+            var numMatch = txt.match(/\d+/);
+            if (numMatch) return parseInt(numMatch[0], 10);
+          }
+        }
+      }
+    }
+    return NaN;
+  }
+
+  window.syncNppTpLiveCounts = function() {
+    var st = window.nppTpState;
+    if (!st || !st.payload || !st.payload.counts) return;
+
+    var nE = readBottomNavNumber(["count-new", "badge-new", "nav-count-new"], ["Valorar", "Оценить", "Review"]);
+    var nD = readBottomNavNumber(["count-doubt", "badge-doubt", "nav-count-doubt"], ["Dudas", "Вопросы", "Shortlist"]);
+    var nV = readBottomNavNumber(["count-visit", "badge-visit", "nav-count-visit"], ["Visitas", "Визиты", "Visits"]);
+    var nA = readBottomNavNumber(["count-calendar", "badge-calendar", "count-agenda", "badge-agenda"], ["Agenda", "Календарь", "Календар", "Schedule"]);
+
+    if (!isNaN(nE)) st.payload.counts.eval = nE;
+    if (!isNaN(nD)) st.payload.counts.doubt = nD;
+    if (!isNaN(nV)) st.payload.counts.visit = nV;
+    if (!isNaN(nA)) st.payload.counts.agenda = nA;
+
+    var elsE = document.querySelectorAll(".npp-live-eval");
+    for (var i = 0; i < elsE.length; i++) elsE[i].textContent = String(st.payload.counts.eval);
+    var elsD = document.querySelectorAll(".npp-live-doubt");
+    for (var j = 0; j < elsD.length; j++) elsD[j].textContent = String(st.payload.counts.doubt);
+    var elsV = document.querySelectorAll(".npp-live-visit");
+    for (var k = 0; k < elsV.length; k++) elsV[k].textContent = String(st.payload.counts.visit);
+    var elsA = document.querySelectorAll(".npp-live-agenda");
+    for (var l = 0; l < elsA.length; l++) elsA[l].textContent = String(st.payload.counts.agenda);
+  };
+
+  // Pinta los sellos verdes en la barra horaria 9AM · 12PM · 4PM · 7PM · 11PM y actualiza el botón PRÓX. LOTE
+  window.updateNppTimelineBar = function(tp) {
+    if (!tp) return;
+    var bolsa = (tp.counts && typeof tp.counts.bolsa === "number") ? tp.counts.bolsa : 0;
+    var nextDrip = tp.next_drip || "16:00";
+    var lang = tp.lang || "es";
+
+    // 1. Actualizar píldora PRÓX. LOTE si existe en el DOM
+    var allBtns = document.querySelectorAll("span, div, button");
+    for (var i = 0; i < allBtns.length; i++) {
+      var el = allBtns[i];
+      if (el.children.length === 0 && (el.textContent.indexOf("PRÓX. LOTE") !== -1 || el.textContent.indexOf("РАДАР") !== -1 || el.textContent.indexOf("COLA") !== -1 || el.textContent.indexOf("ОЧЕРЕД") !== -1)) {
+        if (bolsa > 0) {
+          el.textContent = (lang === "ru" || lang === "uk") ? ("⏳ СЛЕД. ПАКЕТ: " + nextDrip + " (" + bolsa + ")") : ("⏳ PRÓX. LOTE: " + nextDrip + " (" + bolsa + ")");
+        } else {
+          el.textContent = (lang === "ru" || lang === "uk") ? ("✓ РАДАР ОБНОВЛЕН (0 В ОЧЕРЕДИ)") : ("✓ RADAR AL DÍA (0 EN COLA)");
+        }
+        break;
+      }
+    }
+
+    // 2. Marcar sellos verdes en 9AM, 12PM, 4PM, 7PM, 11PM según la hora actual
+    var nowHr = new Date().getHours();
+    var slots = [
+      { lbl: "9AM", hr: 9 },
+      { lbl: "12PM", hr: 12 },
+      { lbl: "4PM", hr: 16 },
+      { lbl: "7PM", hr: 19 },
+      { lbl: "11PM", hr: 23 }
+    ];
+    var spans = document.querySelectorAll("span, div");
+    for (var s = 0; s < slots.length; s++) {
+      var sl = slots[s];
+      for (var m = 0; m < spans.length; m++) {
+        var sp = spans[m];
+        var txt = (sp.textContent || "").trim();
+        if (sp.children.length === 0 && (txt === sl.lbl || txt === ("✓ " + sl.lbl) || txt === ("● " + sl.lbl))) {
+          if (nowHr >= sl.hr) {
+            sp.innerHTML = '<span style="color:#10B981;font-weight:800;">✓</span> ' + sl.lbl;
+            sp.style.color = "#0F172A";
+            sp.style.fontWeight = "700";
+          } else {
+            sp.textContent = sl.lbl;
+          }
+        }
+      }
+    }
+  };
+
+  window.renderNppPassiveSlide = function() {
+    killLegacyTpTimers();
+    var st = window.nppTpState;
+    if (!st.payload || !st.payload.slides || !st.payload.slides.length) return;
+    var mount = findTpMount();
+    if (!mount) return;
+    var slides = st.payload.slides;
+    var s = slides[st.idx % slides.length];
+    var dots = slides.map(function(sl, i) {
+      var active = (i === (st.idx % slides.length));
+      var col = active ? "#D4AF37" : "rgba(100,116,139,0.38)";
+      var w = active ? "18px" : "6px";
+      return '<button type="button" onclick="event.stopPropagation();window.goToNppSlide(' + i + ')" style="width:' + w + ';height:6px;border-radius:999px;background:' + col + ';border:none;padding:0;cursor:pointer;transition:all 0.2s;"></button>';
+    }).join("");
+
+    mount.innerHTML = (
+      '<div style="position:relative;width:100%;">' +
+        s.html +
+        '<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;">' + dots + '</div>' +
+      '</div>'
+    );
+    window.syncNppTpLiveCounts();
+  };
+
+  window.goToNppSlide = function(i) {
+    var st = window.nppTpState;
+    if (!st.payload || !st.payload.slides) return;
+    st.idx = i % st.payload.slides.length;
+    window.renderNppPassiveSlide();
+  };
+
+  function startTpClock() {
+    killLegacyTpTimers();
+    var st = window.nppTpState;
+    if (st.timer) clearInterval(st.timer);
+    st.timer = setInterval(function() {
+      if (st.paused || !st.payload || !st.payload.slides) return;
+      st.idx = (st.idx + 1) % st.payload.slides.length;
+      window.renderNppPassiveSlide();
+    }, 8000);
+  }
+
+  window.applyNppBackendTeleprompter = function(tp) {
+    killLegacyTpTimers();
+    if (!tp || !tp.slides || !tp.slides.length) return;
+    window.serverTeleprompter = tp;
+    window.nppTpState.payload = tp;
+    window.nppTpState.idx = 0;
+    window.renderNppPassiveSlide();
+    window.updateNppTimelineBar(tp);
+    startTpClock();
+  };
+
+  window.renderLiveTelemetryHeader = function(telData) {
+    killLegacyTpTimers();
+    if (telData && telData.teleprompter && telData.teleprompter.slides) {
+      window.applyNppBackendTeleprompter(telData.teleprompter);
+    } else if (window.serverTeleprompter && window.serverTeleprompter.slides) {
+      window.applyNppBackendTeleprompter(window.serverTeleprompter);
+    } else if (window.nppTpState && window.nppTpState.payload) {
+      window.renderNppPassiveSlide();
+      window.updateNppTimelineBar(window.nppTpState.payload);
+    }
+  };
+
+  window.openBespokePromoModal = function(kind) {
+    var map = {"referral": "ad1", "ad1": "ad1", "buy": "ad2", "buyer": "ad2", "ad2": "ad2", "concierge": "ad3", "vip": "ad3", "ad3": "ad3"};
+    window.openNppAdModal(map[kind] || "ad1");
+  };
+
+  window.closeNppAdModal = function() {
+    window.nppTpState.paused = false;
+    var bd = document.getElementById("npp-ad-drawer-backdrop");
+    if (bd) bd.classList.remove("open");
+  };
+
+  window.selectNppPill = function(btn, group, val) {
+    if (group === "budget") window.nppTpState.selectedBudget = val;
+    if (group === "dest") window.nppTpState.selectedDest = val;
+    var parent = btn.parentElement;
+    if (parent) {
+      var btns = parent.querySelectorAll(".npp-pill-choice");
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+    }
+    btn.classList.add("active");
+  };
+
+  window.sendNppWhatsAppAction = function(mode) {
+    var st = window.nppTpState;
+    var cname = (st.payload && st.payload.client_name) ? st.payload.client_name : "";
+    var msg = "";
+    if (mode === "ad1_share") {
+      msg = "Hola! Estoy buscando piso en Barcelona con Yuliia y el Radar privado de Navarro Private Properties. Te comparto su invitación prioritaria: " + window.location.origin + "/app";
+    } else if (mode === "ad1_up") {
+      msg = "Hola Yuliia, soy " + cname + ". Quiero consultar los planes del Radar / Personal Shopper.";
+    } else if (mode === "ad2") {
+      msg = "Hola Juan Manuel / Yuliia, soy " + cname + ". Me interesa el servicio Personal Property Buyer en Barcelona (Presupuesto: " + st.selectedBudget + ").";
+    } else if (mode === "ad3") {
+      msg = "Hola Juan Manuel / Yuliia, soy " + cname + ". Solicito Dossier Privado de Private Estates & Arbitraje Off-Market (Interés: " + st.selectedDest + ").";
+    }
+    var waUrl = "https" + "://wa.me/?text=" + encodeURIComponent(msg);
+    window.open(waUrl, "_blank");
+  };
+
+  window.openNppAdModal = function(adKey) {
+    var st = window.nppTpState;
+    st.paused = true;
+    var modals = (st.payload && st.payload.modals) ? st.payload.modals : null;
+    if (!modals || !modals[adKey]) return;
+    var m = modals[adKey];
+    var panel = document.getElementById("npp-ad-drawer-panel");
+    var bd = document.getElementById("npp-ad-drawer-backdrop");
+    if (!panel || !bd) return;
+
+    var stepsHtml = (m.steps || []).map(function(s) {
+      return (
+        '<div style="background:#121722;border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:12px;">' +
+          '<div style="font-size:16px;margin-bottom:4px;">' + s.num + ' <strong style="color:#F5E7B2;font-size:13px;">' + s.t + '</strong></div>' +
+          '<div style="font-size:12px;color:#94A3B8;line-height:1.4;">' + s.d + '</div>' +
+        '</div>'
+      );
+    }).join("");
+
+    var bodyHtml = "";
+    if (adKey === "ad1") {
+      var pillars = (m.pillars || []).map(function(p) {
+        return (
+          '<div style="background:#121722;border-left:3px solid #D4AF37;border-radius:8px;padding:10px 12px;">' +
+            '<div style="font-size:13px;font-weight:700;color:#F8FAFC;">' + p.t + '</div>' +
+            '<div style="font-size:12px;color:#CBD5E1;margin-top:3px;">' + p.d + '</div>' +
+          '</div>'
+        );
+      }).join("");
+      var plans = (m.plans || []).map(function(pl) {
+        var bdr = pl.highlight ? "1.5px solid #D4AF37" : "1px solid rgba(255,255,255,0.12)";
+        var bg = pl.highlight ? "rgba(212,175,55,0.10)" : "#121722";
+        return (
+          '<div style="background:' + bg + ';border:' + bdr + ';border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;">' +
+            '<div>' +
+              '<div style="font-size:13.5px;font-weight:700;color:#FFFFFF;">' + pl.name + ' <span style="font-size:11px;color:#F5E7B2;background:rgba(212,175,55,0.18);padding:2px 7px;border-radius:999px;margin-left:6px;">' + pl.note + '</span></div>' +
+              '<div style="font-size:12px;color:#CBD5E1;margin-top:4px;">' + pl.desc + '</div>' +
+            '</div>' +
+            '<div style="font-size:18px;font-weight:800;color:#D4AF37;white-space:nowrap;">' + pl.price + '</div>' +
+          '</div>'
+        );
+      }).join("");
+      bodyHtml = (
+        '<h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:#D4AF37;margin:16px 0 8px;">' + m.pillars_title + '</h4>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:8px;">' + pillars + '</div>' +
+        '<h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:#D4AF37;margin:18px 0 8px;">' + m.plans_title + '</h4>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:8px;">' + plans + '</div>'
+      );
+    } else if (adKey === "ad2") {
+      var phases = (m.phases || []).map(function(ph) {
+        return (
+          '<div style="background:#121722;border:1px solid rgba(212,175,55,0.25);border-radius:10px;padding:11px 13px;">' +
+            '<div style="font-size:13px;font-weight:700;color:#F5E7B2;">' + ph.t + '</div>' +
+            '<div style="font-size:12px;color:#CBD5E1;margin-top:3px;">' + ph.d + '</div>' +
+          '</div>'
+        );
+      }).join("");
+      var bPills = (m.budgets || []).map(function(b, idx) {
+        var act = (idx === 1) ? " active" : "";
+        return '<button type="button" class="npp-pill-choice' + act + '" data-group="budget" data-val="' + b + '" onclick="window.selectNppPill(this,this.dataset.group,this.dataset.val)">' + b + '</button>';
+      }).join("");
+      bodyHtml = (
+        '<h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:#D4AF37;margin:16px 0 8px;">' + m.inc_title + '</h4>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:8px;">' + phases + '</div>' +
+        '<div style="margin-top:16px;background:#121722;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);">' +
+          '<div style="font-size:12px;font-weight:600;color:#E2E8F0;margin-bottom:8px;">' + m.budget_lbl + '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + bPills + '</div>' +
+          '<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:#F5E7B2;cursor:pointer;">' +
+            '<input type="checkbox" checked onchange="window.nppTpState.includeLegal=this.checked" style="accent-color:#D4AF37;width:16px;height:16px;"/> ' + m.legal_chk +
+          '</label>' +
+        '</div>'
+      );
+    } else if (adKey === "ad3") {
+      var armas = (m.armas || []).map(function(ar) {
+        return (
+          '<div style="background:#121722;border-left:3px solid #38BDF8;border-radius:8px;padding:10px 12px;">' +
+            '<div style="font-size:13px;font-weight:700;color:#F8FAFC;">' + ar.t + '</div>' +
+            '<div style="font-size:12px;color:#CBD5E1;margin-top:3px;">' + ar.d + '</div>' +
+          '</div>'
+        );
+      }).join("");
+      var dests = (m.destinos || []).map(function(ds) {
+        return (
+          '<div style="background:#121722;border:1px solid rgba(212,175,55,0.22);border-radius:10px;padding:10px 12px;">' +
+            '<div style="font-size:13px;font-weight:700;color:#F5E7B2;">' + ds.t + '</div>' +
+            '<div style="font-size:12px;color:#CBD5E1;margin-top:3px;">' + ds.d + '</div>' +
+          '</div>'
+        );
+      }).join("");
+      var dPills = (m.pills || []).map(function(p, idx) {
+        var act = (idx === 0) ? " active" : "";
+        return '<button type="button" class="npp-pill-choice' + act + '" data-group="dest" data-val="' + p + '" onclick="window.selectNppPill(this,this.dataset.group,this.dataset.val)">' + p + '</button>';
+      }).join("");
+      bodyHtml = (
+        '<h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:#38BDF8;margin:16px 0 8px;">' + m.a_title + '</h4>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:8px;">' + armas + '</div>' +
+        '<h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:#D4AF37;margin:16px 0 8px;">' + m.b_title + '</h4>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:8px;">' + dests + '</div>' +
+        '<div style="margin-top:14px;background:#121722;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);">' +
+          '<div style="font-size:12px;font-weight:600;color:#E2E8F0;margin-bottom:8px;">' + m.dest_lbl + '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + dPills + '</div>' +
+        '</div>'
+      );
+    }
+
+    var footerHtml = "";
+    if (adKey === "ad1") {
+      footerHtml = (
+        '<div style="display:flex;flex-wrap:wrap;gap:10px;width:100%;">' +
+          '<button type="button" data-mode="ad1_share" onclick="window.sendNppWhatsAppAction(this.dataset.mode)" style="flex:1;min-width:220px;background:linear-gradient(135deg,#10B981,#059669);color:#FFFFFF;font-weight:700;font-size:13.5px;padding:12px 16px;border-radius:10px;border:none;cursor:pointer;">' + m.cta_wa + '</button>' +
+          '<button type="button" data-mode="ad1_up" onclick="window.sendNppWhatsAppAction(this.dataset.mode)" style="background:#1E293B;color:#F5E7B2;font-weight:600;font-size:12.5px;padding:12px 14px;border-radius:10px;border:1px solid rgba(212,175,55,0.4);cursor:pointer;">' + m.cta_up + '</button>' +
+        '</div>'
+      );
+    } else if (adKey === "ad2") {
+      footerHtml = (
+        '<button type="button" data-mode="ad2" onclick="window.sendNppWhatsAppAction(this.dataset.mode)" style="width:100%;background:linear-gradient(135deg,#D4AF37,#9A6B16);color:#090B10;font-weight:800;font-size:14px;padding:13px 18px;border-radius:10px;border:none;cursor:pointer;">' + m.cta_btn + '</button>'
+      );
+    } else {
+      footerHtml = (
+        '<button type="button" data-mode="ad3" onclick="window.sendNppWhatsAppAction(this.dataset.mode)" style="width:100%;background:linear-gradient(135deg,#D4AF37,#9A6B16);color:#090B10;font-weight:800;font-size:14px;padding:13px 18px;border-radius:10px;border:none;cursor:pointer;">' + m.cta_btn + '</button>'
+      );
+    }
+
+    panel.innerHTML = (
+      '<div style="position:relative;height:200px;min-height:200px;width:100%;background-image:url(' + m.bg_url + ');background-size:cover;background-position:center;">' +
+        '<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,14,20,0.35) 0%,rgba(11,14,20,0.92) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:18px 20px;">' +
+          '<button type="button" onclick="window.closeNppAdModal()" style="position:absolute;top:14px;right:14px;background:rgba(15,23,42,0.85);color:#F8FAFC;border:1px solid rgba(255,255,255,0.2);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;">✕ ' + m.close_btn + '</button>' +
+          '<span style="font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#F5E7B2;margin-bottom:4px;">' + m.tag + '</span>' +
+          '<h3 style="font-size:18px;font-weight:800;color:#FFFFFF;line-height:1.25;margin:0;">' + m.title + '</h3>' +
+        '</div>' +
+      '</div>' +
+      '<div style="flex:1;overflow-y:auto;padding:18px 20px;">' +
+        '<h4 style="font-size:13px;text-transform:uppercase;letter-spacing:0.06em;color:#D4AF37;margin:0 0 8px;">' + m.how_title + '</h4>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">' + stepsHtml + '</div>' +
+        bodyHtml +
+      '</div>' +
+      '<div style="padding:14px 20px;background:#080A0F;border-top:1px solid rgba(255,255,255,0.1);">' +
+        footerHtml +
+      '</div>'
+    );
+
+    bd.classList.add("open");
+  };
+
+  // Interceptar respuestas de /api/pwa/sheet y /api/pwa/move para actualizar Teleprompter al instante
+  var origFetch = window.fetch;
+  if (origFetch) {
+    window.fetch = function() {
+      var args = arguments;
+      return origFetch.apply(this, args).then(function(resp) {
+        try {
+          var url = (args[0] && typeof args[0] === "string") ? args[0] : (args[0] && args[0].url ? args[0].url : "");
+          if (url.indexOf("/api/pwa/sheet") !== -1) {
+            resp.clone().json().then(function(data) {
+              if (data && data.teleprompter && data.teleprompter.slides) {
+                setTimeout(function() { window.applyNppBackendTeleprompter(data.teleprompter); }, 40);
+                setTimeout(function() { window.syncNppTpLiveCounts(); }, 300);
+              }
+            }).catch(function(){});
+          } else if (url.indexOf("/api/pwa/") !== -1) {
+            setTimeout(function() { window.syncNppTpLiveCounts(); }, 120);
+          }
+        } catch (e) {}
+        return resp;
+      });
+    };
+  }
+
+  // Escuchar clics en la App para sincronizar contadores en 0ms si el usuario mueve/descarta un piso
+  document.addEventListener("click", function() {
+    setTimeout(function() { window.syncNppTpLiveCounts(); }, 80);
+  });
+
+  function bootNppTp() {
+    killLegacyTpTimers();
+    if (window.serverTeleprompter && window.serverTeleprompter.slides) {
+      window.applyNppBackendTeleprompter(window.serverTeleprompter);
+    } else if (window.location.pathname.indexOf("/app") !== -1) {
+      var q = new URLSearchParams(window.location.search);
+      var cl = q.get("client") || "mariona";
+      origFetch("/api/pwa/sheet?client=" + encodeURIComponent(cl))
+        .then(function(r){ return r.json(); })
+        .then(function(d){ if (d && d.teleprompter && d.teleprompter.slides) window.applyNppBackendTeleprompter(d.teleprompter); })
+        .catch(function(){});
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function(){ setTimeout(bootNppTp, 80); });
+  } else {
+    setTimeout(bootNppTp, 80);
+  }
+})();
+</script>
+<!-- === [NPP_PASSIVE_TELEPROMPTER_V2_END] === -->
 </body>
 </html>
