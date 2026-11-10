@@ -1029,7 +1029,8 @@ body.master-mode #lab-toolbar { display: flex !important; }
         </button>
       </div>
 
-      <textarea id="yqa-text" rows="3" placeholder="Habla con el micrófono o escribe aquí qué ajuste o incidencia quieres reportar..." style="width:100%; padding:12px 14px; border-radius:14px; border:1.5px solid #94A3B8; font-size:14px; line-height:1.45; color:#0F172A; background:#FFFFFF; margin-bottom:12px;"></textarea>
+      <div id="yqa-reply-banner" style="display:none; margin-bottom:10px; padding:9px 12px; border-radius:12px; background:#EFF6FF; border:1.5px solid #3B82F6; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;"><div id="yqa-reply-label" style="font-size:11.5px; font-weight:800; color:#1E40AF;">↩️ Ответ / Respondiendo</div><button type="button" onclick="window.cancelYqaReplyMode()" style="padding:3px 9px; border-radius:8px; font-size:11px; font-weight:700; background:#DBEAFE; color:#1E3A8A; border:none; cursor:pointer;">✕ Отмена</button></div>
+        <textarea id="yqa-text" rows="3" placeholder="Habla con el micrófono o escribe aquí qué ajuste o incidencia quieres reportar..." style="width:100%; padding:12px 14px; border-radius:14px; border:1.5px solid #94A3B8; font-size:14px; line-height:1.45; color:#0F172A; background:#FFFFFF; margin-bottom:12px;"></textarea>
 
       <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
         <span id="yqa-ctx-badge" style="font-size:11px; font-family:monospace; color:#475569; font-weight:700;"></span>
@@ -1412,143 +1413,187 @@ body.master-mode #lab-toolbar { display: flex !important; }
     return isLoc ? "/api/pwa/yuliia-qa" : GAS_QA_URL;
   }
 
-  window.submitYuliiaQaReport = async function() {
-    var txtArea = document.getElementById("yqa-text");
-    var text = String((txtArea && txtArea.value) || "").trim();
-    if (!text) return;
-    var prof = getActiveStaffProfile() || { name: "YULIIA", lang: "ru-RU" };
-    var sendBtn = document.getElementById("yqa-send-btn");
-    if (sendBtn) sendBtn.textContent = "⏳ Guardando...";
-    var payload = {
-      _endpoint: "yuliia-qa",
-      action: "yuliia_qa",
-      qa_action: "add",
-      author: prof.name,
-      client: (typeof currentClient !== "undefined") ? currentClient : "mariona",
-      active_tab: (typeof currentFilter !== "undefined") ? currentFilter : "pending",
-      box_id: (document.getElementById("yqa-property") || {}).value || "General",
-      box_img: (document.getElementById("yqa-property-img") || {}).value || "",
-      box_price: (document.getElementById("yqa-property-price") || {}).value || "",
-      lang: (document.getElementById("yqa-lang") || {}).value || prof.lang,
-      text: text,
-      device: navigator.userAgent.substring(0, 65)
+  window._yqaReplyTargetId = "";
+
+    window.startYqaReply = function(idx) {
+      var it = window._yqaLoadedItems[idx];
+      if (!it || !it.id) return;
+      window._yqaReplyTargetId = it.id;
+      var b = document.getElementById("yqa-reply-banner");
+      var l = document.getElementById("yqa-reply-label");
+      if (l) l.textContent = "↩️ Ответ / Respuesta a " + String(it.author || "JUANMA") + " · 🏠 " + (it.box_id || "General");
+      if (b) b.style.display = "flex";
+      var ta = document.getElementById("yqa-text");
+      if (ta) ta.focus();
     };
-    try {
-      await fetch(getQaApiEndpoint(), {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-      if (txtArea) txtArea.value = "";
-      await window.loadYuliiaQaHistory();
-    } catch (e) {}
-    if (sendBtn) sendBtn.textContent = "📩 Guardar y Enviar Incidencia / Отправить";
-  };
 
-  window.toggleYqaResolvedFromModal = async function(idx) {
-    var it = window._yqaLoadedItems[idx];
-    if (!it || !it.id) return;
-    try {
-      await fetch(getQaApiEndpoint(), {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          _endpoint: "yuliia-qa",
-          action: "yuliia_qa",
-          qa_action: "toggle_status",
-          id: it.id
-        })
-      });
-      await window.loadYuliiaQaHistory();
-    } catch (e) {}
-  };
+    window.cancelYqaReplyMode = function() {
+      window._yqaReplyTargetId = "";
+      var b = document.getElementById("yqa-reply-banner");
+      if (b) b.style.display = "none";
+    };
 
-  window.copyYuliiaReportByIdx = function(idx) {
-    var it = window._yqaLoadedItems[idx];
-    if (!it) return;
-    var who = String(it.author || "YULIIA").toUpperCase();
-    var pr = it.box_price ? (" (" + it.box_price + ")") : "";
-    var fullCopy = "[🎙️ " + who + " QA · " + (it.created_at || "") + "] Cliente: " + (it.client || "") + " | Pestaña: " + (it.active_tab || it.tab || "") + " | Piso: " + (it.box_id || "General") + pr + "\nMensaje: " + (it.text || "");
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(fullCopy);
-    }
-    alert("✅ Reporte de " + who + " copiado al portapapeles.");
-  };
+    window.submitYuliiaQaReport = async function() {
+      var txtArea = document.getElementById("yqa-text");
+      var text = String((txtArea && txtArea.value) || "").trim();
+      if (!text) return;
+      var prof = getActiveStaffProfile() || { name: "YULIIA", lang: "ru-RU" };
+      var sendBtn = document.getElementById("yqa-send-btn");
+      if (sendBtn) sendBtn.textContent = "⏳ Guardando...";
+      var payload = window._yqaReplyTargetId
+        ? {
+            _endpoint: "yuliia-qa",
+            action: "yuliia_qa",
+            qa_action: "reply",
+            id: window._yqaReplyTargetId,
+            author: prof.name,
+            text: text
+          }
+        : {
+            _endpoint: "yuliia-qa",
+            action: "yuliia_qa",
+            qa_action: "add",
+            author: prof.name,
+            client: (typeof currentClient !== "undefined") ? currentClient : "mariona",
+            active_tab: (typeof currentFilter !== "undefined") ? currentFilter : "pending",
+            box_id: (document.getElementById("yqa-property") || {}).value || "General",
+            box_img: (document.getElementById("yqa-property-img") || {}).value || "",
+            box_price: (document.getElementById("yqa-property-price") || {}).value || "",
+            lang: (document.getElementById("yqa-lang") || {}).value || prof.lang,
+            text: text,
+            device: navigator.userAgent.substring(0, 65)
+          };
+      try {
+        await fetch(getQaApiEndpoint(), {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        if (txtArea) txtArea.value = "";
+        window.cancelYqaReplyMode();
+        await window.loadYuliiaQaHistory();
+      } catch (e) {}
+      if (sendBtn) sendBtn.textContent = "📩 Guardar y Enviar Incidencia / Отправить";
+    };
 
-  function resolveItemMetaFromLoaded(boxIdStr, savedImg, savedPrice) {
-    var img = savedImg || "";
-    var price = savedPrice || "";
-    if ((!img || !price) && typeof allItems !== "undefined" && Array.isArray(allItems)) {
-      var codeMatch = String(boxIdStr || "").match(/NPP-ALQ-[A-Z0-9]+/);
-      var code = codeMatch ? codeMatch[0] : "";
-      if (code) {
-        var found = allItems.find(function(x){ return x.box_id === code; });
-        if (found) {
-          if (!img) img = found.img || "";
-          if (!price && found.price) {
-            var pNum = String(found.price).replace(/[^\d]/g, "");
-            if (pNum) price = Number(pNum).toLocaleString("es-ES") + " €/mes";
+    window.toggleYqaResolvedFromModal = async function(idx) {
+      var it = window._yqaLoadedItems[idx];
+      if (!it || !it.id) return;
+      try {
+        await fetch(getQaApiEndpoint(), {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            _endpoint: "yuliia-qa",
+            action: "yuliia_qa",
+            qa_action: "toggle_status",
+            id: it.id
+          })
+        });
+        await window.loadYuliiaQaHistory();
+      } catch (e) {}
+    };
+
+    window.copyYuliiaReportByIdx = function(idx) {
+      var it = window._yqaLoadedItems[idx];
+      if (!it) return;
+      var who = String(it.author || "YULIIA").toUpperCase();
+      var fullCopy = "[🎙️ " + who + " QA · " + (it.created_at || "") + "] Cliente: " + (it.client || "") + " | Piso: " + (it.box_id || "General") + "\nTexto: " + (it.text || "");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(fullCopy);
+      }
+      alert("✅ Reporte copiado al portapapeles.");
+    };
+
+    function resolveItemMetaFromLoaded(boxIdStr, savedImg, savedPrice) {
+      var img = savedImg || "";
+      var price = savedPrice || "";
+      if ((!img || !price) && typeof allItems !== "undefined" && Array.isArray(allItems)) {
+        var codeMatch = String(boxIdStr || "").match(/NPP-ALQ-[A-Z0-9]+/);
+        var code = codeMatch ? codeMatch[0] : "";
+        if (code) {
+          var found = allItems.find(function(x){ return x.box_id === code; });
+          if (found) {
+            if (!img) img = found.img || "";
+            if (!price && found.price) {
+              var pNum = String(found.price).replace(/[^\d]/g, "");
+              if (pNum) price = Number(pNum).toLocaleString("es-ES") + " €/mes";
+            }
           }
         }
       }
+      return { img: img, price: price };
     }
-    return { img: img, price: price };
-  }
 
-  window.loadYuliiaQaHistory = async function() {
-    var box = document.getElementById("yqa-history-list");
-    if (!box) return;
-    try {
-      var ep = getQaApiEndpoint();
-      var url = ep.indexOf("script.google.com") !== -1 ? (ep + "?api=yuliia_qa") : ep;
-      var r = await fetch(url);
-      var d = await r.json();
-      var items = (d && d.items) ? d.items : [];
-      window._yqaLoadedItems = items;
-      applyStaffProfileToUi();
-      if (!items.length) {
-        box.innerHTML = '<div style="font-size:12px; color:#64748B; padding:10px;">No hay incidencias registradas todavía.</div>';
-        return;
+    window.loadYuliiaQaHistory = async function() {
+      var box = document.getElementById("yqa-history-list");
+      if (!box) return;
+      try {
+        var ep = getQaApiEndpoint();
+        var url = ep.indexOf("script.google.com") !== -1 ? (ep + "?api=yuliia_qa") : ep;
+        var r = await fetch(url);
+        var d = await r.json();
+        var items = (d && d.items) ? d.items : [];
+        window._yqaLoadedItems = items;
+        applyStaffProfileToUi();
+        if (!items.length) {
+          box.innerHTML = '<div style="font-size:12px; color:#64748B; padding:10px;">No hay incidencias registradas todavía.</div>';
+          return;
+        }
+        box.innerHTML = items.map(function(it, idx) {
+          var who = String(it.author || "YULIIA").toUpperCase();
+          var isRes = it.status === "resuelto";
+          var statusBadge = isRes
+            ? '<span style="background:#16A34A; color:#FFFFFF; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">🟢 Решено</span>'
+            : '<span style="background:#F59E0B; color:#FFFFFF; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">🟠 В работе</span>';
+          var meta = resolveItemMetaFromLoaded(it.box_id, it.box_img, it.box_price);
+          var thumbHtml = meta.img
+            ? '<img src="' + meta.img + '" onerror="this.style.display=\'none\'" style="width:54px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; border:1px solid #CBD5E1;" />'
+            : '';
+          var priceBadge = meta.price
+            ? '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:11px; font-weight:800; padding:1px 7px; border-radius:5px; margin-right:6px;">' + meta.price + '</span>'
+            : '';
+          var reps = Array.isArray(it.replies) ? it.replies : [];
+          var repsHtml = reps.length
+            ? '<div style="margin-top:8px; padding-top:7px; border-top:1px dashed #CBD5E1; display:flex; flex-direction:column; gap:5px;">' +
+                reps.map(function(rp) {
+                  var rWho = String(rp.author || "JUANMA").toUpperCase();
+                  return '<div style="padding:7px 10px; border-radius:9px; background:' + (rWho === 'JUANMA' ? '#EFF6FF' : '#FFFBEB') + '; border-left:3px solid ' + (rWho === 'JUANMA' ? '#2563EB' : '#D97706') + ';">' +
+                    '<div style="font-size:10.5px; font-family:monospace; font-weight:800; color:#1E3A8A;">💬 ' + rWho + ' · ' + (rp.created_at || "") + '</div>' +
+                    '<div style="font-size:12.5px; font-weight:700; color:#0F172A; white-space:pre-wrap; margin-top:2px;">' + (rp.text || "") + '</div>' +
+                  '</div>';
+                }).join("") +
+              '</div>'
+            : '';
+
+          return '<div style="padding:11px 13px; border-radius:14px; background:' + (isRes ? '#DCFCE7' : (who === 'JUANMA' ? '#EFF6FF' : '#FEFCE8')) + '; border:1.5px solid ' + (isRes ? '#86EFAC' : (who === 'JUANMA' ? '#93C5FD' : '#FDE047')) + '; font-size:12px;">' +
+            '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">' +
+              '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+                statusBadge +
+                '<span style="font-family:monospace; font-weight:800; color:#0F172A;">👤 ' + who + ' · 🕒 ' + (it.created_at || "") + ' · 📍 ' + (it.client || "") + '</span>' +
+              '</div>' +
+              '<div style="display:flex; gap:5px;">' +
+                '<button type="button" onclick="window.startYqaReply(' + idx + ')" style="padding:3px 9px; border-radius:6px; font-size:11px; font-weight:800; background:#2563EB; color:#FFF; border:none; cursor:pointer;">↩️ Ответить</button>' +
+                '<button type="button" onclick="window.toggleYqaResolvedFromModal(' + idx + ')" style="padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700; background:#16A34A; color:#FFF; border:none; cursor:pointer;">✓</button>' +
+                '<button type="button" onclick="window.copyYuliiaReportByIdx(' + idx + ')" style="padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700; background:#0F172A; color:#FFE066; border:none; cursor:pointer;">📋</button>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:5px;">' +
+              thumbHtml +
+              '<div style="min-width:0; flex:1;">' +
+                '<div style="font-size:11px; font-weight:800; color:#1D4ED8;">' + priceBadge + '🏠 ' + (it.box_id || "General") + '</div>' +
+                '<div style="color:#0F172A; font-weight:700; white-space:pre-wrap; margin-top:2px;">' + (it.text || "") + '</div>' +
+              '</div>' +
+            '</div>' +
+            repsHtml +
+          '</div>';
+        }).join("");
+      } catch (e) {
+        box.innerHTML = '<div style="font-size:12px; color:#64748B;">Lista lista para recibir notas.</div>';
       }
-      box.innerHTML = items.map(function(it, idx) {
-        var who = String(it.author || "YULIIA").toUpperCase();
-        var isRes = it.status === "resuelto";
-        var statusBadge = isRes
-          ? '<span style="background:#16A34A; color:#FFFFFF; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">🟢 RESUELTO / ВЫПОЛНЕНО ✅</span>'
-          : '<span style="background:#F59E0B; color:#FFFFFF; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">🟠 EN REVISIÓN / В РАБОТЕ ⏳</span>';
-        var meta = resolveItemMetaFromLoaded(it.box_id, it.box_img, it.box_price);
-        var thumbHtml = meta.img
-          ? '<img src="' + meta.img + '" onerror="this.style.display=\'none\'" style="width:54px; height:42px; object-fit:cover; border-radius:8px; border:1px solid #CBD5E1; flex-shrink:0;" />'
-          : '';
-        var priceBadge = meta.price
-          ? '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:11px; font-weight:800; padding:1px 7px; border-radius:6px; margin-right:6px;">💶 ' + meta.price + '</span>'
-          : '';
-        return '<div style="padding:11px 13px; border-radius:14px; background:' + (isRes ? '#DCFCE7' : '#FEFCE8') + '; border:1.5px solid ' + (isRes ? '#4ADE80' : '#FACC15') + '; font-size:12px;">' +
-          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">' +
-            '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
-              statusBadge +
-              '<span style="font-family:monospace; font-weight:800; color:#0F172A;">👤 ' + who + ' · 🕒 ' + (it.created_at || "") + ' · ' + (it.client || "") + '</span>' +
-            '</div>' +
-            '<div style="display:flex; gap:5px;">' +
-              '<button type="button" onclick="window.toggleYqaResolvedFromModal(' + idx + ')" style="padding:3px 8px; border-radius:6px; font-size:10px; font-weight:800; background:' + (isRes ? '#E2E8F0' : '#16A34A') + '; color:' + (isRes ? '#0F172A' : '#FFFFFF') + '; border:none; cursor:pointer;">' + (isRes ? '↩️ Reabrir' : '✅ Resuelto') + '</button>' +
-              '<button type="button" onclick="window.copyYuliiaReportByIdx(' + idx + ')" style="padding:3px 8px; border-radius:6px; font-size:10px; font-weight:800; background:#0F172A; color:#FFE066; border:none; cursor:pointer;">📋 Copiar</button>' +
-            '</div>' +
-          '</div>' +
-          '<div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">' +
-            thumbHtml +
-            '<div style="min-width:0;">' +
-              '<div style="font-size:11px; font-weight:800; color:#1D4ED8;">' + priceBadge + '🏠 ' + (it.box_id || "General") + '</div>' +
-              '<div style="color:#0F172A; font-weight:700; white-space:pre-wrap; margin-top:2px;">' + (it.text || "") + '</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }).join("");
-    } catch (e) {
-      box.innerHTML = '<div style="font-size:12px; color:#64748B;">Lista lista para recibir audios.</div>';
-    }
-  };
+    };
 
-  document.addEventListener("change", function(ev) {
+    document.addEventListener("change", function(ev) {
     if (ev.target && ev.target.id === "yqa-lang") {
       ev.target.dataset.userChanged = "1";
     }
