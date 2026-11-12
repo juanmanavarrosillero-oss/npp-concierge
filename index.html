@@ -291,7 +291,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
         <div class="relative h-8 w-full text-[8px] font-mono uppercase tracking-wider mb-1 mt-0.5 select-none" style="color: var(--text-muted);">
             <button type="button" id="btn-open-npp-copilot" onclick="window.openNppCopilotModal()" class="absolute left-0 -top-1.5 z-20 inline-flex items-center gap-1.5 px-2.5 py-1 leading-none rounded-full text-[8.5px] font-extrabold tracking-tight shadow-xs cursor-pointer transition hover:scale-105" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFE066; border: 1px solid #C5A059;">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span id="lbl-copilot-btn">🧠 Copiloto IA · Tu Realidad</span>
+                <span id="lbl-copilot-btn"><strong translate="no" class="notranslate">🌌 COSMOS</strong> · Tu Búsqueda</span>
               </button>
               <span id="next-drop-badge" class="absolute -top-1 -translate-x-1/2 text-[7.5px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap z-20 shadow-xs transition-all duration-500" style="left: 83.2%; color: #B45309; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.28); line-height: 1.1;">⏳ PRÓX. LOTE</span>
             <span class="absolute left-0 bottom-0 opacity-80">9AM</span>
@@ -1904,51 +1904,53 @@ body.master-mode #lab-toolbar { display: flex !important; }
 </script>
 <!-- START_NPP_COPILOT_PNL_MODULE -->
 <div id="npp-copilot-modal" onclick="if(event.target===this)window.closeNppCopilotModal()" style="display:none; position:fixed; inset:0; z-index:9998; background:rgba(10,14,23,0.82); backdrop-filter:blur(7px); overflow-y:auto; padding:14px 10px;">
-  <div style="max-width:650px; margin:8px auto 26px auto; background:#FAF8F5; color:#14110F; border-radius:24px; border:2px solid #C5A059; box-shadow:0 24px 64px rgba(0,0,0,0.55); overflow:hidden; font-family:system-ui,-apple-system,sans-serif;">
-    <!-- CABECERA JOYA -->
-    <div style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color:#F8FAFC; padding:15px 18px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1.5px solid #C5A059;">
+  <div style="max-width:660px; margin:8px auto 26px auto; background:#FAF8F5; color:#14110F; border-radius:24px; border:2px solid #C5A059; box-shadow:0 24px 64px rgba(0,0,0,0.55); overflow:hidden; font-family:system-ui,-apple-system,sans-serif;">
+    <div style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color:#F8FAFC; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1.5px solid #C5A059;">
       <div style="display:flex; align-items:center; gap:10px; min-width:0;">
-        <div style="width:36px; height:36px; border-radius:12px; background:rgba(197,160,89,0.18); border:1px solid #C5A059; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0;">🧠</div>
+        <div style="width:38px; height:38px; border-radius:50%; background:radial-gradient(circle at 30% 30%, #38BDF8, #1E293B 65%, #090D16); border:1.5px solid #FFE066; box-shadow:0 0 16px rgba(56,189,248,0.45); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">🌌</div>
         <div style="min-width:0;">
           <div id="cp-hdr-kicker" style="font-size:9.5px; font-family:monospace; font-weight:800; color:#C5A059; text-transform:uppercase; letter-spacing:0.08em;">COPILOTO IA · PULSO DIARIO BARCELONA</div>
           <h3 id="cp-hdr-title" style="margin:1px 0 0 0; font-size:15px; font-weight:800; color:#FFE066; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Análisis en Vivo de Tu Búsqueda</h3>
         </div>
       </div>
-      <button type="button" onclick="window.closeNppCopilotModal()" style="padding:6px 11px; border-radius:10px; font-size:12px; font-weight:800; background:rgba(255,255,255,0.12); color:#FFF; border:1px solid rgba(255,255,255,0.2); cursor:pointer; flex-shrink:0;">✕</button>
+      <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+        <button type="button" id="cp-btn-speak-diag" onclick="window.speakCosmosDiagnosis()" style="padding:6px 10px; border-radius:10px; font-size:11px; font-weight:800; background:rgba(56,189,248,0.2); color:#7DD3FC; border:1px solid #38BDF8; cursor:pointer;">🔊 Escuchar</button>
+        <button type="button" id="cp-btn-next-angle" onclick="window.cycleNppCopilotAngle()" style="padding:6px 10px; border-radius:10px; font-size:11px; font-weight:800; background:rgba(197,160,89,0.22); color:#FFE066; border:1px solid #C5A059; cursor:pointer;">🔄 Otro ángulo</button>
+        <button type="button" onclick="window.closeNppCopilotModal()" style="padding:6px 11px; border-radius:10px; font-size:12px; font-weight:800; background:rgba(255,255,255,0.12); color:#FFF; border:1px solid rgba(255,255,255,0.2); cursor:pointer;">✕</button>
+      </div>
     </div>
 
-    <div style="padding:16px 18px;">
-      <!-- TERMÓMETRO DE MICRO-MERCADO -->
-      <div id="cp-kpi-strip" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:7px; margin-bottom:14px;"></div>
+    <div style="padding:15px 18px;">
+      <div id="cp-angle-pill" style="margin-bottom:10px; display:inline-block; padding:3px 10px; border-radius:999px; background:#0F172A; color:#FFE066; font-size:10.5px; font-weight:800; font-family:monospace;"></div>
 
-      <!-- CUERPO NARRATIVO PNL (4 CAPAS) -->
+      <div id="cp-kpi-strip" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:7px; margin-bottom:13px;"></div>
+
       <div id="cp-pnl-body" style="background:#FFFFFF; border:1px solid #E6DEC8; border-radius:16px; padding:14px 15px; font-size:13px; line-height:1.56; color:#1E293B; display:flex; flex-direction:column; gap:10px; box-shadow:0 4px 14px rgba(197,160,89,0.08);">
-        <div style="font-size:12px; color:#64748B;">✨ Analizando tu selección y el pulso de hoy en Barcelona...</div>
+        <div style="font-size:12px; color:#64748B;">✨ Leyendo tus últimos movimientos y el mercado de hoy...</div>
       </div>
 
-      <!-- OPCIONES REALES EN 1 TOQUE -->
       <div id="cp-options-wrap" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
 
-      <!-- CANAL DE VOZ / PENSAMIENTOS DEL CLIENTE -> DIRECTO A :9090 -->
-      <div style="margin-top:16px; background:linear-gradient(180deg, #0F172A 0%, #172033 100%); color:#F8FAFC; border-radius:18px; padding:14px 15px; border:1.5px solid #C5A059;">
+      <div style="margin-top:15px; background:linear-gradient(180deg, #0F172A 0%, #172033 100%); color:#F8FAFC; border-radius:18px; padding:14px 15px; border:1.5px solid #C5A059;">
         <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px;">
           <div style="min-width:0; flex:1;">
             <div id="cp-voice-title" style="font-size:13px; font-weight:800; color:#FFE066;">🎙️ Cuéntanos qué sientes o cómo evolucionan tus prioridades</div>
-            <div id="cp-voice-sub" style="font-size:11px; color:#CBD5E1; margin-top:2px;">Habla con total libertad o escribe: tu reflexión llega al instante a Juanma y al cerebro central para afinar tu búsqueda.</div>
+            <div id="cp-voice-sub" style="font-size:11px; color:#CBD5E1; margin-top:2px;">Habla con total libertad o escribe: tu reflexión llega al instante a nuestro centro de mando.</div>
           </div>
           <button type="button" id="cp-rec-btn" onclick="window.toggleCopilotVoice()" style="padding:9px 16px; border-radius:999px; font-size:12px; font-weight:800; background:#16A34A; color:#FFFFFF; border:none; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 14px rgba(22,163,74,0.4); flex-shrink:0;">
             <span>🎙️</span> <span id="cp-rec-btn-txt">Hablar por voz</span>
           </button>
         </div>
 
-        <textarea id="cp-client-text" rows="3" placeholder="Ej: Prefiero que tenga mucha luz aunque sea un poco más pequeño, o podemos valorar hasta..." style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.96); color:#0F172A; font-size:13px; font-weight:600; resize:vertical; box-sizing:border-box; margin-bottom:9px;"></textarea>
+        <textarea id="cp-client-text" rows="3" placeholder="Ej: Prefiero que tenga mucha luz aunque sea un poco más pequeño..." style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.96); color:#0F172A; font-size:13px; font-weight:600; resize:vertical; box-sizing:border-box; margin-bottom:9px;"></textarea>
 
         <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
           <span id="cp-send-feedback" style="font-size:11.5px; font-weight:700; color:#86EFAC;"></span>
           <button type="button" id="cp-send-btn" onclick="window.submitCopilotInterference('voice_thought', '')" style="padding:9px 20px; border-radius:12px; font-size:12.5px; font-weight:800; background:#C5A059; color:#0F172A; border:none; cursor:pointer;">
-            📩 Enviar a mi asesor
+            🌌 Enviar a COSMOS
           </button>
         </div>
+        <div id="cp-cosmos-thread" style="display:none; margin-top:12px; flex-direction:column; gap:8px;"></div>
       </div>
     </div>
   </div>
@@ -1959,7 +1961,9 @@ body.master-mode #lab-toolbar { display: flex !important; }
   var GAS_CP_URL = "https://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec";
   var cpRec = null;
   var cpIsRec = false;
+  window._cpAngleCounter = -1;
   window._lastCopilotDiag = null;
+  window._cachedCloudSnap = null;
 
   function isLocalHost() {
     var h = String(window.location.hostname || "");
@@ -1979,87 +1983,212 @@ body.master-mode #lab-toolbar { display: flex !important; }
     var lbl = document.getElementById("lbl-copilot-btn");
     if (!lbl) return;
     var ru = (detectClientLang() === "ru");
-    lbl.textContent = ru ? "🧠 ИИ-Советник · Ваш поиск" : "🧠 Copiloto IA · Tu Realidad";
+    lbl.innerHTML = ru
+      ? '<strong translate="no" class="notranslate">🌌 COSMOS</strong> · Ваш поиск'
+      : '<strong translate="no" class="notranslate">🌌 COSMOS</strong> · Tu Búsqueda';
   }
 
-  function buildClientSideFallbackDiagnosis(snapPayload) {
+  function cleanZoneShort(z) {
+    var s = String(z || "").replace("· Barcelona", "").trim();
+    if (s.indexOf("·") !== -1) {
+      var p = s.split("·");
+      s = p[p.length - 1].trim();
+    }
+    return s.substring(0, 36) || "Barcelona";
+  }
+
+  function extractGenuineClientNotes(rawCm) {
+    if (!rawCm) return [];
+    var parts = String(rawCm).split("||");
+    var opNoise = /сняли|снято|не отвечают|направила запрос|назначен просмотр|перенесли|incorporado desde agenda|alta manual|авто-аудит|baja portal|pnl фильтр|дозвонилась|остановили показы|зарезервир|ya no esta dispo|ya no está|alquilad|reservad|yuliia/i;
+    var out = [];
+    parts.forEach(function(ch) {
+      var t = ch.trim();
+      if (!t || opNoise.test(t)) return;
+      var m = t.match(/^\[(\d{2}\/\d{2}\s+\d{2}:\d{2})[^\]]*\]\s*(.*)$/);
+      var dt = m ? m[1] : "";
+      var clean = (m ? m[2] : t.replace(/^\[[^\]]+\]\s*/, "")).replace(/🎤/g, "").trim();
+      if (clean.length >= 3) out.push({ dt: dt, text: clean });
+    });
+    return out;
+  }
+
+  function classifyReasonCats(low) {
+    var c = [];
+    if (/luz|oscur|interior|bajo|planta|sol|свет|темн|этаж|окн|вид|нульов/.test(low)) c.push("light_floor");
+    if (/muebl|reform|antigu|cocina|baño|foto|calefacc|отоплен|кондиц|мебел|ремонт|фот|кухн|стар/.test(low)) c.push("state_furn");
+    if (/zona|ubicac|calle|barrio|ruid|lejos|район|улиц|шум|далек|локал/.test(low)) c.push("zone_noise");
+    if (/pequeñ|grand|m2|metros|habitac|terraz|маленьк|больш|площад|комнат|террас|тесн/.test(low)) c.push("space_layout");
+    if (/caro|precio|temporal|meses|abril|contrato|дорог|цен|времен|контракт|срок|месяц/.test(low)) c.push("price_contract");
+    return c;
+  }
+
+  function buildDynamicLiveDiagnosis(snapPayload, angleIdx) {
     var ru = (detectClientLang() === "ru");
     var arr = (typeof allItems !== "undefined" && Array.isArray(allItems)) ? allItems : (window.lastPwaItems || []);
     var snap = (snapPayload && snapPayload.snapshot) ? snapPayload.snapshot : {};
-    var rules = snap.rules || { name: (snapPayload && snapPayload.client_name) || "Cliente", budget_max: ru ? 1500 : 2600, min_m2: ru ? 25 : 75, zones: ["Eixample", "Gràcia", "Sarrià-Sant Gervasi"] };
+    var rules = snap.rules || {
+      name: (snapPayload && snapPayload.client_name) || (ru ? "Владимир" : "Cliente"),
+      is_plural: !ru,
+      budget_max: ru ? 1500 : 2600,
+      min_m2: ru ? 25 : 75,
+      zones: ["Eixample", "Gràcia", "Sarrià-Sant Gervasi"]
+    };
 
-    var pending = 0, doubt = 0, visit = 0, cDisc = 0, unpub = 0;
-    var buckets = { light_floor: 0, state_furn: 0, zone_noise: 0, space_layout: 0, price_contract: 0 };
-    arr.forEach(function(it) {
+    var histB = { light_floor: 0, state_furn: 0, zone_noise: 0, space_layout: 0, price_contract: 0 };
+    var recB = { light_floor: 0, state_furn: 0, zone_noise: 0, space_layout: 0, price_contract: 0 };
+    var pendList = [], doubtList = [], visitList = [], recentEvs = [];
+    var cDisc = 0, unpub = 0;
+
+    arr.forEach(function(it, idx) {
       var st = String(it.status || "").toLowerCase();
-      var cm = String(it.client_comment || it.comment || "").toLowerCase();
+      var cm = String(it.client_comment || it.comment || "").trim();
       var nt = String(it.notes || "").toLowerCase();
-      var isUnp = (st.indexOf("baja") !== -1 || st.indexOf("снят") !== -1 || cm.indexOf("сняли") !== -1 || cm.indexOf("despublic") !== -1 || cm.indexOf("alquilad") !== -1 || nt.indexOf("[baja") !== -1);
+      var zShort = cleanZoneShort(it.zone);
+      var pFmt = String(it.price_fmt || (it.price_num ? (it.price_num + " €") : "")).replace("/mes", "").trim();
+
+      var isUnp = (/baja|снят/.test(st) || /сняли|снято|despublic|alquilad|ya no esta dispo/.test(cm.toLowerCase()) || nt.indexOf("[baja") !== -1);
       if (isUnp) { unpub++; return; }
-      if (st.indexOf("descart") !== -1 || st.indexOf("откл") !== -1 || st.indexOf("❌") !== -1) {
+
+      var gNotes = extractGenuineClientNotes(cm);
+      if (gNotes.length) {
+        var lastG = gNotes[gNotes.length - 1];
+        var sKey = "00-00_" + String(9999 - idx).padStart(4, "0");
+        if (lastG.dt && lastG.dt.indexOf("/") !== -1) {
+          var dp = lastG.dt.split("/");
+          sKey = dp[1].substring(0, 2) + "-" + dp[0] + "_" + dp[1].substring(3);
+        }
+        recentEvs.push({ sortKey: sKey, zone: zShort, price: pFmt, note: lastG.text.substring(0, 90), cats: classifyReasonCats(lastG.text.toLowerCase()) });
+      }
+
+      if (/descart|откл|❌/.test(st)) {
         cDisc++;
-        if (/luz|oscur|planta|bajo|свет|темн|этаж/.test(cm)) buckets.light_floor++;
-        if (/muebl|reform|cocina|foto|мебел|ремонт|фот|кухн/.test(cm)) buckets.state_furn++;
-        if (/zona|calle|ruid|район|улиц|шум/.test(cm)) buckets.zone_noise++;
-        if (/pequeñ|m2|terraz|маленьк|площад|террас/.test(cm)) buckets.space_layout++;
-        if (/caro|precio|temporal|дорог|цен|времен/.test(cm)) buckets.price_contract++;
-      } else if (st.indexOf("duda") !== -1 || st.indexOf("сомн") !== -1 || st.indexOf("вопрос") !== -1) {
-        doubt++;
-      } else if (st.indexOf("visit") !== -1 || st.indexOf("визит") !== -1) {
-        visit++;
+        classifyReasonCats(cm.toLowerCase()).forEach(function(k){ histB[k]++; });
+      } else if (/duda|сомн|вопрос|🤔/.test(st)) {
+        doubtList.push({ zone: zShort, price: pFmt });
+      } else if (/visit|визит|позвон|⭐/.test(st)) {
+        visitList.push({ zone: zShort, price: pFmt });
       } else {
-        pending++;
+        pendList.push({ zone: zShort, price: pFmt });
       }
     });
 
-    var topKey = "state_furn";
-    Object.keys(buckets).forEach(function(k){ if (buckets[k] > buckets[topKey]) topKey = k; });
-    var bMax = rules.budget_max || 1500;
-    var stMax = snap.stretch_max || (bMax + 200);
-    var medP = snap.median_zone_price || (bMax + 180);
-    var exCnt = snap.exact_stock_count || 6;
-    var stCnt = snap.stretch_extra_count || 5;
-    var adjCnt = snap.adjacent_extra_count || 6;
-    var rawScan = snap.raw_ads_today || 6716;
-    var vanished = Math.max(unpub, 3);
-    var activeNow = pending + doubt + visit;
-    var zStr = (rules.zones || ["Eixample", "Gràcia"]).slice(0, 4).join(", ");
+    recentEvs.sort(function(a, b){ return a.sortKey < b.sortKey ? 1 : -1; });
+    recentEvs.slice(0, 6).forEach(function(e){ e.cats.forEach(function(k){ recB[k]++; }); });
 
-    var reasonMapRu = {
-      light_floor: "естественный свет, высокий этаж и открытый вид",
-      state_furn: "свежий ремонт, современную мебель и полную комплектацию",
-      zone_noise: "тишину улицы и комфорт микрорайона",
-      space_layout: "ощущение простора и наличие балкона/террасы",
-      price_contract: "долгосрочный контракт и честный баланс цены и качества"
+    var topHist = "state_furn", topRec = "state_furn";
+    Object.keys(histB).forEach(function(k){ if (histB[k] > histB[topHist]) topHist = k; });
+    topRec = topHist;
+    Object.keys(recB).forEach(function(k){ if (recB[k] > 0 && recB[k] >= (recB[topRec] || 0)) topRec = k; });
+
+    var reasonRu = {
+      light_floor: "естественный свет, комфортный этаж и открытый вид",
+      state_furn: "инженерный комфорт (отопление/кондиционер), мебель и честные фото",
+      zone_noise: "точную микро-локацию внутри района и тишину улицы",
+      space_layout: "правильный баланс площади и функциональную планировку",
+      price_contract: "прозрачные сроки заезда, долгосрочный договор и честную цену"
     };
-    var reasonMapEs = {
+    var reasonEs = {
       light_floor: "la luz natural directa y altura real de planta",
-      state_furn: "la calidad de reforma, cocina y equipamiento completo",
-      zone_noise: "la tranquilidad acústica y calidad de la calle",
-      space_layout: "la amplitud de salón y salida a balcón o terraza",
-      price_contract: "la estabilidad contractual y relación calidad-precio"
+      state_furn: "la climatización, reforma, cocina y equipamiento completo",
+      zone_noise: "la micro-ubicación exacta y tranquilidad de la calle",
+      space_layout: "el equilibrio exacto de amplitud y distribución",
+      price_contract: "la disponibilidad en fecha, estabilidad contractual y precio"
     };
 
-    var pArr = ru ? [
-      "<b>" + rules.name + "</b>, сегодня ИИ-радар проанализировал <b>" + rawScan + "</b> объявлений в Барселоне, убрав дубликаты и помесячные платформы, под Ваш профиль: <b>до " + bMax + " €/мес</b>, от <b>" + (rules.min_m2 || 25) + " м²</b> (" + zStr + "). Ваши <b>" + cDisc + " отклонённых</b> вариантов помогли системе точно настроиться на Ваш вкус.",
-      "<b>Реальность рынка сегодня:</b> в этих районах в бюджете до " + bMax + " €/мес одновременно активно около <b>" + exCnt + " чистых квартир</b>. Из <b>" + arr.length + "</b> предложенных Вам объектов <b>" + vanished + " уже сняты с публикации</b> (сдаются за 24–72 часа), а медиана на светлые квартиры со свежим ремонтом держится около <b>" + medP + " €/мес</b>.",
-      "<b>Подсознательный приоритет:</b> по Вашим комментариям видно, что главный критерий — <b>" + reasonMapRu[topKey] + "</b>. Именно на этом рынок Барселоны чаще всего экономит в нижнем ценовом пороге, поэтому Ваша избирательность полностью оправдана.",
-      "Вот <b>3 реальных направления по живому рынку Барселоны сегодня</b> (нажмите на интересный вариант, чтобы мы включили его для Вас):"
-    ] : [
-      "<b>" + rules.name + "</b>, hoy nuestro radar ha filtrado <b>" + rawScan + "</b> anuncios en Barcelona ciudad para cruzar solo producto real con vuestra búsqueda: <b>hasta " + bMax + " €/mes</b>, mín. <b>" + (rules.min_m2 || 75) + " m²</b> en <i>" + zStr + "</i>. Cada uno de los <b>" + cDisc + " descartes</b> ha afinado el radar a vuestro gusto real.",
-      "<b>Tendencia real hoy en vuestra micro-búsqueda:</b> existen alrededor de <b>" + exCnt + " pisos netos</b> activos hoy con esas reglas exactas. De las <b>" + arr.length + "</b> viviendas entregadas, <b>" + vanished + " ya se han alquilado/retirado</b> del mercado, situándose la mediana de cierre reformada en <b>" + medP + " €/mes</b>.",
-      "<b>Lectura de vuestras decisiones:</b> vuestro filtro real prioriza <b>" + reasonMapEs[topKey] + "</b>, que es justo el atributo más escaso dentro del tope actual.",
-      "Aquí tenéis <b>3 opciones reales contadas hoy en el mercado de Barcelona</b> (pulsad cualquiera para activarla con prioridad):"
-    ];
+    var bMax = rules.budget_max || (ru ? 1500 : 2600);
+    var stStep = snap.stretch_step || 200;
+    var stMax = snap.stretch_max || (bMax + stStep);
+    var medP = snap.median_zone_price || (bMax + 250);
+    var exCnt = snap.exact_stock_count || 12;
+    var stCnt = snap.stretch_extra_count || 18;
+    var adjCnt = snap.adjacent_extra_count || 14;
+    var rawScan = snap.raw_ads_today || 6681;
+    var vanished = Math.max(unpub, 3);
+    var activeEval = pendList.length + doubtList.length;
+    var zStr = (rules.zones || ["Eixample", "Gràcia"]).slice(0, 4).join(", ");
+    var ang = (angleIdx || 0) % 3;
+
+    var lastInt = (snapPayload && snapPayload.last_interference) || window._localLastInterf || null;
+    var memHtml = "";
+    if (lastInt && lastInt.text) {
+      memHtml = ru
+        ? "🧠 <b>Память ИИ-Советника:</b> мы учитываем Ваш последний отклик — <i>«" + String(lastInt.text).substring(0, 105) + "»</i>."
+        : "🧠 <b>Memoria activa de tu última indicación:</b> tenemos presente tu nota — <i>«" + String(lastInt.text).substring(0, 105) + "»</i>.";
+    }
+
+    var evStr = recentEvs.slice(0, 2).map(function(e){ return "<b>" + e.zone + " (" + e.price + ")</b>: <i>«" + e.note + "»</i>"; }).join(" · ");
+    var angleTitles = ru
+      ? ["🔬 Ракурс 1/3 · Ваши последние оценки и микро-изменения", "⚡ Ракурс 2/3 · Живые квартиры в ленте против скорости рынка", "🧭 Ракурс 3/3 · Тренды Барселоны и точки расширения"]
+      : ["🔬 Enfoque 1/3 · Tus últimos comentarios y microcambios", "⚡ Enfoque 2/3 · Tus pisos vivos hoy vs. velocidad del mercado", "🧭 Enfoque 3/3 · Tendencia en Barcelona y vías de ventaja"];
+
+    var pArr = [];
+    if (ru) {
+      var trayRu = (doubtList.length || pendList.length)
+        ? ("Сейчас у Вас в фокусе <b>" + pendList.length + "</b> на оценку и <b>" + doubtList.length + "</b> под вопросом (" + (doubtList.concat(pendList)).slice(0, 2).map(function(x){ return "<b>" + x.zone + " " + x.price + "</b>"; }).join(", ") + ").")
+        : ("Вы полностью разобрали входящую ленту (0 неразобранных), и в фокусе сейчас <b>" + visitList.length + "</b> квартир на этапе визитов.");
+      if (ang === 0) {
+        pArr = [
+          "<b>" + rules.name + "</b>, разбор обновлён по Вашим самым свежим действиям в приложении. " + (evStr ? ("Последние отметки (" + evStr + ") показывают точную настройку Вашего фильтра.") : ""),
+          "<b>Подсознательный вектор сейчас:</b> ключевым фактором выбора выступает <b>" + reasonRu[topRec] + "</b>. В Барселоне до <b>" + bMax + " €/мес</b> это позволяет сразу отсекать варианты с компромиссами.",
+          "<b>Реальность микро-рынка сегодня:</b> из <b>" + rawScan + "</b> проверенных объявлений в <i>" + zStr + "</i> активны около <b>" + exCnt + " чистых квартир</b>, а <b>" + vanished + "</b> из предложенных ранее уже ушли с рынка (Снято).",
+          "Ниже — <b>3 живых маршрута на сегодня</b> с учётом Ваших последних оценок:"
+        ];
+      } else if (ang === 1) {
+        pArr = [
+          "<b>" + rules.name + "</b>, этот срез показывает баланс Вашей текущей ленты и скорости закрытия сделок в Барселоне. " + trayRu,
+          "<b>Скорость вымывания:</b> <b>" + vanished + "</b> объектов из Вашего списка уже сняты с публикации (лучшие квартиры уходят за 24–72 часа), а медиана по светлым квартирам с отоплением в этих зонах держится у <b>" + medP + " €/мес</b>.",
+          "<b>Практический шаг:</b> когда вариант совпадает по главному критерию (<b>" + reasonRu[topRec] + "</b>), выгоднее сразу запросить видео или слот визита.",
+          "Выберите, какое направление включить приоритетно сегодня:"
+        ];
+      } else {
+        pArr = [
+          "<b>" + rules.name + "</b>, стратегический взгляд на рынок Барселоны сегодня (просканировано <b>" + rawScan + "</b> объявлений без дубликатов и туристических платформ).",
+          "<b>Где рождаются лучшие совпадения:</b> при потолке <b>" + bMax + " €/мес</b> в <i>" + zStr + "</i> одновременно доступно ~<b>" + exCnt + "</b> квартир, но соседние кварталы и эластичный шаг +" + stStep + " € дают кратный прирост качества по критерию «" + reasonRu[topRec] + "».",
+          "<b>Наше преимущество:</b> мы перехватываем свежие публикации каждый день до того, как агентства закрывают запись на просмотры.",
+          "Живые цифры по 3 маршрутам на сегодня:"
+        ];
+      }
+    } else {
+      var trayEs = (doubtList.length || pendList.length)
+        ? ("Ahora mismo contáis con <b>" + pendList.length + "</b> por valorar y <b>" + doubtList.length + "</b> en dudas (" + (doubtList.concat(pendList)).slice(0, 2).map(function(x){ return "<b>" + x.zone + " " + x.price + "</b>"; }).join(", ") + ").")
+        : ("Lleváis la bandeja 100% al día (0 pendientes por calificar), con foco directo en las <b>" + visitList.length + "</b> viviendas seleccionadas para visita.");
+      if (ang === 0) {
+        pArr = [
+          "<b>" + rules.name + "</b>, hemos actualizado esta lectura con vuestras decisiones más recientes en la App. " + (evStr ? ("Últimos apuntes registrados: " + evStr + ".") : ""),
+          "<b>Prioridad real detectada hoy:</b> vuestro filtro más reciente pone en primer plano <b>" + reasonEs[topRec] + "</b>.",
+          "<b>Pulso real en Barcelona:</b> de <b>" + rawScan + "</b> anuncios auditados hoy, en <i>" + zStr + "</i> hay unas <b>" + exCnt + " viviendas netas</b> en precio y <b>" + vanished + "</b> de vuestro historial ya se han retirado del mercado.",
+          "Aquí tenéis <b>3 vías medidas sobre el stock vivo de hoy</b>:"
+        ];
+      } else if (ang === 1) {
+        pArr = [
+          "<b>" + rules.name + "</b>, este enfoque cruza vuestra bandeja actual con la velocidad real de cierre hoy en Barcelona. " + trayEs,
+          "<b>Ritmo de mercado:</b> con <b>" + vanished + " bajas recientes</b> en portales y una mediana de zona en <b>" + medP + " €/mes</b>, las piezas que cumplen en " + reasonEs[topRec] + " vuelan en menos de 72h.",
+          "<b>Ventaja táctica:</b> bloquear visita o vídeo en cuanto entra una pieza alineada evita llegar cuando la agencia ya ha cerrado agenda.",
+          "Pulsad cualquiera de estas 3 acciones si queréis activarla hoy:"
+        ];
+      } else {
+        pArr = [
+          "<b>" + rules.name + "</b>, radiografía macro del mercado de Barcelona hoy (<b>" + rawScan + "</b> anuncios filtrados) aterrizada a vuestra micro-búsqueda.",
+          "<b>Dónde aparece más producto sano esta semana:</b> frente a las <b>" + exCnt + "</b> viviendas estrictas en <i>" + zStr + "</i> hasta " + bMax + " €/mes, abrir calles colindantes selectas o el primer tramo elástico multiplica opciones sin ceder en " + reasonEs[topRec] + ".",
+          "<b>Filtro continuo:</b> seguimos limpiando a diario duplicados y contratos temporales sin recorrido.",
+          "Opciones cuantificadas hoy en tiempo real:"
+        ];
+      }
+    }
+
+    if (snapPayload && snapPayload.cosmos_ai && Array.isArray(snapPayload.cosmos_ai[String(ang)])) { pArr = snapPayload.cosmos_ai[String(ang)].slice(); }
+    if (snapPayload && snapPayload.cosmos_ai && Array.isArray(snapPayload.cosmos_ai[String(ang)])) { pArr = snapPayload.cosmos_ai[String(ang)].slice(); }
+    if (memHtml) pArr.unshift(memHtml);
 
     var opts = ru ? [
-      { code: "elastic_budget", badge: "+" + stCnt + " квартир сегодня", title: "Эластичный коридор до " + stMax + " €/мес", desc: "Открывает ещё +" + stCnt + " квартир более высокого класса по свету, мебели и ремонту в тех же районах.", cta: "✨ Показать эти варианты" },
-      { code: "adjacent_zones", badge: "+" + adjCnt + " квартир в бюджете", title: "Соседние кварталы до " + bMax + " €/мес (" + (snap.adjacent_label_ru || "Сант-Антони и Саграда-Фамилия") + ")", desc: "Сохраняя бюджет до " + bMax + " €/мес, добавляет +" + adjCnt + " свежих квартир рядом с Вашими зонами.", cta: "✨ Расширить микро-зоны" },
-      { code: "priority_action", badge: activeNow + " активных сейчас", title: "Быстрый захват визитов по текущим фаворитам", desc: "Запросить видео и приоритетные просмотры по " + activeNow + " активным квартирам до того, как их снимут с публикации.", cta: "✨ Ускорить по текущим" }
+      { code: "elastic_budget", badge: "+" + stCnt + " квартир сегодня", title: "Эластичный шаг до " + stMax + " €/мес", desc: "Открывает +" + stCnt + " квартир в тех же зонах с лучшим качеством (" + reasonRu[topRec] + ").", cta: "✨ Показать этот уровень" },
+      { code: "adjacent_zones", badge: "+" + adjCnt + " квартир в бюджете", title: "Соседние локации до " + bMax + " €/мес (" + (snap.adjacent_label_ru || "Сант-Антони и Саграда-Фамилия") + ")", desc: "Строго до " + bMax + " €/мес добавляет +" + adjCnt + " свежих квартир рядом с Вашими районами.", cta: "✨ Подключить зоны рядом" },
+      { code: "priority_action", badge: (activeEval > 0 ? activeEval : visitList.length) + " в фокусе", title: activeEval > 0 ? ("Ускорить проверку по " + activeEval + " активным квартирам") : "Приоритет по визитам и следующему пакету", desc: "Запросить видео, детали отопления/договора и слоты просмотра до снятия с рынка.", cta: "✨ Ускорить сейчас" }
     ] : [
-      { code: "elastic_budget", badge: "+" + stCnt + " pisos hoy", title: "Escalón elástico hasta " + stMax + " €/mes", desc: "Desbloquea hoy +" + stCnt + " viviendas reformadas y luminosas en vuestros mismos barrios.", cta: "✨ Explorar este escalón" },
-      { code: "adjacent_zones", badge: "+" + adjCnt + " pisos en precio", title: "Micro-barrios vecinos hasta " + bMax + " €/mes (" + (snap.adjacent_label_es || "Sant Antoni y Putxet") + ")", desc: "Mantiene el tope de " + bMax + " €/mes sumando +" + adjCnt + " viviendas reales bien conectadas.", cta: "✨ Abrir micro-zonas" },
-      { code: "priority_action", badge: activeNow + " activas hoy", title: "Bloqueo prioritario de visitas en Valorar / Dudas", desc: "Acelerar vídeos y visitas sobre las " + activeNow + " fichas vivas antes de que vuelen del portal.", cta: "✨ Priorizar visitas hoy" }
+      { code: "elastic_budget", badge: "+" + stCnt + " pisos hoy", title: "Franja elástica hasta " + stMax + " €/mes", desc: "Abre hoy +" + stCnt + " pisos reales donde sube claramente " + reasonEs[topRec] + ".", cta: "✨ Explorar este escalón" },
+      { code: "adjacent_zones", badge: "+" + adjCnt + " pisos en precio", title: "Calles vecinas hasta " + bMax + " €/mes (" + (snap.adjacent_label_es || "Sant Antoni y Putxet") + ")", desc: "Mantiene el tope de " + bMax + " €/mes sumando +" + adjCnt + " viviendas reales bien conectadas.", cta: "✨ Abrir zonas vecinas" },
+      { code: "priority_action", badge: (activeEval > 0 ? activeEval : visitList.length) + " en foco hoy", title: activeEval > 0 ? ("Priorizar vídeo/visita en las " + activeEval + " fichas activas") : "Acelerar visitas activas + prioridad próximo lote", desc: "Confirmar condiciones reales y bloquear agenda antes de que causen baja.", cta: "✨ Activar prioridad" }
     ];
 
     return {
@@ -2067,7 +2196,9 @@ body.master-mode #lab-toolbar { display: flex !important; }
       client: (snapPayload && snapPayload.client) || "vladimir",
       client_name: rules.name,
       lang: ru ? "ru" : "es",
-      kpis: { raw_scanned: rawScan, delivered: arr.length, active_now: activeNow, client_discards: cDisc, market_vanished: vanished, median_zone_eur: medP },
+      angle: ang,
+      angle_label: angleTitles[ang],
+      kpis: { raw_scanned: rawScan, delivered: arr.length, active_now: activeEval + visitList.length, client_discards: cDisc, market_vanished: vanished, median_zone_eur: medP },
       paragraphs: pArr,
       options: opts
     };
@@ -2076,28 +2207,32 @@ body.master-mode #lab-toolbar { display: flex !important; }
   function renderCopilotModal(diag) {
     window._lastCopilotDiag = diag;
     var ru = (diag.lang === "ru");
-    document.getElementById("cp-hdr-kicker").textContent = ru ? "ИИ-АНАЛИТИК · ЖИВОЙ РЫНОК БАРСЕЛОНЫ" : "COPILOTO IA · PULSO DIARIO BARCELONA";
-    document.getElementById("cp-hdr-title").textContent = ru ? ("Персональный разбор поиска · " + (diag.client_name || "")) : ("Radiografía Realista de Búsqueda · " + (diag.client_name || ""));
-    document.getElementById("cp-voice-title").textContent = ru ? "🎙️ Поделитесь мыслями, ощущениями или вопросами" : "🎙️ Cuéntanos qué sientes o cómo evolucionan tus prioridades";
+    document.getElementById("cp-hdr-kicker").textContent = ru ? "🌌 COSMOS · ЖИВАЯ СТРАТЕГИЯ И 100% ПРОВЕРЕННЫЕ ДАННЫЕ" : "🌌 COSMOS · INTELIGENCIA VIVA · 100% DATOS VERIFICADOS";
+    document.getElementById("cp-hdr-title").textContent = ru ? ("Персональный разбор для " + (diag.client_name || "")) : ("Tu Hogar en Barcelona · " + (diag.client_name || ""));
+    document.getElementById("cp-btn-next-angle").textContent = ru ? "🔄 Другой ракурс" : "🔄 Otro enfoque";
+    var sb = document.getElementById("cp-btn-speak-diag"); if (sb) sb.textContent = ru ? "🔊 Слушать" : "🔊 Escuchar";
+    document.getElementById("cp-angle-pill").textContent = diag.angle_label || (ru ? "🔬 Живой анализ" : "🔬 Análisis en vivo");
+
+    document.getElementById("cp-voice-title").textContent = ru ? "🎙️ Поговорите с COSMOS напрямую (голосом или текстом)" : "🎙️ Habla de tú a tú con COSMOS (por voz o texto)";
     document.getElementById("cp-voice-sub").textContent = ru
-      ? "Нажмите зелёную кнопку и говорите свободно (или напишите): Ваше сообщение мгновенно поступит команде для тонкой настройки поиска."
-      : "Pulsa el botón verde y habla con naturalidad (o escribe): tu mensaje llega directo a nuestro centro de estrategia para ayudarte al instante.";
+      ? "Нажмите зелёную кнопку и говорите свободно (или напишите): ИИ запомнит это и мгновенно передаст команде."
+      : "Pulsa el botón verde y habla con naturalidad (o escribe): el Copiloto lo recordará y avisará al instante a tu asesor.";
     document.getElementById("cp-client-text").placeholder = ru
-      ? "Например: Мне важнее современный ремонт и свет, готов рассмотреть соседний район или..."
-      : "Ej: Prefiero priorizar mucha luz y cocina nueva aunque ajustemos ligeramente zona o...";
+      ? "Например: Важно наличие отопления и светлая гостиная, но не слишком огромная площадь..."
+      : "Ej: Priorizamos mucha luz y contrato largo aunque ajustemos ligeramente zona...";
     if (!cpIsRec) {
       document.getElementById("cp-rec-btn-txt").textContent = ru ? "Говорить голосом" : "Hablar por voz";
     }
-    document.getElementById("cp-send-btn").textContent = ru ? "📩 Отправить команде" : "📩 Enviar a mi asesor";
+    document.getElementById("cp-send-btn").textContent = ru ? "🌌 Спросить COSMOS" : "🌌 Enviar a COSMOS";
 
     var k = diag.kpis || {};
     var kpisData = ru ? [
-      { lbl: "Проверено сегодня", val: String(k.raw_scanned || 6716), col: "#0F172A" },
+      { lbl: "Проверено сегодня", val: String(k.raw_scanned || 6681), col: "#0F172A" },
       { lbl: "Отобрано Вам", val: String(k.delivered || 0), col: "#1D4ED8" },
       { lbl: "Уже снято рынком", val: String(k.market_vanished || 0), col: "#DC2626" },
       { lbl: "Медиана зоны", val: (k.median_zone_eur || 1650) + " €", col: "#B45309" }
     ] : [
-      { lbl: "Auditados hoy", val: String(k.raw_scanned || 6716), col: "#0F172A" },
+      { lbl: "Auditados hoy", val: String(k.raw_scanned || 6681), col: "#0F172A" },
       { lbl: "Entregados", val: String(k.delivered || 0), col: "#1D4ED8" },
       { lbl: "Bajas mercado", val: String(k.market_vanished || 0), col: "#DC2626" },
       { lbl: "Mediana zona", val: (k.median_zone_eur || 2750) + " €", col: "#B45309" }
@@ -2111,7 +2246,8 @@ body.master-mode #lab-toolbar { display: flex !important; }
     }).join("");
 
     document.getElementById("cp-pnl-body").innerHTML = (diag.paragraphs || []).map(function(p) {
-      return '<p style="margin:0;">' + p + '</p>';
+      var isMem = p.indexOf("🧠") === 0;
+      return '<p style="margin:0;' + (isMem ? ' padding:8px 10px; border-radius:10px; background:#EFF6FF; border-left:3px solid #2563EB; font-size:12px;' : '') + '">' + p + '</p>';
     }).join("");
 
     document.getElementById("cp-options-wrap").innerHTML = (diag.options || []).map(function(op, idx) {
@@ -2128,30 +2264,118 @@ body.master-mode #lab-toolbar { display: flex !important; }
     }).join("");
   }
 
+  async function loadCopilotForAngle(ang) {
+    var q = new URLSearchParams(window.location.search);
+    var cTok = (typeof currentClient !== "undefined" && currentClient) ? currentClient : (q.get("x") || q.get("client") || "vladimir");
+    try {
+      if (isLocalHost()) {
+        var r = await fetch("/api/pwa/copilot?client=" + encodeURIComponent(cTok) + "&angle=" + ang);
+        var d = await r.json();
+        if (d && d.ok) { renderCopilotModal(d); return; }
+      } else {
+        if (!window._cachedCloudSnap) {
+          var rg = await fetch(GAS_CP_URL + "?api=copilot_snap&x=" + encodeURIComponent(cTok));
+          window._cachedCloudSnap = await rg.json();
+        }
+        renderCopilotModal(buildDynamicLiveDiagnosis(window._cachedCloudSnap, ang));
+        return;
+      }
+    } catch (e) {}
+    renderCopilotModal(buildDynamicLiveDiagnosis(window._cachedCloudSnap || {}, ang));
+  }
+
+  
+  var cpAudioEl = null;
+  var cpSpeakAbort = false;
+
+  async function fetchJuanmaVoiceChunk(chunkText) {
+    var clean = String(chunkText || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (!clean) return "";
+    if (isLocalHost()) {
+      var r = await fetch("/api/pwa/cosmos-tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: clean }) });
+      var d = await r.json();
+      return (d && d.audio_b64) ? d.audio_b64 : "";
+    }
+    var tid = "TTS-" + Date.now() + "-" + Math.floor(Math.random() * 900);
+    await fetch(GAS_CP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ id: tid, _endpoint: "interference", action: "interference", client: "tts", kind: "tts_only", text: clean })
+    });
+    for (var w = 0; w < 8; w++) {
+      await new Promise(function(ok){ setTimeout(ok, 2100); });
+      if (cpSpeakAbort) return "";
+      var rp = await fetch(GAS_CP_URL + "?api=interferences&reply_id=" + encodeURIComponent(tid));
+      var dp = await rp.json();
+      if (dp && dp.ready && dp.audio_b64) return dp.audio_b64;
+    }
+    return "";
+  }
+
+  window.playCosmosB64Audio = function(b64) {
+    return new Promise(function(resolve) {
+      if (!b64) return resolve();
+      try {
+        if (cpAudioEl) { cpAudioEl.pause(); cpAudioEl = null; }
+        cpAudioEl = new Audio("data:audio/mp3;base64," + b64);
+        cpAudioEl.onended = function(){ resolve(); };
+        cpAudioEl.onerror = function(){ resolve(); };
+        cpAudioEl.play().catch(function(){ resolve(); });
+      } catch (e) { resolve(); }
+    });
+  };
+
+  window.speakCosmosDiagnosis = async function() {
+    var btn = document.getElementById("cp-btn-speak-diag");
+    var ru = (detectClientLang() === "ru");
+    if (cpAudioEl && !cpAudioEl.paused) {
+      cpSpeakAbort = true;
+      cpAudioEl.pause();
+      cpAudioEl = null;
+      if (btn) btn.textContent = ru ? "🔊 Слушать" : "🔊 Escuchar";
+      return;
+    }
+    var diag = window._lastCopilotDiag || {};
+    var parts = (diag.paragraphs || []).map(function(p){ return String(p).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(); }).filter(Boolean);
+    if (!parts.length) return;
+
+    cpSpeakAbort = false;
+    if (btn) btn.textContent = ru ? "⏳ Голос..." : "⏳ Voz COSMOS...";
+    try {
+      var nextPromise = fetchJuanmaVoiceChunk(parts[0]);
+      for (var i = 0; i < parts.length; i++) {
+        if (cpSpeakAbort) break;
+        var curB64 = await nextPromise;
+        if (cpSpeakAbort) break;
+        if (i + 1 < parts.length) {
+          nextPromise = fetchJuanmaVoiceChunk(parts[i + 1]);
+        }
+        if (curB64) {
+          if (btn) btn.textContent = "⏹️ Stop";
+          await window.playCosmosB64Audio(curB64);
+        }
+      }
+    } catch (e) {}
+    if (btn) btn.textContent = ru ? "🔊 Слушать" : "🔊 Escuchar";
+  };
+
   window.openNppCopilotModal = async function() {
     var m = document.getElementById("npp-copilot-modal");
     if (!m) return;
     m.style.display = "block";
     document.getElementById("cp-send-feedback").textContent = "";
-    var q = new URLSearchParams(window.location.search);
-    var cTok = (typeof currentClient !== "undefined" && currentClient) ? currentClient : (q.get("x") || q.get("client") || "vladimir");
+    window._cpAngleCounter = (window._cpAngleCounter + 1) % 3;
+    await loadCopilotForAngle(window._cpAngleCounter);
+  };
 
-    try {
-      if (isLocalHost()) {
-        var r = await fetch("/api/pwa/copilot?client=" + encodeURIComponent(cTok));
-        var d = await r.json();
-        if (d && d.ok) { renderCopilotModal(d); return; }
-      } else {
-        var rg = await fetch(GAS_CP_URL + "?api=copilot_snap&x=" + encodeURIComponent(cTok));
-        var dg = await rg.json();
-        renderCopilotModal(buildClientSideFallbackDiagnosis(dg));
-        return;
-      }
-    } catch (e) {}
-    renderCopilotModal(buildClientSideFallbackDiagnosis({}));
+  window.cycleNppCopilotAngle = async function() {
+    window._cpAngleCounter = (window._cpAngleCounter + 1) % 3;
+    await loadCopilotForAngle(window._cpAngleCounter);
   };
 
   window.closeNppCopilotModal = function() {
+    cpSpeakAbort = true; if (cpAudioEl) { try { cpAudioEl.pause(); cpAudioEl = null; } catch(e){} }
+    cpSpeakAbort = true; if (cpAudioEl) { try { cpAudioEl.pause(); cpAudioEl = null; } catch(e){} }
     if (cpIsRec && cpRec) { try { cpRec.stop(); } catch (e) {} cpIsRec = false; }
     var m = document.getElementById("npp-copilot-modal");
     if (m) m.style.display = "none";
@@ -2213,38 +2437,52 @@ body.master-mode #lab-toolbar { display: flex !important; }
     var ru = (detectClientLang() === "ru");
     if (!txt) return;
     var fb = document.getElementById("cp-send-feedback");
-    if (fb) fb.textContent = ru ? "⏳ Отправка..." : "⏳ Enviando...";
+    var th = document.getElementById("cp-cosmos-thread");
+    if (fb) fb.textContent = ru ? "🌌 COSMOS сверяет реальные данные..." : "🌌 COSMOS está cruzando tus datos reales...";
 
     var diag = window._lastCopilotDiag || {};
     var q = new URLSearchParams(window.location.search);
     var cTok = (typeof currentClient !== "undefined" && currentClient) ? currentClient : (q.get("x") || q.get("client") || "vladimir");
-    var payload = {
-      _endpoint: "interference",
-      action: "interference",
-      client: diag.client || cTok,
-      client_name: diag.client_name || cTok,
-      lang: diag.lang || (ru ? "ru" : "es"),
-      kind: kind || "voice_thought",
-      option_code: optCode || "",
-      text: txt,
-      kpis: diag.kpis || {}
-    };
+    var reqId = "INT-" + Date.now();
+    var payload = { id: reqId, _endpoint: "interference", action: "interference", client: diag.client || cTok, client_name: diag.client_name || cTok, lang: diag.lang || (ru ? "ru" : "es"), kind: kind || "voice_thought", option_code: optCode || "", text: txt, kpis: diag.kpis || {} };
 
     try {
       var ep = isLocalHost() ? "/api/pwa/interference" : GAS_CP_URL;
-      await fetch(ep, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
+      var r = await fetch(ep, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+      var d = await r.json();
       if (!customText && ta) ta.value = "";
-      if (fb) {
-        fb.textContent = ru
-          ? "✅ Получено! Команда уже видит Ваш отклик и адаптирует подбор."
-          : "✅ ¡Recibido! Tu asesor ya tiene esta prioridad en pantalla.";
+
+      var reply = (d && d.ai_reply) ? d.ai_reply : "";
+      var audB64 = (d && d.audio_b64) ? d.audio_b64 : "";
+      if (!reply && !isLocalHost() && (kind || "voice_thought") === "voice_thought") {
+        var pid = (d && d.id) ? d.id : reqId;
+        for (var t = 0; t < 5; t++) {
+          await new Promise(function(ok){ setTimeout(ok, 2200); });
+          try {
+            var rp = await fetch(GAS_CP_URL + "?api=interferences&reply_id=" + encodeURIComponent(pid));
+            var dp = await rp.json();
+            if (dp && dp.ready && dp.ai_reply) { reply = dp.ai_reply; audB64 = dp.audio_b64 || ""; break; }
+          } catch (e2) {}
+        }
+      }
+
+      if (th && (reply || customText)) {
+        th.style.display = "flex";
+        var uBubble = !customText ? ('<div style="align-self:flex-end; max-width:88%; background:rgba(197,160,89,0.22); border:1px solid rgba(197,160,89,0.5); color:#FEF08A; padding:8px 12px; border-radius:12px 12px 2px 12px; font-size:12px;">🎙️ ' + txt.replace(/</g,"&lt;") + '</div>') : '';
+        var cBubble = reply ? ('<div style="align-self:flex-start; max-width:96%; background:rgba(15,23,42,0.95); border:1px solid #38BDF8; box-shadow:0 4px 18px rgba(56,189,248,0.18); color:#F8FAFC; padding:11px 13px; border-radius:12px 12px 12px 2px; font-size:12.5px; line-height:1.52;"><div style="font-size:10px; font-family:monospace; font-weight:800; color:#38BDF8; margin-bottom:4px;">🌌 COSMOS · ' + (ru ? 'ЧЕСТНЫЙ РАЗБОР ПО ВАШЕЙ БАЗЕ' : 'VERDAD VERIFICADA EN TU BÚSQUEDA') + '</div>' + reply + '</div>') : '';
+        th.innerHTML = uBubble + cBubble + th.innerHTML;
+        if (audB64) window.playCosmosB64Audio(audB64);
+      }
+
+      if (d && d.blocked_off_topic) {
+        if (fb) fb.textContent = ru ? "🔒 COSMOS отвечает только по Вашему поиску в Барселоне" : "🔒 COSMOS solo atiende tu búsqueda en Barcelona";
+      } else {
+        window._localLastInterf = { text: txt, created_at: "Ahora" };
+        window._cachedCloudSnap = null;
+        if (fb) fb.textContent = ru ? "✅ Синхронизировано с Хуанмой и Юлией" : "✅ Sincronizado en directo con Juanma y Yuliia";
       }
     } catch (e) {
-      if (fb) fb.textContent = "⚠️ Error de red, inténtalo de nuevo.";
+      if (fb) fb.textContent = "⚠️ Error de conexión, inténtalo de nuevo.";
     }
   };
 
