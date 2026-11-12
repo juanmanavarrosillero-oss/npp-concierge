@@ -2471,7 +2471,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
         var uBubble = !customText ? ('<div style="align-self:flex-end; max-width:88%; background:rgba(197,160,89,0.22); border:1px solid rgba(197,160,89,0.5); color:#FEF08A; padding:8px 12px; border-radius:12px 12px 2px 12px; font-size:12px;">🎙️ ' + txt.replace(/</g,"&lt;") + '</div>') : '';
         var cBubble = reply ? ('<div style="align-self:flex-start; max-width:96%; background:rgba(15,23,42,0.95); border:1px solid #38BDF8; box-shadow:0 4px 18px rgba(56,189,248,0.18); color:#F8FAFC; padding:11px 13px; border-radius:12px 12px 12px 2px; font-size:12.5px; line-height:1.52;"><div style="font-size:10px; font-family:monospace; font-weight:800; color:#38BDF8; margin-bottom:4px;">🌌 COSMOS · ' + (ru ? 'ЧЕСТНЫЙ РАЗБОР ПО ВАШЕЙ БАЗЕ' : 'VERDAD VERIFICADA EN TU BÚSQUEDA') + '</div>' + reply + '</div>') : '';
         th.innerHTML = uBubble + cBubble + th.innerHTML;
-        if (audB64) window.playCosmosB64Audio(audB64);
+        if (audB64) { window.playCosmosB64Audio(audB64); } else if (reply) { fetchJuanmaVoiceChunk(reply).then(function(b64){ if (b64) window.playCosmosB64Audio(b64); }); }
       }
 
       if (d && d.blocked_off_topic) {
