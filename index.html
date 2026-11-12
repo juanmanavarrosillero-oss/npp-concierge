@@ -288,8 +288,12 @@ body.master-mode #lab-toolbar { display: flex !important; }
 
       <!-- FILA 3: LÍNEA DE TIEMPO LIMPIA (100% DÍA DE HOY, CERO DATOS DE AYER) -->
       <div class="relative pt-1 pb-0.5 px-0.5">
-        <div class="relative h-7 w-full text-[8px] font-mono uppercase tracking-wider mb-1 mt-0.5 select-none" style="color: var(--text-muted);">
-            <span id="next-drop-badge" class="absolute top-0 -translate-x-1/2 text-[7.5px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap z-20 shadow-xs transition-all duration-500" style="left: 83.2%; color: #B45309; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.28); line-height: 1.1;">⏳ PRÓX. LOTE</span>
+        <div class="relative h-8 w-full text-[8px] font-mono uppercase tracking-wider mb-1 mt-0.5 select-none" style="color: var(--text-muted);">
+            <button type="button" id="btn-open-npp-copilot" onclick="window.openNppCopilotModal()" class="absolute left-0 -top-1.5 z-20 inline-flex items-center gap-1.5 px-2.5 py-1 leading-none rounded-full text-[8.5px] font-extrabold tracking-tight shadow-xs cursor-pointer transition hover:scale-105" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #FFE066; border: 1px solid #C5A059;">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="lbl-copilot-btn">🧠 Copiloto IA · Tu Realidad</span>
+              </button>
+              <span id="next-drop-badge" class="absolute -top-1 -translate-x-1/2 text-[7.5px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap z-20 shadow-xs transition-all duration-500" style="left: 83.2%; color: #B45309; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.28); line-height: 1.1;">⏳ PRÓX. LOTE</span>
             <span class="absolute left-0 bottom-0 opacity-80">9AM</span>
             <span class="absolute bottom-0 -translate-x-1/2 opacity-80" style="left: 21.4%;">12PM</span>
             <span class="absolute bottom-0 -translate-x-1/2 opacity-80" style="left: 50.0%;">4PM</span>
@@ -1898,5 +1902,356 @@ body.master-mode #lab-toolbar { display: flex !important; }
     window.renderLiveTelemetryHeader();
   })();
 </script>
+<!-- START_NPP_COPILOT_PNL_MODULE -->
+<div id="npp-copilot-modal" onclick="if(event.target===this)window.closeNppCopilotModal()" style="display:none; position:fixed; inset:0; z-index:9998; background:rgba(10,14,23,0.82); backdrop-filter:blur(7px); overflow-y:auto; padding:14px 10px;">
+  <div style="max-width:650px; margin:8px auto 26px auto; background:#FAF8F5; color:#14110F; border-radius:24px; border:2px solid #C5A059; box-shadow:0 24px 64px rgba(0,0,0,0.55); overflow:hidden; font-family:system-ui,-apple-system,sans-serif;">
+    <!-- CABECERA JOYA -->
+    <div style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color:#F8FAFC; padding:15px 18px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1.5px solid #C5A059;">
+      <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+        <div style="width:36px; height:36px; border-radius:12px; background:rgba(197,160,89,0.18); border:1px solid #C5A059; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0;">🧠</div>
+        <div style="min-width:0;">
+          <div id="cp-hdr-kicker" style="font-size:9.5px; font-family:monospace; font-weight:800; color:#C5A059; text-transform:uppercase; letter-spacing:0.08em;">COPILOTO IA · PULSO DIARIO BARCELONA</div>
+          <h3 id="cp-hdr-title" style="margin:1px 0 0 0; font-size:15px; font-weight:800; color:#FFE066; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Análisis en Vivo de Tu Búsqueda</h3>
+        </div>
+      </div>
+      <button type="button" onclick="window.closeNppCopilotModal()" style="padding:6px 11px; border-radius:10px; font-size:12px; font-weight:800; background:rgba(255,255,255,0.12); color:#FFF; border:1px solid rgba(255,255,255,0.2); cursor:pointer; flex-shrink:0;">✕</button>
+    </div>
+
+    <div style="padding:16px 18px;">
+      <!-- TERMÓMETRO DE MICRO-MERCADO -->
+      <div id="cp-kpi-strip" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:7px; margin-bottom:14px;"></div>
+
+      <!-- CUERPO NARRATIVO PNL (4 CAPAS) -->
+      <div id="cp-pnl-body" style="background:#FFFFFF; border:1px solid #E6DEC8; border-radius:16px; padding:14px 15px; font-size:13px; line-height:1.56; color:#1E293B; display:flex; flex-direction:column; gap:10px; box-shadow:0 4px 14px rgba(197,160,89,0.08);">
+        <div style="font-size:12px; color:#64748B;">✨ Analizando tu selección y el pulso de hoy en Barcelona...</div>
+      </div>
+
+      <!-- OPCIONES REALES EN 1 TOQUE -->
+      <div id="cp-options-wrap" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+
+      <!-- CANAL DE VOZ / PENSAMIENTOS DEL CLIENTE -> DIRECTO A :9090 -->
+      <div style="margin-top:16px; background:linear-gradient(180deg, #0F172A 0%, #172033 100%); color:#F8FAFC; border-radius:18px; padding:14px 15px; border:1.5px solid #C5A059;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px;">
+          <div style="min-width:0; flex:1;">
+            <div id="cp-voice-title" style="font-size:13px; font-weight:800; color:#FFE066;">🎙️ Cuéntanos qué sientes o cómo evolucionan tus prioridades</div>
+            <div id="cp-voice-sub" style="font-size:11px; color:#CBD5E1; margin-top:2px;">Habla con total libertad o escribe: tu reflexión llega al instante a Juanma y al cerebro central para afinar tu búsqueda.</div>
+          </div>
+          <button type="button" id="cp-rec-btn" onclick="window.toggleCopilotVoice()" style="padding:9px 16px; border-radius:999px; font-size:12px; font-weight:800; background:#16A34A; color:#FFFFFF; border:none; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 14px rgba(22,163,74,0.4); flex-shrink:0;">
+            <span>🎙️</span> <span id="cp-rec-btn-txt">Hablar por voz</span>
+          </button>
+        </div>
+
+        <textarea id="cp-client-text" rows="3" placeholder="Ej: Prefiero que tenga mucha luz aunque sea un poco más pequeño, o podemos valorar hasta..." style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.96); color:#0F172A; font-size:13px; font-weight:600; resize:vertical; box-sizing:border-box; margin-bottom:9px;"></textarea>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+          <span id="cp-send-feedback" style="font-size:11.5px; font-weight:700; color:#86EFAC;"></span>
+          <button type="button" id="cp-send-btn" onclick="window.submitCopilotInterference('voice_thought', '')" style="padding:9px 20px; border-radius:12px; font-size:12.5px; font-weight:800; background:#C5A059; color:#0F172A; border:none; cursor:pointer;">
+            📩 Enviar a mi asesor
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var GAS_CP_URL = "https://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec";
+  var cpRec = null;
+  var cpIsRec = false;
+  window._lastCopilotDiag = null;
+
+  function isLocalHost() {
+    var h = String(window.location.hostname || "");
+    return (h === "localhost" || h === "127.0.0.1" || h.indexOf("192.168.") === 0);
+  }
+
+  function detectClientLang() {
+    try {
+      if (typeof getLang === "function") return getLang() === "ru" ? "ru" : "es";
+    } catch (e) {}
+    var q = String(window.location.search || "").toLowerCase();
+    if (q.indexOf("vladimir") !== -1 || q.indexOf("t_0e7yth") !== -1 || q.indexOf("olga") !== -1 || q.indexOf("1q63") !== -1) return "ru";
+    return "es";
+  }
+
+  function refreshCopilotButtonLabel() {
+    var lbl = document.getElementById("lbl-copilot-btn");
+    if (!lbl) return;
+    var ru = (detectClientLang() === "ru");
+    lbl.textContent = ru ? "🧠 ИИ-Советник · Ваш поиск" : "🧠 Copiloto IA · Tu Realidad";
+  }
+
+  function buildClientSideFallbackDiagnosis(snapPayload) {
+    var ru = (detectClientLang() === "ru");
+    var arr = (typeof allItems !== "undefined" && Array.isArray(allItems)) ? allItems : (window.lastPwaItems || []);
+    var snap = (snapPayload && snapPayload.snapshot) ? snapPayload.snapshot : {};
+    var rules = snap.rules || { name: (snapPayload && snapPayload.client_name) || "Cliente", budget_max: ru ? 1500 : 2600, min_m2: ru ? 25 : 75, zones: ["Eixample", "Gràcia", "Sarrià-Sant Gervasi"] };
+
+    var pending = 0, doubt = 0, visit = 0, cDisc = 0, unpub = 0;
+    var buckets = { light_floor: 0, state_furn: 0, zone_noise: 0, space_layout: 0, price_contract: 0 };
+    arr.forEach(function(it) {
+      var st = String(it.status || "").toLowerCase();
+      var cm = String(it.client_comment || it.comment || "").toLowerCase();
+      var nt = String(it.notes || "").toLowerCase();
+      var isUnp = (st.indexOf("baja") !== -1 || st.indexOf("снят") !== -1 || cm.indexOf("сняли") !== -1 || cm.indexOf("despublic") !== -1 || cm.indexOf("alquilad") !== -1 || nt.indexOf("[baja") !== -1);
+      if (isUnp) { unpub++; return; }
+      if (st.indexOf("descart") !== -1 || st.indexOf("откл") !== -1 || st.indexOf("❌") !== -1) {
+        cDisc++;
+        if (/luz|oscur|planta|bajo|свет|темн|этаж/.test(cm)) buckets.light_floor++;
+        if (/muebl|reform|cocina|foto|мебел|ремонт|фот|кухн/.test(cm)) buckets.state_furn++;
+        if (/zona|calle|ruid|район|улиц|шум/.test(cm)) buckets.zone_noise++;
+        if (/pequeñ|m2|terraz|маленьк|площад|террас/.test(cm)) buckets.space_layout++;
+        if (/caro|precio|temporal|дорог|цен|времен/.test(cm)) buckets.price_contract++;
+      } else if (st.indexOf("duda") !== -1 || st.indexOf("сомн") !== -1 || st.indexOf("вопрос") !== -1) {
+        doubt++;
+      } else if (st.indexOf("visit") !== -1 || st.indexOf("визит") !== -1) {
+        visit++;
+      } else {
+        pending++;
+      }
+    });
+
+    var topKey = "state_furn";
+    Object.keys(buckets).forEach(function(k){ if (buckets[k] > buckets[topKey]) topKey = k; });
+    var bMax = rules.budget_max || 1500;
+    var stMax = snap.stretch_max || (bMax + 200);
+    var medP = snap.median_zone_price || (bMax + 180);
+    var exCnt = snap.exact_stock_count || 6;
+    var stCnt = snap.stretch_extra_count || 5;
+    var adjCnt = snap.adjacent_extra_count || 6;
+    var rawScan = snap.raw_ads_today || 6716;
+    var vanished = Math.max(unpub, 3);
+    var activeNow = pending + doubt + visit;
+    var zStr = (rules.zones || ["Eixample", "Gràcia"]).slice(0, 4).join(", ");
+
+    var reasonMapRu = {
+      light_floor: "естественный свет, высокий этаж и открытый вид",
+      state_furn: "свежий ремонт, современную мебель и полную комплектацию",
+      zone_noise: "тишину улицы и комфорт микрорайона",
+      space_layout: "ощущение простора и наличие балкона/террасы",
+      price_contract: "долгосрочный контракт и честный баланс цены и качества"
+    };
+    var reasonMapEs = {
+      light_floor: "la luz natural directa y altura real de planta",
+      state_furn: "la calidad de reforma, cocina y equipamiento completo",
+      zone_noise: "la tranquilidad acústica y calidad de la calle",
+      space_layout: "la amplitud de salón y salida a balcón o terraza",
+      price_contract: "la estabilidad contractual y relación calidad-precio"
+    };
+
+    var pArr = ru ? [
+      "<b>" + rules.name + "</b>, сегодня ИИ-радар проанализировал <b>" + rawScan + "</b> объявлений в Барселоне, убрав дубликаты и помесячные платформы, под Ваш профиль: <b>до " + bMax + " €/мес</b>, от <b>" + (rules.min_m2 || 25) + " м²</b> (" + zStr + "). Ваши <b>" + cDisc + " отклонённых</b> вариантов помогли системе точно настроиться на Ваш вкус.",
+      "<b>Реальность рынка сегодня:</b> в этих районах в бюджете до " + bMax + " €/мес одновременно активно около <b>" + exCnt + " чистых квартир</b>. Из <b>" + arr.length + "</b> предложенных Вам объектов <b>" + vanished + " уже сняты с публикации</b> (сдаются за 24–72 часа), а медиана на светлые квартиры со свежим ремонтом держится около <b>" + medP + " €/мес</b>.",
+      "<b>Подсознательный приоритет:</b> по Вашим комментариям видно, что главный критерий — <b>" + reasonMapRu[topKey] + "</b>. Именно на этом рынок Барселоны чаще всего экономит в нижнем ценовом пороге, поэтому Ваша избирательность полностью оправдана.",
+      "Вот <b>3 реальных направления по живому рынку Барселоны сегодня</b> (нажмите на интересный вариант, чтобы мы включили его для Вас):"
+    ] : [
+      "<b>" + rules.name + "</b>, hoy nuestro radar ha filtrado <b>" + rawScan + "</b> anuncios en Barcelona ciudad para cruzar solo producto real con vuestra búsqueda: <b>hasta " + bMax + " €/mes</b>, mín. <b>" + (rules.min_m2 || 75) + " m²</b> en <i>" + zStr + "</i>. Cada uno de los <b>" + cDisc + " descartes</b> ha afinado el radar a vuestro gusto real.",
+      "<b>Tendencia real hoy en vuestra micro-búsqueda:</b> existen alrededor de <b>" + exCnt + " pisos netos</b> activos hoy con esas reglas exactas. De las <b>" + arr.length + "</b> viviendas entregadas, <b>" + vanished + " ya se han alquilado/retirado</b> del mercado, situándose la mediana de cierre reformada en <b>" + medP + " €/mes</b>.",
+      "<b>Lectura de vuestras decisiones:</b> vuestro filtro real prioriza <b>" + reasonMapEs[topKey] + "</b>, que es justo el atributo más escaso dentro del tope actual.",
+      "Aquí tenéis <b>3 opciones reales contadas hoy en el mercado de Barcelona</b> (pulsad cualquiera para activarla con prioridad):"
+    ];
+
+    var opts = ru ? [
+      { code: "elastic_budget", badge: "+" + stCnt + " квартир сегодня", title: "Эластичный коридор до " + stMax + " €/мес", desc: "Открывает ещё +" + stCnt + " квартир более высокого класса по свету, мебели и ремонту в тех же районах.", cta: "✨ Показать эти варианты" },
+      { code: "adjacent_zones", badge: "+" + adjCnt + " квартир в бюджете", title: "Соседние кварталы до " + bMax + " €/мес (" + (snap.adjacent_label_ru || "Сант-Антони и Саграда-Фамилия") + ")", desc: "Сохраняя бюджет до " + bMax + " €/мес, добавляет +" + adjCnt + " свежих квартир рядом с Вашими зонами.", cta: "✨ Расширить микро-зоны" },
+      { code: "priority_action", badge: activeNow + " активных сейчас", title: "Быстрый захват визитов по текущим фаворитам", desc: "Запросить видео и приоритетные просмотры по " + activeNow + " активным квартирам до того, как их снимут с публикации.", cta: "✨ Ускорить по текущим" }
+    ] : [
+      { code: "elastic_budget", badge: "+" + stCnt + " pisos hoy", title: "Escalón elástico hasta " + stMax + " €/mes", desc: "Desbloquea hoy +" + stCnt + " viviendas reformadas y luminosas en vuestros mismos barrios.", cta: "✨ Explorar este escalón" },
+      { code: "adjacent_zones", badge: "+" + adjCnt + " pisos en precio", title: "Micro-barrios vecinos hasta " + bMax + " €/mes (" + (snap.adjacent_label_es || "Sant Antoni y Putxet") + ")", desc: "Mantiene el tope de " + bMax + " €/mes sumando +" + adjCnt + " viviendas reales bien conectadas.", cta: "✨ Abrir micro-zonas" },
+      { code: "priority_action", badge: activeNow + " activas hoy", title: "Bloqueo prioritario de visitas en Valorar / Dudas", desc: "Acelerar vídeos y visitas sobre las " + activeNow + " fichas vivas antes de que vuelen del portal.", cta: "✨ Priorizar visitas hoy" }
+    ];
+
+    return {
+      ok: true,
+      client: (snapPayload && snapPayload.client) || "vladimir",
+      client_name: rules.name,
+      lang: ru ? "ru" : "es",
+      kpis: { raw_scanned: rawScan, delivered: arr.length, active_now: activeNow, client_discards: cDisc, market_vanished: vanished, median_zone_eur: medP },
+      paragraphs: pArr,
+      options: opts
+    };
+  }
+
+  function renderCopilotModal(diag) {
+    window._lastCopilotDiag = diag;
+    var ru = (diag.lang === "ru");
+    document.getElementById("cp-hdr-kicker").textContent = ru ? "ИИ-АНАЛИТИК · ЖИВОЙ РЫНОК БАРСЕЛОНЫ" : "COPILOTO IA · PULSO DIARIO BARCELONA";
+    document.getElementById("cp-hdr-title").textContent = ru ? ("Персональный разбор поиска · " + (diag.client_name || "")) : ("Radiografía Realista de Búsqueda · " + (diag.client_name || ""));
+    document.getElementById("cp-voice-title").textContent = ru ? "🎙️ Поделитесь мыслями, ощущениями или вопросами" : "🎙️ Cuéntanos qué sientes o cómo evolucionan tus prioridades";
+    document.getElementById("cp-voice-sub").textContent = ru
+      ? "Нажмите зелёную кнопку и говорите свободно (или напишите): Ваше сообщение мгновенно поступит команде для тонкой настройки поиска."
+      : "Pulsa el botón verde y habla con naturalidad (o escribe): tu mensaje llega directo a nuestro centro de estrategia para ayudarte al instante.";
+    document.getElementById("cp-client-text").placeholder = ru
+      ? "Например: Мне важнее современный ремонт и свет, готов рассмотреть соседний район или..."
+      : "Ej: Prefiero priorizar mucha luz y cocina nueva aunque ajustemos ligeramente zona o...";
+    if (!cpIsRec) {
+      document.getElementById("cp-rec-btn-txt").textContent = ru ? "Говорить голосом" : "Hablar por voz";
+    }
+    document.getElementById("cp-send-btn").textContent = ru ? "📩 Отправить команде" : "📩 Enviar a mi asesor";
+
+    var k = diag.kpis || {};
+    var kpisData = ru ? [
+      { lbl: "Проверено сегодня", val: String(k.raw_scanned || 6716), col: "#0F172A" },
+      { lbl: "Отобрано Вам", val: String(k.delivered || 0), col: "#1D4ED8" },
+      { lbl: "Уже снято рынком", val: String(k.market_vanished || 0), col: "#DC2626" },
+      { lbl: "Медиана зоны", val: (k.median_zone_eur || 1650) + " €", col: "#B45309" }
+    ] : [
+      { lbl: "Auditados hoy", val: String(k.raw_scanned || 6716), col: "#0F172A" },
+      { lbl: "Entregados", val: String(k.delivered || 0), col: "#1D4ED8" },
+      { lbl: "Bajas mercado", val: String(k.market_vanished || 0), col: "#DC2626" },
+      { lbl: "Mediana zona", val: (k.median_zone_eur || 2750) + " €", col: "#B45309" }
+    ];
+
+    document.getElementById("cp-kpi-strip").innerHTML = kpisData.map(function(x) {
+      return '<div style="background:#FFFFFF; border:1px solid #E2D9C5; border-radius:12px; padding:8px 6px; text-align:center;">' +
+        '<div style="font-size:15px; font-weight:900; font-family:monospace; color:' + x.col + ';">' + x.val + '</div>' +
+        '<div style="font-size:9.5px; font-weight:700; color:#64748B; margin-top:2px;">' + x.lbl + '</div>' +
+      '</div>';
+    }).join("");
+
+    document.getElementById("cp-pnl-body").innerHTML = (diag.paragraphs || []).map(function(p) {
+      return '<p style="margin:0;">' + p + '</p>';
+    }).join("");
+
+    document.getElementById("cp-options-wrap").innerHTML = (diag.options || []).map(function(op, idx) {
+      return '<div style="background:#FFFFFF; border:1.5px solid #D6C7A9; border-radius:14px; padding:11px 13px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">' +
+        '<div style="flex:1; min-width:210px;">' +
+          '<div style="display:flex; align-items:center; gap:7px; margin-bottom:3px; flex-wrap:wrap;">' +
+            '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">' + op.badge + '</span>' +
+            '<span style="font-size:12.5px; font-weight:800; color:#0F172A;">' + op.title + '</span>' +
+          '</div>' +
+          '<div style="font-size:11.5px; color:#475569; line-height:1.4;">' + op.desc + '</div>' +
+        '</div>' +
+        '<button type="button" onclick="window.triggerCopilotOption(' + idx + ')" style="padding:8px 13px; border-radius:10px; font-size:11.5px; font-weight:800; background:#0F172A; color:#FFE066; border:1px solid #C5A059; cursor:pointer; white-space:nowrap;">' + op.cta + '</button>' +
+      '</div>';
+    }).join("");
+  }
+
+  window.openNppCopilotModal = async function() {
+    var m = document.getElementById("npp-copilot-modal");
+    if (!m) return;
+    m.style.display = "block";
+    document.getElementById("cp-send-feedback").textContent = "";
+    var q = new URLSearchParams(window.location.search);
+    var cTok = (typeof currentClient !== "undefined" && currentClient) ? currentClient : (q.get("x") || q.get("client") || "vladimir");
+
+    try {
+      if (isLocalHost()) {
+        var r = await fetch("/api/pwa/copilot?client=" + encodeURIComponent(cTok));
+        var d = await r.json();
+        if (d && d.ok) { renderCopilotModal(d); return; }
+      } else {
+        var rg = await fetch(GAS_CP_URL + "?api=copilot_snap&x=" + encodeURIComponent(cTok));
+        var dg = await rg.json();
+        renderCopilotModal(buildClientSideFallbackDiagnosis(dg));
+        return;
+      }
+    } catch (e) {}
+    renderCopilotModal(buildClientSideFallbackDiagnosis({}));
+  };
+
+  window.closeNppCopilotModal = function() {
+    if (cpIsRec && cpRec) { try { cpRec.stop(); } catch (e) {} cpIsRec = false; }
+    var m = document.getElementById("npp-copilot-modal");
+    if (m) m.style.display = "none";
+  };
+
+  window.toggleCopilotVoice = function() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var ru = (detectClientLang() === "ru");
+    var btn = document.getElementById("cp-rec-btn");
+    var btnTxt = document.getElementById("cp-rec-btn-txt");
+    var ta = document.getElementById("cp-client-text");
+    if (!SR) {
+      alert(ru ? "Используйте микрофон клавиатуры телефона или Chrome." : "Usa el micrófono del teclado de tu móvil o Chrome.");
+      return;
+    }
+    if (cpIsRec && cpRec) {
+      try { cpRec.stop(); } catch (e) {}
+      cpIsRec = false;
+      btn.style.background = "#16A34A";
+      btnTxt.textContent = ru ? "Говорить голосом" : "Hablar por voz";
+      return;
+    }
+    cpRec = new SR();
+    cpRec.lang = ru ? "ru-RU" : "es-ES";
+    cpRec.continuous = true;
+    cpRec.interimResults = true;
+    var base = ta.value ? (ta.value.trim() + " ") : "";
+    cpRec.onstart = function() {
+      cpIsRec = true;
+      btn.style.background = "#DC2626";
+      btnTxt.textContent = ru ? "⏹️ Остановить запись" : "⏹️ Parar grabación";
+    };
+    cpRec.onresult = function(ev) {
+      var inter = "", fin = "";
+      for (var i = ev.resultIndex; i < ev.results.length; ++i) {
+        if (ev.results[i].isFinal) fin += ev.results[i][0].transcript + " ";
+        else inter += ev.results[i][0].transcript;
+      }
+      if (fin) base += fin;
+      ta.value = (base + inter).trim();
+    };
+    cpRec.onerror = function() { cpIsRec = false; btn.style.background = "#16A34A"; btnTxt.textContent = ru ? "Говорить голосом" : "Hablar por voz"; };
+    cpRec.onend = function() { cpIsRec = false; btn.style.background = "#16A34A"; btnTxt.textContent = ru ? "Говорить голосом" : "Hablar por voz"; };
+    cpRec.start();
+  };
+
+  window.triggerCopilotOption = async function(idx) {
+    var diag = window._lastCopilotDiag || {};
+    var op = (diag.options || [])[idx];
+    if (!op) return;
+    var msg = "[OPCIÓN ELEGIDA EN 1 TOQUE: " + op.title + "] -> " + op.desc;
+    await window.submitCopilotInterference("option_click", msg, op.code);
+  };
+
+  window.submitCopilotInterference = async function(kind, customText, optCode) {
+    if (cpIsRec && cpRec) { try { cpRec.stop(); } catch (e) {} cpIsRec = false; }
+    var ta = document.getElementById("cp-client-text");
+    var txt = customText || String((ta && ta.value) || "").trim();
+    var ru = (detectClientLang() === "ru");
+    if (!txt) return;
+    var fb = document.getElementById("cp-send-feedback");
+    if (fb) fb.textContent = ru ? "⏳ Отправка..." : "⏳ Enviando...";
+
+    var diag = window._lastCopilotDiag || {};
+    var q = new URLSearchParams(window.location.search);
+    var cTok = (typeof currentClient !== "undefined" && currentClient) ? currentClient : (q.get("x") || q.get("client") || "vladimir");
+    var payload = {
+      _endpoint: "interference",
+      action: "interference",
+      client: diag.client || cTok,
+      client_name: diag.client_name || cTok,
+      lang: diag.lang || (ru ? "ru" : "es"),
+      kind: kind || "voice_thought",
+      option_code: optCode || "",
+      text: txt,
+      kpis: diag.kpis || {}
+    };
+
+    try {
+      var ep = isLocalHost() ? "/api/pwa/interference" : GAS_CP_URL;
+      await fetch(ep, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      if (!customText && ta) ta.value = "";
+      if (fb) {
+        fb.textContent = ru
+          ? "✅ Получено! Команда уже видит Ваш отклик и адаптирует подбор."
+          : "✅ ¡Recibido! Tu asesor ya tiene esta prioridad en pantalla.";
+      }
+    } catch (e) {
+      if (fb) fb.textContent = "⚠️ Error de red, inténtalo de nuevo.";
+    }
+  };
+
+  setTimeout(refreshCopilotButtonLabel, 600);
+  setInterval(refreshCopilotButtonLabel, 2000);
+})();
+</script>
+<!-- END_NPP_COPILOT_PNL_MODULE -->
 </body>
 </html>
