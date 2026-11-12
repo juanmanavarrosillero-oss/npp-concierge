@@ -1,6 +1,266 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- NPP_PIN_SESSION_GATE_START -->
+<style>
+  html.npp-locked, html.npp-locked body { overflow: hidden !important; }
+  #npp-pin-gate {
+    position: fixed; inset: 0; z-index: 2147483646;
+    background: radial-gradient(circle at 50% 18%, #1F1B16 0%, #0D0C0A 72%);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; color: #F5F0E6;
+  }
+  .npp-pg-card {
+    width: 100%; max-width: 390px; background: rgba(24, 21, 18, 0.96);
+    border: 1px solid rgba(197, 160, 89, 0.42); border-radius: 22px;
+    padding: 28px 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.75); text-align: center;
+  }
+  .npp-pg-inp {
+    width: 100%; box-sizing: border-box; background: #0E0C0A; color: #F5F0E6;
+    border: 1px solid rgba(197, 160, 89, 0.45); border-radius: 12px;
+    padding: 13px 14px; font-size: 22px; letter-spacing: 10px; text-align: center;
+    font-weight: 700; outline: none; margin-top: 10px;
+  }
+  .npp-pg-inp:focus { border-color: #D4AF37; box-shadow: 0 0 0 2px rgba(212,175,55,0.2); }
+  .npp-pg-btn {
+    width: 100%; margin-top: 16px; padding: 13px 16px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #D4AF37, #AA8232); color: #12100D;
+    font-weight: 800; font-size: 14px; letter-spacing: 0.6px; cursor: pointer;
+  }
+  #npp-actor-pill {
+    position: fixed; bottom: 12px; left: 12px; z-index: 99999;
+    background: rgba(15,23,42,0.92); border: 1px solid #38BDF8; color: #E0F2FE;
+    padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    pointer-events: none; display: none;
+  }
+</style>
+<script>
+(function(){
+  var q = new URLSearchParams(window.location.search);
+  if ((window.location.search || "").indexOf("t_8us0") !== -1 || (window.location.search || "").toLowerCase().indexOf("andrii") !== -1) return;
+
+  document.documentElement.classList.add("npp-locked");
+  window._nppSessionAuthToken = "";
+  window._nppSessionActor = "";
+  var _unlockResolve = null;
+  window._nppUnlockPromise = new Promise(function(res){ _unlockResolve = res; });
+
+  var origFetch = window.fetch.bind(window);
+  window.fetch = async function(input, init) {
+    var urlStr = (typeof input === "string") ? input : ((input && input.url) || "");
+    var isPinCall = urlStr.indexOf("/api/pwa/pin-auth") !== -1 || urlStr.indexOf("api=pin_auth") !== -1;
+    var isApiCall = urlStr.indexOf("/api/pwa/") !== -1 || urlStr.indexOf("script.google.com/macros") !== -1;
+    if (isApiCall && !isPinCall && !window._nppSessionAuthToken) {
+      await window._nppUnlockPromise;
+    }
+    if (isApiCall && !isPinCall && window._nppSessionAuthToken) {
+      init = Object.assign({}, init || {});
+      var method = String(init.method || "GET").toUpperCase();
+      if (method === "GET" && typeof input === "string") {
+        input = urlStr + (urlStr.indexOf("?") === -1 ? "?" : "&") + "auth_token=" + encodeURIComponent(window._nppSessionAuthToken);
+      } else if (method === "POST" && typeof init.body === "string") {
+        try {
+          var bObj = JSON.parse(init.body);
+          bObj.auth_token = window._nppSessionAuthToken;
+          bObj.actor = window._nppSessionActor || "CLIENTE";
+          init.body = JSON.stringify(bObj);
+        } catch(e) {}
+      }
+    }
+    return origFetch(input, init);
+  };
+
+  var I18N = {
+    es: {
+      badge: "NAVARRO PRIVATE PROPERTIES · ACCESO PRIVADO",
+      setupTitle: "Crea tu PIN de Seguridad",
+      setupSub: "Por privacidad, elige un código personal de 4 cifras y repítelo 2 veces. Este paso solo se realiza una única vez.",
+      p1: "Nuevo PIN (4 cifras)", p2: "Repite tu PIN",
+      setupBtn: "GUARDAR PIN Y ENTRAR",
+      loginTitle: "Introduce tu PIN de Seguridad",
+      loginSub: "espacio confidencial protegido. Introduce tu código de 4 cifras para abrir tu selección.",
+      loginPh: "PIN (4 cifras)", loginBtn: "DESBLOQUEAR ACCESO",
+      staffLink: "Acceso Equipo (Asesor)", backSetup: "← Volver a crear PIN de cliente",
+      errFmt: "Introduce exactamente 4 números iguales en ambas casillas.",
+      errBad: "Código incorrecto. Inténtalo de nuevo.",
+      errRate: "Demasiados intentos. Espera 60 segundos.",
+      errRes: "Ese código está reservado. Elige otras 4 cifras.",
+      errSealed: "Este enlace ya tiene un PIN creado. Introduce tu PIN para entrar."
+    },
+    ru: {
+      badge: "NAVARRO PRIVATE PROPERTIES · ЗАКРЫТЫЙ ДОСТУП",
+      setupTitle: "Создайте личный PIN-код",
+      setupSub: "Для защиты Вашего поиска задайте личный код из 4 цифр и введите его дважды. Это делается только один раз.",
+      p1: "Новый PIN (4 цифры)", p2: "Повторите PIN",
+      setupBtn: "СОХРАНИТЬ PIN И ВОЙТИ",
+      loginTitle: "Введите Ваш PIN-код",
+      loginSub: "персональная подборка защищена. Введите 4-значный код для входа.",
+      loginPh: "PIN (4 цифры)", loginBtn: "ОТКРЫТЬ ПОДБОРКУ",
+      staffLink: "Вход для команды", backSetup: "← Вернуться к созданию PIN клиента",
+      errFmt: "Введите одинаковые 4 цифры в оба поля.",
+      errBad: "Неверный PIN-код. Попробуйте снова.",
+      errRate: "Слишком много попыток. Подождите 60 секунд.",
+      errRes: "Этот код зарезервирован. Выберите другие 4 цифры.",
+      errSealed: "Для этой ссылки PIN уже создан. Введите действующий PIN."
+    }
+  };
+
+  function clientParam() {
+    return q.get("x") || q.get("k") || q.get("client") || (typeof window.BOOT_TOKEN !== "undefined" ? window.BOOT_TOKEN : "") || "mariona";
+  }
+  function isLocal() {
+    var h = location.hostname;
+    return h === "localhost" || h === "127.0.0.1" || h.indexOf("192.168.") === 0;
+  }
+
+  async function apiPin(action, extra) {
+    var cp = clientParam();
+    if (isLocal()) {
+      if (action === "status") {
+        var r = await origFetch("/api/pwa/pin-auth?x=" + encodeURIComponent(cp));
+        return await r.json();
+      }
+      var r2 = await origFetch("/api/pwa/pin-auth", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ pin_action: action, x: cp, client: cp }, extra || {}))
+      });
+      return await r2.json();
+    } else {
+      var gUrl = (typeof GAS_API_URL !== "undefined" && GAS_API_URL) ? GAS_API_URL : ((typeof GAS_CP_URL !== "undefined" && GAS_CP_URL) ? GAS_CP_URL : "https://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec");
+      if (action === "status") {
+        var rg = await origFetch(gUrl + "?api=pin_auth&x=" + encodeURIComponent(cp));
+        return await rg.json();
+      }
+      var rg2 = await origFetch(gUrl, {
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(Object.assign({ _endpoint: "pin_auth", pin_action: action, client: cp, x: cp }, extra || {}))
+      });
+      return await rg2.json();
+    }
+  }
+
+  function mountGate() {
+    if (document.getElementById("npp-pin-gate")) return;
+    var wrap = document.createElement("div");
+    wrap.id = "npp-pin-gate";
+    wrap.innerHTML = '<div class="npp-pg-card" id="npp-pg-box"><div style="color:#C5A059;font-size:11px;font-weight:700;letter-spacing:1.4px;">VERIFICANDO SEGURIDAD...</div></div><div id="npp-actor-pill"></div>';
+    (document.body || document.documentElement).appendChild(wrap);
+
+    apiPin("status").then(function(st){
+      var lg = (st && st.lang === "ru") ? "ru" : "es";
+      var hasPin = !!(st && st.has_pin);
+      var cName = (st && st.client_name) ? st.client_name : "";
+      renderForm(lg, hasPin, false, cName);
+    }).catch(function(){
+      renderForm("es", true, false, "");
+    });
+  }
+
+  function renderForm(lg, hasPin, staffMode, cName) {
+    var t = I18N[lg] || I18N.es;
+    var box = document.getElementById("npp-pg-box");
+    if (!box) return;
+    var showSetup = !hasPin && !staffMode;
+
+    var langSwitch = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">' +
+      '<span style="color:#C5A059;font-size:10px;font-weight:800;letter-spacing:1.2px;">🔒 ' + t.badge.split("·")[0] + '</span>' +
+      '<button id="npp-pg-lang" style="background:transparent;border:1px solid rgba(197,160,89,0.35);color:#C5A059;border-radius:8px;padding:3px 8px;font-size:11px;cursor:pointer;">' + (lg === "ru" ? "ES" : "RU") + '</button></div>';
+
+    if (showSetup) {
+      box.innerHTML = langSwitch +
+        '<div style="font-size:19px;font-weight:800;margin-bottom:6px;">' + t.setupTitle + '</div>' +
+        (cName ? '<div style="color:#D4AF37;font-size:13px;font-weight:600;margin-bottom:8px;">' + cName + '</div>' : '') +
+        '<div style="color:#A8A29E;font-size:12.5px;line-height:1.45;margin-bottom:10px;">' + t.setupSub + '</div>' +
+        '<input id="npp-p1" class="npp-pg-inp" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">' +
+        '<div style="font-size:11px;color:#8C857B;margin-top:4px;">' + t.p1 + '</div>' +
+        '<input id="npp-p2" class="npp-pg-inp" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">' +
+        '<div style="font-size:11px;color:#8C857B;margin-top:4px;">' + t.p2 + '</div>' +
+        '<div id="npp-pg-err" style="color:#F87171;font-size:12px;min-height:18px;margin-top:8px;"></div>' +
+        '<button id="npp-pg-go" class="npp-pg-btn">' + t.setupBtn + '</button>' +
+        '<div style="margin-top:14px;"><a href="#" id="npp-pg-staff" style="color:#78716C;font-size:11.5px;text-decoration:none;">' + t.staffLink + '</a></div>';
+    } else {
+      box.innerHTML = langSwitch +
+        '<div style="font-size:19px;font-weight:800;margin-bottom:6px;">' + t.loginTitle + '</div>' +
+        '<div style="color:#A8A29E;font-size:12.5px;line-height:1.45;margin-bottom:10px;">' + (cName ? ('<b>' + cName + '</b>: ') : '') + t.loginSub + '</div>' +
+        '<input id="npp-p0" class="npp-pg-inp" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">' +
+        '<div id="npp-pg-err" style="color:#F87171;font-size:12px;min-height:18px;margin-top:8px;"></div>' +
+        '<button id="npp-pg-go" class="npp-pg-btn">' + t.loginBtn + '</button>' +
+        (!hasPin && staffMode ? '<div style="margin-top:14px;"><a href="#" id="npp-pg-back" style="color:#C5A059;font-size:11.5px;text-decoration:none;">' + t.backSetup + '</a></div>' : '');
+    }
+
+    document.getElementById("npp-pg-lang").onclick = function(){ renderForm(lg === "ru" ? "es" : "ru", hasPin, staffMode, cName); };
+    var stLnk = document.getElementById("npp-pg-staff");
+    if (stLnk) stLnk.onclick = function(e){ e.preventDefault(); renderForm(lg, hasPin, true, cName); };
+    var bkLnk = document.getElementById("npp-pg-back");
+    if (bkLnk) bkLnk.onclick = function(e){ e.preventDefault(); renderForm(lg, hasPin, false, cName); };
+
+    var firstInp = document.getElementById(showSetup ? "npp-p1" : "npp-p0");
+    if (firstInp) setTimeout(function(){ firstInp.focus(); }, 60);
+
+    async function submitGate() {
+      var errEl = document.getElementById("npp-pg-err");
+      var btn = document.getElementById("npp-pg-go");
+      errEl.textContent = "";
+      if (showSetup) {
+        var v1 = String(document.getElementById("npp-p1").value || "").trim();
+        var v2 = String(document.getElementById("npp-p2").value || "").trim();
+        if (!/^\d{4}$/.test(v1) || v1 !== v2) { errEl.textContent = t.errFmt; return; }
+        btn.disabled = true;
+        var rs = await apiPin("setup", { pin1: v1, pin2: v2 });
+        btn.disabled = false;
+        if (rs && rs.ok && rs.auth_token) {
+          finishUnlock(rs.auth_token, rs.actor || "CLIENTE");
+        } else if (rs && rs.error === "PIN_ALREADY_SEALED") {
+          renderForm(lg, true, false, cName);
+          document.getElementById("npp-pg-err").textContent = t.errSealed;
+        } else if (rs && rs.error === "PIN_RESERVED") {
+          errEl.textContent = t.errRes;
+        } else {
+          errEl.textContent = t.errFmt;
+        }
+      } else {
+        var v0 = String(document.getElementById("npp-p0").value || "").trim();
+        if (!/^\d{4}$/.test(v0)) { errEl.textContent = t.errBad; return; }
+        btn.disabled = true;
+        var rv = await apiPin("verify", { pin: v0 });
+        btn.disabled = false;
+        if (rv && rv.ok && rv.auth_token) {
+          finishUnlock(rv.auth_token, rv.actor || "CLIENTE");
+        } else if (rv && rv.error === "RATE_LIMITED") {
+          errEl.textContent = t.errRate;
+        } else {
+          errEl.textContent = t.errBad;
+        }
+      }
+    }
+
+    document.getElementById("npp-pg-go").onclick = submitGate;
+    box.querySelectorAll("input").forEach(function(inp){
+      inp.addEventListener("keydown", function(ev){ if (ev.key === "Enter") submitGate(); });
+    });
+  }
+
+  function finishUnlock(tok, actor) {
+    window._nppSessionAuthToken = tok;
+    window._nppSessionActor = actor;
+    document.documentElement.classList.remove("npp-locked");
+    var g = document.getElementById("npp-pin-gate");
+    if (g) g.remove();
+    if (actor === "JUANMA" || actor === "YULIIA") {
+      var pill = document.createElement("div");
+      pill.id = "npp-actor-pill";
+      pill.style.display = "block";
+      pill.textContent = (actor === "JUANMA" ? "👑 Modo Juanma" : "👩‍💼 Modo Yuliia") + " · Auditoría";
+      document.body.appendChild(pill);
+    }
+    if (_unlockResolve) _unlockResolve(true);
+  }
+
+  if (document.body) mountGate();
+  else document.addEventListener("DOMContentLoaded", mountGate);
+})();
+</script>
+<!-- NPP_PIN_SESSION_GATE_END -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2470,7 +2730,7 @@ body.master-mode #lab-toolbar { display: flex !important; }
         th.style.display = "flex";
         var uBubble = !customText ? ('<div style="align-self:flex-end; max-width:88%; background:rgba(197,160,89,0.22); border:1px solid rgba(197,160,89,0.5); color:#FEF08A; padding:8px 12px; border-radius:12px 12px 2px 12px; font-size:12px;">🎙️ ' + txt.replace(/</g,"&lt;") + '</div>') : '';
         var cBubble = reply ? ('<div style="align-self:flex-start; max-width:96%; background:rgba(15,23,42,0.95); border:1px solid #38BDF8; box-shadow:0 4px 18px rgba(56,189,248,0.18); color:#F8FAFC; padding:11px 13px; border-radius:12px 12px 12px 2px; font-size:12.5px; line-height:1.52;"><div style="font-size:10px; font-family:monospace; font-weight:800; color:#38BDF8; margin-bottom:4px;">🌌 COSMOS · ' + (ru ? 'ЧЕСТНЫЙ РАЗБОР ПО ВАШЕЙ БАЗЕ' : 'VERDAD VERIFICADA EN TU BÚSQUEDA') + '</div>' + reply + '</div>') : '';
-        th.innerHTML = uBubble + cBubble + th.innerHTML;
+        th.innerHTML = (d && d.clear_history) ? cBubble : (uBubble + cBubble + th.innerHTML);
         if (audB64) { window.playCosmosB64Audio(audB64); } else if (reply) { fetchJuanmaVoiceChunk(reply).then(function(b64){ if (b64) window.playCosmosB64Audio(b64); }); }
       }
 
