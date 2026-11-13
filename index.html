@@ -106,7 +106,7 @@
   };
 
   function clientParam() {
-    return q.get("x") || q.get("k") || q.get("client") || (typeof window.BOOT_TOKEN !== "undefined" ? window.BOOT_TOKEN : "") || "mariona";
+    var raw = q.get("x") || q.get("k") || (isLocal() ? q.get("client") : "") || (typeof window.BOOT_TOKEN !== "undefined" ? window.BOOT_TOKEN : ""); return raw || (isLocal() ? "mariona" : "");
   }
   function isLocal() {
     var h = location.hostname;
@@ -147,6 +147,18 @@
     (document.body || document.documentElement).appendChild(wrap);
 
     apiPin("status").then(function(st){
+      if (st && st.restricted) {
+        var boxR = document.getElementById("npp-pg-box");
+        if (boxR) {
+          boxR.innerHTML = '<div style="color:#C5A059;font-size:10px;font-weight:800;letter-spacing:1.3px;margin-bottom:12px;">🔒 NAVARRO PRIVATE PROPERTIES</div>' +
+            '<div style="font-size:18px;font-weight:800;margin-bottom:8px;">Acceso Privado Restringido</div>' +
+            '<div style="color:#A8A29E;font-size:12.5px;line-height:1.5;margin-bottom:14px;">Este espacio confidencial requiere el enlace personal único enviado por tu asesor.<br><span style="color:#78716C;font-size:11.5px;">Для входа необходима Ваша персональная защищённая ссылка.</span></div>' +
+            '<div><a href="#" id="npp-pg-staff-r" style="color:#78716C;font-size:11.5px;text-decoration:none;">Acceso Equipo (Asesor)</a></div>';
+          var sr = document.getElementById("npp-pg-staff-r");
+          if (sr) sr.onclick = function(ev){ ev.preventDefault(); renderForm("es", true, true, ""); };
+        }
+        return;
+      }
       var lg = (st && st.lang === "ru") ? "ru" : "es";
       var hasPin = !!(st && st.has_pin);
       var cName = (st && st.client_name) ? st.client_name : "";
