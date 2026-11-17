@@ -1146,7 +1146,7 @@
       const data = await res.json();
       if (data.ok) {
         alert(mode === 'approve_requested' ? '✅ Solicitud del cliente aprobada y pasada a Perfil Oficial.' : '✅ Solicitud descartada (se mantiene el Perfil Oficial).');
-        loadCRM();
+        await loadCRM(slug);
       } else {
         alert('⚠️ Error: ' + (data.error || ''));
       }
@@ -1923,6 +1923,534 @@
 })();
 </script>
 <!-- END_DASH_YULIIA_INBOX -->
+<!-- START_CRM_PULSE_AND_EXPOSE -->
+<div id="wl-expose-modal" style="display:none; position:fixed; inset:0; z-index:19000; background:rgba(15,23,42,0.78); backdrop-filter:blur(5px); align-items:center; justify-content:center; padding:16px;">
+  <div style="max-width:560px; width:100%; background:#FAF8F5; color:#2D241C; border-radius:22px; border:2px solid #D4AF37; box-shadow:0 26px 65px rgba(0,0,0,0.5); padding:24px; font-family:'Inter',sans-serif;">
+    <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #D5CBB8; padding-bottom:12px; margin-bottom:14px;">
+      <div>
+        <h3 style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#24424D; margin:0;">✨ GENERAR EXPOSÉ MARCA BLANCA (0% NPP)</h3>
+        <p style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#6E655C; margin:3px 0 0 0;">Sin logotipos ni datos de NPP · Con botones en vivo «Descartar» y «Pedir Agendar»</p>
+      </div>
+      <button type="button" onclick="document.getElementById('wl-expose-modal').style.display='none'" style="font-weight:800; font-size:16px; color:#6E655C; background:none; border:none; cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:11px; font-family:'JetBrains Mono',monospace; font-size:12px;">
+      <div>
+        <label style="display:block; font-weight:700; color:#2D241C; margin-bottom:4px;">🏛️ Título de Portada (Marca Blanca)</label>
+        <input id="wl-exp-title" type="text" value="PRIVATE COLLECTION · BARCELONA" style="width:100%; padding:9px 12px; border-radius:11px; border:1px solid #D5CBB8; background:#FFF; font-weight:700; color:#24424D;">
+      </div>
+      <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:10px;">
+        <div>
+          <label style="display:block; font-weight:700; color:#6E655C; margin-bottom:4px;">👤 Subtítulo / Destinatario</label>
+          <input id="wl-exp-sub" type="text" placeholder="Ej: Selección Residencial Privada" style="width:100%; padding:9px 12px; border-radius:11px; border:1px solid #D5CBB8; background:#FFF;">
+        </div>
+        <div>
+          <label style="display:block; font-weight:700; color:#6E655C; margin-bottom:4px;">🌐 Idioma del Exposé</label>
+          <select id="wl-exp-lang" style="width:100%; padding:9px 10px; border-radius:11px; border:1px solid #D5CBB8; background:#FFF; font-weight:700;">
+            <option value="es">🇪🇸 Español</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="ru">🇷🇺 Русский</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="wl-exp-result" style="display:none; padding:12px; border-radius:14px; background:#E4F2E9; border:1.5px solid #10B981; flex-direction:column; gap:9px;">
+        <div style="font-weight:700; color:#065F46; font-size:11.5px;">✅ Exposé Marca Blanca publicado y sincronizado 24/7:</div>
+        <input id="wl-exp-url-out" type="text" readonly style="width:100%; padding:7px 10px; border-radius:8px; border:1px solid #6EE7B7; background:#FFF; font-size:11px; color:#0F172A;">
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <button type="button" onclick="window.copyWlExposeUrl(this)" style="flex:1; padding:9px 12px; border-radius:10px; background:#065F46; color:#FFF; font-weight:700; border:none; cursor:pointer;">📋 Copiar Enlace Neutro</button>
+          <a id="wl-exp-open-link" href="#" target="_blank" style="padding:9px 12px; border-radius:10px; background:#24424D; color:#FFF; font-weight:700; text-decoration:none;">👁️ Abrir ↗</a>
+          <button type="button" onclick="window.downloadWlExposeHtml()" style="padding:9px 12px; border-radius:10px; background:#FFF; color:#24424D; border:1px solid #24424D; font-weight:700; cursor:pointer;">📥 Descargar .HTML</button>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; padding-top:8px; border-top:1px solid #EFECE6;">
+        <button type="button" onclick="document.getElementById('wl-expose-modal').style.display='none'" style="padding:10px 16px; border-radius:12px; background:#EFECE6; color:#6E655C; font-weight:700; border:none; cursor:pointer;">Cerrar</button>
+        <button id="wl-exp-gen-btn" type="button" onclick="window.confirmBuildWhiteLabelExpose()" style="padding:10px 20px; border-radius:12px; background:#24424D; color:#D4AF37; font-weight:700; border:1px solid #D4AF37; cursor:pointer; box-shadow:0 4px 14px rgba(36,66,77,0.25);">🚀 Crear Enlace y Revista</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var GAS_EXPOSE_URL = "https://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec";
+  var _AMP = String.fromCharCode(38);
+  window._crmSheetCache = window._crmSheetCache || {};
+  window._crmPulseState = window._crmPulseState || { bucket: "", contract: "all", openTray: false, search: "" };
+  window._crmExposeSelected = window._crmExposeSelected || {};
+  window._lastWlStandaloneHtml = "";
+  window._lastWlSlug = "";
+
+  function escP(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, _AMP + "amp;")
+      .replace(/</g, _AMP + "lt;")
+      .replace(/>/g, _AMP + "gt;")
+      .replace(/"/g, _AMP + "quot;");
+  }
+
+  function classifyItemStatus(it) {
+    var titleU = String(it.title || "").toUpperCase();
+    var st = String(it.status || "").toLowerCase();
+    if (titleU.indexOf("BAJA PORTAL") !== -1 || titleU.indexOf("BAJA EN PORTAL") !== -1 || st.indexOf("baja") !== -1 || st.indexOf("снят") !== -1) {
+      return "unpub";
+    }
+    if (st.indexOf("descart") !== -1 || st.indexOf("arch") !== -1 || st.indexOf("откл") !== -1 || st.indexOf("❌") !== -1) {
+      return "discarded";
+    }
+    if (st.indexOf("duda") !== -1 || st.indexOf("вопрос") !== -1 || st.indexOf("сомн") !== -1 || st.indexOf("🤔") !== -1) {
+      return "doubt";
+    }
+    if (st.indexOf("visit") !== -1 || st.indexOf("визит") !== -1 || st.indexOf("⭐") !== -1 || st.indexOf("📅") !== -1) {
+      return "visit";
+    }
+    return "pending";
+  }
+
+  function classifyItemContract(it) {
+    var tb = String(it.tab || "").toLowerCase();
+    if (tb.indexOf("1.") === 0 || tb.indexOf("habitual") !== -1) return "lau_hab";
+    if (tb.indexOf("2.") === 0 || tb.indexOf("probable") !== -1) return "lau_prob";
+    if (tb.indexOf("3.") === 0 || tb.indexOf("causa") !== -1 || tb.indexOf("temporal") !== -1) return "temp_caus";
+    return "other";
+  }
+
+  async function ensureClientSheetItems(c) {
+    if (!c || !c.slug) return { items: [], telemetry: {} };
+    if (Array.isArray(c.sheet_items) && c.sheet_items.length > 0) {
+      window._crmSheetCache[c.slug] = { items: c.sheet_items, telemetry: c.telemetry || {} };
+      return window._crmSheetCache[c.slug];
+    }
+    if (window._crmSheetCache[c.slug] && window._crmSheetCache[c.slug].items) {
+      return window._crmSheetCache[c.slug];
+    }
+    try {
+      var r = await fetch("/api/pwa/sheet?client=" + encodeURIComponent(c.slug));
+      var d = await r.json();
+      var pack = { items: (d && d.items) ? d.items : [], telemetry: (d && d.telemetry) ? d.telemetry : {} };
+      window._crmSheetCache[c.slug] = pack;
+      return pack;
+    } catch (e) {
+      return { items: [], telemetry: {} };
+    }
+  }
+
+  window.setPulseFilter = function(bucket, contract) {
+    var st = window._crmPulseState;
+    if (bucket !== null && typeof bucket !== "undefined") {
+      if (bucket === "calendar_jump") {
+        st.openTray = false;
+        var ag = document.querySelector("#crm-tab-panel-visitas h3");
+        if (ag) ag.scrollIntoView({ behavior: "smooth", block: "start" });
+        renderPulseBarForCurrent();
+        return;
+      }
+      if (st.openTray && st.bucket === bucket && !contract) {
+        st.openTray = false;
+      } else {
+        st.bucket = bucket;
+        st.openTray = true;
+      }
+    }
+    if (contract) {
+      st.contract = contract;
+      if (!st.bucket) st.bucket = "pending";
+      st.openTray = true;
+    }
+    renderPulseBarForCurrent();
+  };
+
+  window.updatePulseSearch = function(val) {
+    window._crmPulseState.search = String(val || "");
+    renderPulseTrayOnly();
+  };
+
+  window.toggleExposePropSelect = function(slug, boxId) {
+    if (!window._crmExposeSelected[slug]) window._crmExposeSelected[slug] = {};
+    if (window._crmExposeSelected[slug][boxId]) {
+      delete window._crmExposeSelected[slug][boxId];
+    } else {
+      window._crmExposeSelected[slug][boxId] = true;
+    }
+    renderPulseBarForCurrent();
+  };
+
+  window.clearExposeSelection = function(slug) {
+    window._crmExposeSelected[slug] = {};
+    renderPulseBarForCurrent();
+  };
+
+  window.openWhiteLabelExposeBuilder = function(slug) {
+    var c = (allClients || []).find(function(x) { return x.slug === slug; });
+    if (!c) return;
+    var selMap = window._crmExposeSelected[slug] || {};
+    var selIds = Object.keys(selMap);
+    if (!selIds.length) {
+      window._crmPulseState.bucket = "pending";
+      window._crmPulseState.openTray = true;
+      renderPulseBarForCurrent();
+      alert("👆🏼 Marca primero con el botón «☐ + Exposé» los pisos que quieras incluir en la selección.");
+      return;
+    }
+    document.getElementById("wl-exp-sub").value = "Selección Residencial · " + selIds.length + " Propiedades";
+    var langSel = document.getElementById("wl-exp-lang");
+    if (langSel && c.engine && c.engine.lang) {
+      var cl = String(c.engine.lang).toLowerCase();
+      langSel.value = (cl === "ru" ? "ru" : (cl === "en" ? "en" : "es"));
+    }
+    document.getElementById("wl-exp-result").style.display = "none";
+    document.getElementById("wl-expose-modal").style.display = "flex";
+  };
+
+  window.confirmBuildWhiteLabelExpose = async function() {
+    var c = (allClients || []).find(function(x) { return x.slug === selectedSlug; });
+    if (!c) return;
+    var pack = window._crmSheetCache[c.slug] || { items: [] };
+    var selMap = window._crmExposeSelected[c.slug] || {};
+    var chosen = (pack.items || []).filter(function(it) { return Boolean(selMap[it.box_id]); });
+    if (!chosen.length) return;
+
+    var btn = document.getElementById("wl-exp-gen-btn");
+    btn.disabled = true;
+    btn.textContent = "⏳ Generando Exposé Marca Blanca...";
+
+    try {
+      var richMap = {};
+      if (!window.__IS_CLOUD_CRM) {
+        try {
+          var idsCsv = chosen.map(function(x) { return x.box_id; }).join(",");
+          var rr = await fetch("/api/crm/expose/rich?ids=" + encodeURIComponent(idsCsv));
+          var rj = await rr.json();
+          if (rj && rj.rich) richMap = rj.rich;
+        } catch (e) {}
+      }
+
+      var cardsPayload = chosen.map(function(it) {
+        var rm = richMap[it.box_id] || {};
+        var phs = (rm.photos && rm.photos.length) ? rm.photos : (it.img ? [it.img] : []);
+        return {
+          box_id: it.box_id,
+          row: it.row || 0,
+          tab: it.tab || "",
+          title: it.title || "",
+          zone: it.zone || "",
+          price_fmt: it.price_fmt || (it.price ? (it.price + " €/mes") : ""),
+          sqm_ratio: it.sqm_ratio || "",
+          m2: it.m2 || "",
+          rooms: it.rooms || "",
+          baths: it.baths || "",
+          terrace: it.terrace || "",
+          extras: it.extras || "",
+          notes: it.notes || "",
+          desc: rm.desc || "",
+          img: it.img || "",
+          photos: phs
+        };
+      });
+
+      var coverTitle = document.getElementById("wl-exp-title").value.trim() || "PRIVATE COLLECTION · BARCELONA";
+      var coverSub = document.getElementById("wl-exp-sub").value.trim() || "CURATED RESIDENTIAL PORTFOLIO";
+      var expLang = document.getElementById("wl-exp-lang").value || "es";
+
+      var resExp;
+      if (window.__IS_CLOUD_CRM) {
+        resExp = await fetch("/api/crm/expose/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug: c.slug, cover_title: coverTitle, cover_subtitle: coverSub, lang: expLang, cards: cardsPayload })
+        });
+      } else {
+        var tokGas = window._localGasBridgeTok || "";
+        if (!tokGas) {
+          var lg = await fetch(GAS_EXPOSE_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ _endpoint: "crm_portal", crm_op: "login", password: "19811981" })
+          }).then(function(r) { return r.json(); });
+          tokGas = (lg && lg.token) || "";
+          window._localGasBridgeTok = tokGas;
+        }
+        resExp = await fetch(GAS_EXPOSE_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            _endpoint: "crm_portal",
+            crm_op: "create_expose",
+            crm_token: tokGas,
+            slug: c.slug,
+            cover_title: coverTitle,
+            cover_subtitle: coverSub,
+            lang: expLang,
+            cards: cardsPayload
+          })
+        });
+      }
+
+      var dj = await resExp.json();
+      if (dj && dj.ok && dj.expose_url) {
+        window._lastWlStandaloneHtml = dj.standalone_html || "";
+        window._lastWlSlug = c.slug;
+        document.getElementById("wl-exp-url-out").value = dj.expose_url;
+        document.getElementById("wl-exp-open-link").href = dj.expose_url;
+        document.getElementById("wl-exp-result").style.display = "flex";
+      } else {
+        alert("⚠️ No se pudo generar el Exposé: " + ((dj && dj.error) || "Error desconocido"));
+      }
+    } catch (err) {
+      alert("⚠️ Error conectando con el motor de Exposé: " + err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "🚀 Crear Enlace y Revista";
+    }
+  };
+
+  window.copyWlExposeUrl = function(btnEl) {
+    var u = document.getElementById("wl-exp-url-out").value;
+    if (!u) return;
+    navigator.clipboard.writeText(u).then(function() {
+      var prev = btnEl.textContent;
+      btnEl.textContent = "✅ ¡Copiado!";
+      setTimeout(function() { btnEl.textContent = prev; }, 1800);
+    });
+  };
+
+  window.downloadWlExposeHtml = function() {
+    if (!window._lastWlStandaloneHtml) return;
+    var blob = new Blob([window._lastWlStandaloneHtml], { type: "text/html;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "Private_Collection_Barcelona_" + (new Date().toISOString().slice(0, 10)) + ".html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+  function getFilteredTrayItems(items, st) {
+    var b = st.bucket || "pending";
+    var ct = st.contract || "all";
+    var q = String(st.search || "").toLowerCase().trim();
+    return items.filter(function(it) {
+      var bItem = classifyItemStatus(it);
+      if (b === "all_active") {
+        if (bItem !== "pending" && bItem !== "doubt" && bItem !== "visit") return false;
+      } else if (b && bItem !== b) {
+        return false;
+      }
+      if (ct !== "all" && classifyItemContract(it) !== ct) return false;
+      if (q) {
+        var hay = ((it.title || "") + " " + (it.zone || "") + " " + (it.price_fmt || "") + " " + (it.m2 || "") + " " + (it.extras || "")).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderPulseTrayOnly() {
+    var trayBox = document.getElementById("crm-pulse-tray-cards");
+    var c = (allClients || []).find(function(x) { return x.slug === selectedSlug; });
+    if (!trayBox || !c) return;
+    var pack = window._crmSheetCache[c.slug] || { items: [] };
+    var filtered = getFilteredTrayItems(pack.items || [], window._crmPulseState);
+    var selMap = window._crmExposeSelected[c.slug] || {};
+
+    if (!filtered.length) {
+      trayBox.innerHTML = '<div class="col-span-full p-5 text-center font-mono text-xs text-[#6E655C] bg-[#FAF8F5] rounded-xl border border-dashed border-[#D5CBB8]">No hay inmuebles en este filtro ahora mismo.</div>';
+      return;
+    }
+
+    trayBox.innerHTML = filtered.map(function(it) {
+      var checked = Boolean(selMap[it.box_id]);
+      var cType = classifyItemContract(it);
+      var cBadge = cType === "lau_hab" ? "LAU Habitual" : (cType === "lau_prob" ? "LAU Probable" : (cType === "temp_caus" ? "Temp. Causal" : "Selección"));
+      return '<div class="p-3 rounded-xl bg-white border transition flex gap-3 items-start ' + (checked ? 'border-2 border-[#24424D] ring-2 ring-[#D4AF37]/40 shadow-sm' : 'border-[#D5CBB8] hover:border-[#24424D]') + '">' +
+        '<img src="' + escP(it.img || "") + '" class="w-24 h-20 rounded-lg object-cover shrink-0 bg-[#EFECE6] border border-[#D5CBB8]" onerror="this.style.display=\'none\'">' +
+        '<div class="min-w-0 flex-1 font-mono text-xs space-y-1">' +
+          '<div class="flex items-center justify-between gap-1.5">' +
+            '<span class="font-bold text-sm text-[#24424D]">' + escP(it.price_fmt || (it.price ? it.price + " €" : "S/P")) + '</span>' +
+            '<span class="px-2 py-0.5 rounded bg-[#EFECE6] text-[#6E655C] text-[10px] font-bold">' + escP(cBadge) + '</span>' +
+          '</div>' +
+          '<div class="font-bold text-[#2D241C] truncate" title="' + escP(it.title) + '">' + escP(it.title || "Vivienda") + '</div>' +
+          '<div class="text-[11px] text-[#6E655C] truncate">📍 ' + escP(it.zone || "Barcelona") + ' · ' + escP(it.m2 || "—") + ' m² · ' + escP(it.rooms || "—") + ' hab · ' + escP(it.baths || "—") + ' baños</div>' +
+          '<div class="flex items-center justify-between gap-2 pt-1">' +
+            '<button type="button" onclick="window.toggleExposePropSelect(\'' + escP(c.slug) + '\', \'' + escP(it.box_id) + '\')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer border transition ' + (checked ? 'bg-[#24424D] text-[#D4AF37] border-[#24424D]' : 'bg-[#FAF8F5] text-[#2D241C] border-[#D5CBB8] hover:bg-[#EFECE6]') + '">' +
+              (checked ? '☑️ En Exposé' : '☐ + Exposé') +
+            '</button>' +
+            (it.url ? '<a href="' + escP(it.url) + '" target="_blank" class="text-[10.5px] text-[#24424D] underline font-bold">Anuncio ↗</a>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  async function renderPulseBarForCurrent() {
+    var c = (allClients || []).find(function(x) { return x.slug === selectedSlug; });
+    var tabVis = document.getElementById("crm-tab-panel-visitas");
+    if (!c || !tabVis) return;
+
+    var host = document.getElementById("crm-integrated-pulse-host");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "crm-integrated-pulse-host";
+      tabVis.insertBefore(host, tabVis.firstChild);
+    }
+
+    var pack = await ensureClientSheetItems(c);
+    var items = pack.items || [];
+    var tel = pack.telemetry || {};
+
+    var cnt = { pending: 0, doubt: 0, visit: 0, discarded: 0, unpub: 0 };
+    var stState = window._crmPulseState;
+    var activeBucket = stState.bucket || "pending";
+    var modCounts = { all: 0, lau_hab: 0, lau_prob: 0, temp_caus: 0, other: 0 };
+
+    items.forEach(function(it) {
+      var b = classifyItemStatus(it);
+      cnt[b] = (cnt[b] || 0) + 1;
+      var matchesBucket = (activeBucket === "all_active") ? (b === "pending" || b === "doubt" || b === "visit") : (b === activeBucket);
+      if (matchesBucket) {
+        modCounts.all++;
+        var ct = classifyItemContract(it);
+        modCounts[ct] = (modCounts[ct] || 0) + 1;
+      }
+    });
+
+    var calCount = (c.calendar && c.calendar.visits) ? c.calendar.visits.length : 0;
+    var now = new Date();
+    var decNow = now.getHours() + (now.getMinutes() / 60);
+    var fillPct = Math.max(0, Math.min(100, ((decNow - 9) / 14) * 100));
+
+    var seals = Array.isArray(tel.seals_today) ? tel.seals_today : (Array.isArray(tel.deliveries_today) ? tel.deliveries_today : ["09:15", "12:10", "16:05"]);
+    var sealsHtml = seals.map(function(hm) {
+      var p = String(hm || "10:00").split(":");
+      var dec = parseInt(p[0], 10) + (parseInt(p[1] || "0", 10) / 60);
+      if (dec > decNow) return "";
+      var pct = Math.max(2, Math.min(98, ((dec - 9) / 14) * 100));
+      return '<span title="Entrega realizada: ' + escP(hm) + '" style="position:absolute;left:' + pct.toFixed(1) + '%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:999px;background:#10B981;border:2.5px solid #FFF;box-shadow:0 0 10px rgba(16,185,129,0.85);"></span>';
+    }).join("");
+
+    var nextHm = tel.next_drip_time || "";
+    var nextDotHtml = "";
+    if (nextHm && nextHm.indexOf(":") !== -1) {
+      var np = nextHm.split(":");
+      var nDec = parseInt(np[0], 10) + (parseInt(np[1] || "0", 10) / 60);
+      var nPct = Math.max(4, Math.min(98, ((nDec - 9) / 14) * 100));
+      nextDotHtml = '<span title="Próximo envío programado: ' + escP(nextHm) + '" style="position:absolute;left:' + nPct.toFixed(1) + '%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:#F59E0B;border:2px dashed #FFF;box-shadow:0 0 10px rgba(245,158,11,0.85);"></span>';
+    }
+
+    var selMap = window._crmExposeSelected[c.slug] || {};
+    var selCount = Object.keys(selMap).length;
+
+    var boxCls = function(bKey) {
+      var act = stState.openTray && stState.bucket === bKey;
+      return act
+        ? "background:#1C1B18;color:#FAF8F5;border:1.5px solid #D4AF37;box-shadow:0 6px 16px rgba(0,0,0,0.18);"
+        : "background:#F3EFE6;color:#2D241C;border:1px solid #DFD7CA;";
+    };
+    var pillCls = function(cKey) {
+      var act = (stState.contract || "all") === cKey;
+      return act
+        ? "background:#967A44;color:#FFFFFF;border:1px solid #967A44;font-weight:700;"
+        : "background:#F3EFE6;color:#4B443B;border:1px solid #DFD7CA;font-weight:600;";
+    };
+
+    host.innerHTML =
+      '<div class="card-npp p-4 space-y-3" style="background:#FAF8F4;border:1.5px solid #D5CBB8;">' +
+        '<div class="flex flex-wrap items-center justify-between gap-2">' +
+          '<div class="flex items-center gap-2 font-mono text-xs">' +
+            '<span class="px-2 py-0.5 rounded bg-[#24424D] text-[#D4AF37] font-bold">📡 PULSO EN VIVO DE SU APP</span>' +
+            '<span class="text-[#6E655C]">Haz clic en cualquier caja para ver los pisos y seleccionar para Exposé Marca Blanca</span>' +
+          '</div>' +
+          '<div class="flex items-center gap-2 font-mono text-xs">' +
+            (selCount > 0 ? '<button type="button" onclick="window.clearExposeSelection(\'' + escP(c.slug) + '\')" class="px-2.5 py-1.5 rounded-xl bg-[#EFECE6] text-[#6E655C] font-bold hover:bg-[#DFD7CA] cursor-pointer">Limpiar (' + selCount + ')</button>' : '') +
+            '<button type="button" onclick="window.openWhiteLabelExposeBuilder(\'' + escP(c.slug) + '\')" class="px-3.5 py-1.5 rounded-xl bg-[#0A1E3F] text-[#FAF8F4] border border-[#C5A572] font-bold hover:opacity-95 transition shadow cursor-pointer flex items-center gap-1.5">' +
+              '<span>✨ Generar Exposé Marca Blanca</span>' +
+              '<span style="background:#C5A572;color:#0A1E3F;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:800;">' + selCount + '</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="pt-1 pb-1">' +
+          '<div style="position:relative;height:16px;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:#7A746B;margin-bottom:5px;">' +
+            '<span style="position:absolute;left:0;">9AM</span>' +
+            '<span style="position:absolute;left:21.4%;transform:translateX(-50%);">12PM</span>' +
+            '<span style="position:absolute;left:50%;transform:translateX(-50%);">4PM</span>' +
+            '<span style="position:absolute;left:71.4%;transform:translateX(-50%);">7PM</span>' +
+            '<span style="position:absolute;right:0;">11PM</span>' +
+          '</div>' +
+          '<div style="position:relative;height:8px;border-radius:999px;background:#E5DFD3;">' +
+            '<div style="position:absolute;left:0;top:0;height:100%;width:' + fillPct.toFixed(1) + '%;border-radius:999px;background:linear-gradient(90deg,#10B981 0%,#B89758 75%,#F59E0B 100%);"></div>' +
+            sealsHtml + nextDotHtml +
+          '</div>' +
+        '</div>' +
+
+        '<div class="grid grid-cols-2 sm:grid-cols-6 gap-2 font-mono text-xs">' +
+          '<button type="button" onclick="window.setPulseFilter(\'pending\')" class="p-2.5 rounded-2xl transition cursor-pointer flex flex-col items-center justify-center gap-1" style="' + boxCls("pending") + '">' +
+            '<div class="flex items-center gap-1.5"><span>👉🏼</span><span class="px-2 py-0.5 rounded-md bg-black/15 font-extrabold text-sm">' + cnt.pending + '</span></div>' +
+            '<span class="text-[11px] font-bold">Por valorar</span>' +
+          '</button>' +
+          '<button type="button" onclick="window.setPulseFilter(\'doubt\')" class="p-2.5 rounded-2xl transition cursor-pointer flex flex-col items-center justify-center gap-1" style="' + boxCls("doubt") + '">' +
+            '<div class="flex items-center gap-1.5"><span>🤔</span><span class="px-2 py-0.5 rounded-md bg-black/10 font-extrabold text-sm">' + cnt.doubt + '</span></div>' +
+            '<span class="text-[11px] font-bold">En duda</span>' +
+          '</button>' +
+          '<button type="button" onclick="window.setPulseFilter(\'visit\')" class="p-2.5 rounded-2xl transition cursor-pointer flex flex-col items-center justify-center gap-1" style="' + boxCls("visit") + '">' +
+            '<div class="flex items-center gap-1.5"><span>⭐</span><span class="px-2 py-0.5 rounded-md bg-black/10 font-extrabold text-sm">' + cnt.visit + '</span></div>' +
+            '<span class="text-[11px] font-bold">Visitas</span>' +
+          '</button>' +
+          '<button type="button" onclick="window.setPulseFilter(\'all_active\')" class="p-2.5 rounded-2xl transition cursor-pointer flex flex-col items-center justify-center gap-1" style="' + boxCls("all_active") + '">' +
+            '<div class="flex items-center gap-1.5"><span>🗺️</span><span class="px-1.5 py-0.5 rounded-md bg-black/10 font-bold text-xs">BCN</span></div>' +
+            '<span class="text-[11px] font-bold">Activos (' + (cnt.pending + cnt.doubt + cnt.visit) + ')</span>' +
+          '</button>' +
+          '<button type="button" onclick="window.setPulseFilter(\'calendar_jump\')" class="p-2.5 rounded-2xl transition cursor-pointer flex flex-col items-center justify-center gap-1" style="background:#F3EFE6;color:#2D241C;border:1px solid #DFD7CA;">' +
+            '<div class="flex items-center gap-1.5"><span>🗓️</span><span class="px-2 py-0.5 rounded-md bg-black/10 font-extrabold text-sm">' + calCount + '</span></div>' +
+            '<span class="text-[11px] font-bold">Calendario</span>' +
+          '</button>' +
+          '<div class="p-1.5 rounded-2xl flex flex-col justify-between gap-1.5" style="background:#F3EFE6;border:1px solid #DFD7CA;">' +
+            '<button type="button" onclick="window.setPulseFilter(\'discarded\')" class="w-full px-2.5 py-1 rounded-xl flex items-center justify-between text-[11px] font-bold cursor-pointer" style="background:#FFF1E6;color:#C2410C;border:1px solid #FDBA74;">' +
+              '<span>Cliente</span><span class="px-1.5 py-0.2 rounded bg-orange-600 text-white text-[10px]">' + cnt.discarded + '</span>' +
+            '</button>' +
+            '<button type="button" onclick="window.setPulseFilter(\'unpub\')" class="w-full px-2.5 py-1 rounded-xl flex items-center justify-between text-[11px] font-bold cursor-pointer" style="background:#FEE2E2;color:#B91C1C;border:1px solid #FCA5A5;">' +
+              '<span>Bajas</span><span class="px-1.5 py-0.2 rounded bg-red-600 text-white text-[10px]">' + cnt.unpub + '</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="flex flex-wrap items-center gap-2 pt-2 border-t border-[#E5DFD3] font-mono text-xs">' +
+          '<button type="button" onclick="window.setPulseFilter(null, \'all\')" class="px-4 py-1.5 rounded-full cursor-pointer transition" style="' + pillCls("all") + '">Todos (' + modCounts.all + ')</button>' +
+          '<button type="button" onclick="window.setPulseFilter(null, \'lau_hab\')" class="px-4 py-1.5 rounded-full cursor-pointer transition" style="' + pillCls("lau_hab") + '">LAU Habitual (' + modCounts.lau_hab + ')</button>' +
+          '<button type="button" onclick="window.setPulseFilter(null, \'lau_prob\')" class="px-4 py-1.5 rounded-full cursor-pointer transition" style="' + pillCls("lau_prob") + '">LAU Probable (' + modCounts.lau_prob + ')</button>' +
+          '<button type="button" onclick="window.setPulseFilter(null, \'temp_caus\')" class="px-4 py-1.5 rounded-full cursor-pointer transition" style="' + pillCls("temp_caus") + '">Temp. Causal (' + modCounts.temp_caus + ')</button>' +
+          (modCounts.other > 0 ? '<button type="button" onclick="window.setPulseFilter(null, \'other\')" class="px-4 py-1.5 rounded-full cursor-pointer transition" style="' + pillCls("other") + '">+Presup. / Otros (' + modCounts.other + ')</button>' : '') +
+        '</div>' +
+
+        (stState.openTray ? (
+          '<div class="pt-3 border-t border-[#D5CBB8] space-y-2.5">' +
+            '<div class="flex flex-wrap items-center justify-between gap-2 font-mono text-xs">' +
+              '<input type="text" value="' + escP(stState.search || "") + '" oninput="window.updatePulseSearch(this.value)" placeholder="🔍 Filtrar por barrio, calle, precio o m²..." class="flex-1 min-w-[220px] px-3 py-1.5 rounded-xl bg-white border border-[#D5CBB8] text-[#2D241C]">' +
+              '<button type="button" onclick="window._crmPulseState.openTray=false; window.refreshPulseHost();" class="px-3 py-1.5 rounded-xl bg-[#EFECE6] text-[#6E655C] font-bold cursor-pointer">▲ Plegar listado</button>' +
+            '</div>' +
+            '<div id="crm-pulse-tray-cards" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[420px] overflow-y-auto pr-1"></div>' +
+          '</div>'
+        ) : '') +
+      '</div>';
+
+    if (stState.openTray) {
+      renderPulseTrayOnly();
+    }
+  }
+
+  window.refreshPulseHost = renderPulseBarForCurrent;
+
+  var prevRender = window.renderClientDetail;
+  if (typeof prevRender === "function") {
+    window.renderClientDetail = function() {
+      prevRender();
+      renderPulseBarForCurrent();
+    };
+  }
+})();
+</script>
+<!-- END_CRM_PULSE_AND_EXPOSE -->
 <!-- START_CRM_SECURITY_LOCK -->
 <div id="crm-security-lock-overlay" style="position:fixed; inset:0; z-index:20000; background:linear-gradient(145deg,#182C34 0%,#0F172A 100%); display:flex; align-items:center; justify-content:center; padding:20px;">
   <div style="max-width:400px; width:100%; background:#FAF8F5; color:#2D241C; border-radius:24px; border:2px solid #D4AF37; box-shadow:0 28px 70px rgba(0,0,0,0.55); padding:28px 26px; text-align:center;">
@@ -2069,6 +2597,10 @@
         var sp = new URLSearchParams(qsM);
         var fSlug = sp.get("force_sheet") || (typeof selectedSlug !== "undefined" ? selectedSlug : "");
         return cloudGasCall({ _endpoint: "crm_portal", crm_op: "list", crm_token: crmSessionToken, slug: fSlug });
+      }
+      if (urlStr === "/api/crm/expose/create") {
+        var bEx = JSON.parse(init.body || "{}");
+        return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "create_expose", crm_token: crmSessionToken }, bEx));
       }
       if (urlStr === "/api/crm/kyc/toggle") {
         var bK = JSON.parse(init.body || "{}");
