@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>👥 [8088] Clientes & CRM | NPP</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2324424D'/><text x='50' y='68' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='%23D4AF37' text-anchor='middle'>N</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { background-color: #F4EFE6; color: #2D241C; font-family: 'Inter', sans-serif; }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .card-npp { background: #FAF8F5; border: 1px solid #D5CBB8; border-radius: 16px; box-shadow: 0 2px 10px rgba(45,36,28,0.04); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- HEADER NPP :8088 -->
+  <header class="bg-[#EFECE6] border-b border-[#D5CBB8] px-6 py-3.5 sticky top-0 z-40">
+    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-[#24424D] text-[#D4AF37] font-cinzel font-bold flex items-center justify-center text-lg shadow">N</div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-cinzel font-bold text-base tracking-wide text-[#2D241C]">NAVARRO PRIVATE PROPERTIES</span>
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#24424D] text-white">:8088 ALQUILER</span>
+          </div>
+          <p class="text-[11px] font-mono text-[#6E655C]">4. Clientes & CRM · Expedientes Drive + Perfil 360º + Concierge App</p>
+        </div>
+      </div>
+
+      <nav class="flex items-center gap-2 font-mono text-xs">
+        <a href="/central" class="px-3.5 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8] text-[#2D241C] hover:bg-[#E3EFF6] transition">1. La Central</a>
+        <a href="/explorador" class="px-3.5 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8] text-[#2D241C] hover:bg-[#E3EFF6] transition">2. El Explorador</a>
+        <a href="/spiders" class="px-3.5 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8] text-[#2D241C] hover:bg-[#E3EFF6] transition">3. Spiders</a>
+        <a href="/clientes" class="px-3.5 py-2 rounded-xl bg-[#24424D] text-white font-bold shadow">4. Clientes & CRM</a>
+          <a href="/inteligencia" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#2D241C] text-[#D4AF37] border border-[#D4AF37]/50 hover:opacity-90 transition">[5. 💎 Inteligencia :8080]</a>
+      <a href="/promos" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#FAF8F5] text-[#24424D] border border-[#24424D]/40 hover:bg-[#24424D] hover:text-white transition">[6. 📣 Teleprompter & Ads]</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-[1600px] w-full mx-auto px-6 py-5 flex-1 grid grid-cols-12 gap-5">
+
+    <!-- COLUMNA IZQUIERDA: LISTA DE CLIENTES + ALTA -->
+    <aside class="col-span-12 lg:col-span-3 space-y-4">
+      <div class="card-npp p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="font-cinzel font-bold text-sm text-[#2D241C]">👥 CARTERA DE CLIENTES</h2>
+          <button onclick="openNewClientModal()" class="px-3 py-1.5 rounded-xl bg-[#24424D] text-white font-mono text-[11px] font-bold hover:bg-[#345c6b] transition shadow">
+            ➕ Nuevo Cliente
+          </button>
+        </div>
+        <p class="text-[11px] text-[#6E655C] font-mono">Conectado a <span class="font-bold">2026/CLIENTES/</span> y Google Sheets</p>
+        <div id="clients-list" class="space-y-2.5 pt-1"></div>
+      </div>
+    </aside>
+
+    <!-- PANEL DERECHO: EXPEDIENTE 360 DEL CLIENTE SELECCIONADO -->
+    <section class="col-span-12 lg:col-span-9 space-y-5" id="client-detail-panel">
+      <div class="card-npp p-8 text-center font-mono text-sm text-[#6E655C]">Cargando expedientes de clientes...</div>
+    </section>
+
+  </main>
+
+  <!-- MODAL ALTA AUTOMÁTICA DE NUEVO CLIENTE (CON PASTILLAS Y DESPLEGABLES IGUAL QUE LA APP) -->
+  <div id="modal-create-client" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+    <div class="bg-[#FAF8F5] border-2 border-[#24424D] rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-[#D5CBB8] pb-3 sticky top-0 bg-[#FAF8F5] z-10">
+        <div>
+          <h3 class="font-cinzel font-bold text-lg text-[#2D241C]">➕ Alta Automática de Nuevo Cliente (Drive + Sheet + App)</h3>
+          <p class="text-[11px] font-mono text-[#6E655C]">Selecciona con pastillas y desplegables igual que en «👤 Mi Perfil» de la Concierge App</p>
+        </div>
+        <button onclick="closeNewClientModal()" class="text-[#6E655C] hover:text-black font-bold text-lg px-2">✕</button>
+      </div>
+
+      <!-- BLOQUE 0: DATOS DE IDENTIFICACIÓN -->
+      <div class="p-4 rounded-xl bg-white border border-[#D5CBB8] space-y-3 font-mono text-xs">
+        <div class="font-bold text-[#24424D] border-b border-[#EFECE6] pb-1.5">🆔 0. IDENTIFICACIÓN Y CONTACTO (CARPETA DRIVE + SHEET)</div>
+        <div class="flex flex-wrap items-center gap-4 pb-2 border-b border-[#EFECE6]">
+          <img id="nc-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" class="w-16 h-16 rounded-2xl object-cover border-2 border-[#D4AF37] bg-white shadow">
+          <div>
+            <label class="block font-bold text-[#2D241C] mb-1">📸 Fotografía de Perfil del Cliente (Se verá en el CRM y en la Cabecera de su APP)</label>
+            <input id="nc-avatar-file" type="file" accept="image/*" onchange="previewNewClientAvatar(this)" class="text-xs">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-[#2D241C] mb-1">Nombre del Cliente / Pareja *</label>
+            <input id="nc-name" type="text" placeholder="Ej: Marc & Sofia" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8] font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">Teléfono / WhatsApp</label>
+            <input id="nc-phone" type="text" placeholder="+34 600 000 000" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">Email</label>
+            <input id="nc-email" type="text" placeholder="cliente@email.com" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-[#6E655C] mb-1">🏛️ Resumen de Solvencia / Dossier (Profesión, ingresos netos, liquidez)</label>
+          <input id="nc-summary" type="text" placeholder="Ej: Médicos / Ejecutivos · Ingresos conjuntos 9.500€/mes netos · Solvencia acreditada" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+        </div>
+      </div>
+
+      <!-- BLOQUE 1: UNIDAD FAMILIAR Y ESTILO DE VIDA -->
+      <div class="p-4 rounded-xl bg-white border border-[#D5CBB8] space-y-3 font-mono text-xs">
+        <div class="font-bold text-[#24424D] border-b border-[#EFECE6] pb-1.5">👥 1. UNIDAD FAMILIAR Y ESTILO DE VIDA</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">Tipo de Unidad</label>
+            <select id="nc-unit" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="Pareja" selected>Pareja</option>
+              <option value="Persona sola">Persona sola</option>
+              <option value="Familia con hijos">Familia con hijos</option>
+              <option value="Compañeros ejecutivos">Compañeros ejecutivos</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">Adultos / Niños</label>
+            <select id="nc-adults-children" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="Adultos: 2 | Niños: No" selected>Adultos: 2 | Niños: No</option>
+              <option value="Adultos: 1 | Niños: No">Adultos: 1 | Niños: No</option>
+              <option value="Adultos: 2 | Niños: 1">Adultos: 2 | Niños: 1</option>
+              <option value="Adultos: 2 | Niños: 2+">Adultos: 2 | Niños: 2+</option>
+              <option value="Adultos: 3+ | Niños: No">Adultos: 3+ | Niños: No</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">💻 Teletrabajo (Home Office)</label>
+            <select id="nc-home-office" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="Ambos teletrabajan (necesitan despacho / salón amplio)" selected>Ambos teletrabajan (necesitan despacho)</option>
+              <option value="1 persona teletrabaja en casa">1 persona teletrabaja en casa</option>
+              <option value="No teletrabajan (trabajo presencial)">No teletrabajan (trabajo presencial)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-[#6E655C] mb-1.5">🐾 Mascotas (Pulsa las pastillas)</label>
+          <div id="chips-pets" class="flex flex-wrap gap-1.5" data-single="false"></div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 2: PRESUPUESTO Y GARANTÍAS -->
+      <div class="p-4 rounded-xl bg-white border border-[#D5CBB8] space-y-3 font-mono text-xs">
+        <div class="font-bold text-[#24424D] border-b border-[#EFECE6] pb-1.5">💶 2. PRESUPUESTO Y GARANTÍAS</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">Presupuesto Ideal (€/mes)</label>
+            <select id="nc-b-ideal" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="1800 €/mes">1.800 €/mes</option>
+              <option value="2000 €/mes">2.000 €/mes</option>
+              <option value="2200 €/mes">2.200 €/mes</option>
+              <option value="2400 €/mes" selected>2.400 €/mes</option>
+              <option value="2600 €/mes">2.600 €/mes</option>
+              <option value="2800 €/mes">2.800 €/mes</option>
+              <option value="3000 €/mes">3.000 €/mes</option>
+              <option value="3500 €/mes">3.500 €/mes</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">Presupuesto Máximo Estricto (€/mes)</label>
+            <select id="nc-b-max" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="2000 €/mes">2.000 €/mes</option>
+              <option value="2300 €/mes">2.300 €/mes</option>
+              <option value="2500 €/mes">2.500 €/mes</option>
+              <option value="2600 €/mes" selected>2.600 €/mes</option>
+              <option value="2800 €/mes">2.800 €/mes</option>
+              <option value="3000 €/mes">3.000 €/mes</option>
+              <option value="3500 €/mes">3.500 €/mes</option>
+              <option value="4000 €/mes">4.000 €/mes</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">⭐ Techo Piso Único (+Presupuesto)</label>
+            <select id="nc-b-stretch" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="2600 €/mes">2.600 €/mes</option>
+              <option value="2800 €/mes">2.800 €/mes</option>
+              <option value="3000 €/mes">3.000 €/mes</option>
+              <option value="3200 €/mes">3.200 €/mes</option>
+              <option value="3500 €/mes" selected>3.500 €/mes</option>
+              <option value="4000 €/mes">4.000 €/mes</option>
+              <option value="4500 €/mes">4.500 €/mes</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-[#6E655C] mb-1.5">🛡️ Garantías Disponibles (Pastillas)</label>
+          <div id="chips-guarantees" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 3 Y 4: CONTRATO, MUDANZA Y BARRIOS -->
+      <div class="p-4 rounded-xl bg-white border border-[#D5CBB8] space-y-3 font-mono text-xs">
+        <div class="font-bold text-[#24424D] border-b border-[#EFECE6] pb-1.5">📍 3 & 4. MODALIDAD DE CONTRATO Y BARRIOS DE BARCELONA</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1.5">📜 Modalidades de Contrato Aceptadas</label>
+            <div id="chips-contracts" class="flex flex-wrap gap-1.5"></div>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">📅 Fecha de Entrada / Urgencia</label>
+            <select id="nc-move-in" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="Inmediata (Este mes) | 🔴 Urgente">Inmediata (Este mes) | 🔴 Urgente</option>
+              <option value="En 1-2 meses (Flexible) | 🟡 Activos para cerrar en cuanto salga el piso" selected>En 1-2 meses (Flexible) | 🟡 Activos para cerrar</option>
+              <option value="En 2-3 meses (Sin prisa, solo piso perfecto)">En 2-3 meses (Sin prisa, solo piso perfecto)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-[#6E655C] mb-1.5">📍 Barrios Prioritarios BCN (Pulsa para activar/desactivar)</label>
+          <div id="chips-zones" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <div>
+          <label class="block font-bold text-[#6E655C] mb-1">🚫 Zonas / Calles Excluidas</label>
+          <input id="nc-zones-excl" type="text" value="Evitar bajos sin luz, Sagrada Família / Fort Pienc o calles muy ruidosas sin doble cristal." class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+        </div>
+        <div>
+          <label class="block font-bold text-[#24424D] mb-1.5">🗓️ Disponibilidad Horaria Preferente para Visitas (Se anota en su Calendario 09:30h–19:00h)</label>
+          <div id="chips-visit-slots" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 5 Y 6: ARQUITECTURA, METRAJE Y EQUIPAMIENTO -->
+      <div class="p-4 rounded-xl bg-white border border-[#D5CBB8] space-y-3 font-mono text-xs">
+        <div class="font-bold text-[#24424D] border-b border-[#EFECE6] pb-1.5">🏛️ 5 & 6. ARQUITECTURA, METRAJE Y EQUIPAMIENTO</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">📐 Superficie y Habs Mínimas</label>
+            <select id="nc-specs" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="Mín. 65 m² | 1-2 Hab | 1 Baño">Mín. 65 m² | 1-2 Hab | 1 Baño</option>
+              <option value="Mín. 75 m² | 2 Hab (2 Dobles) | 2 Baños" selected>Mín. 75 m² | 2 Hab (2 Dobles) | 2 Baños</option>
+              <option value="Mín. 90 m² | 2-3 Hab | 2 Baños">Mín. 90 m² | 2-3 Hab | 2 Baños</option>
+              <option value="Mín. 110 m² | 3 Hab | 2 Baños">Mín. 110 m² | 3 Hab | 2 Baños</option>
+              <option value="Mín. 140 m² | 3-4 Hab | 2+ Baños">Mín. 140 m² | 3-4 Hab | 2+ Baños</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">☀️ Planta y Luz Natural</label>
+            <select id="nc-floor-light" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="Mínimo 1º o Principal real | ☀️ Sol directo imprescindible, Exterior luminoso" selected>Mín. 1º/Principal | ☀️ Sol directo y Exterior</option>
+              <option value="Mínimo 3º real (Piso alto) | ☀️ Muy luminoso">Mínimo 3º real (Piso alto) | ☀️ Muy luminoso</option>
+              <option value="Indiferente altura si tiene terraza/jardín y luz">Indiferente altura si tiene terraza/jardín</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">🛋️ Mobiliario y Cocina</label>
+            <select id="nc-furniture" class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+              <option value="🏠 Sin amueblar (Vacío) | Reformada, Equipada con electrodomésticos" selected>🏠 Sin amueblar (Vacío) | Cocina equipada</option>
+              <option value="🛋️ Amueblado de diseño | Lista para entrar con maletas">🛋️ Amueblado de diseño | Lista para entrar</option>
+              <option value="🔄 Indiferente (Vacío o Amueblado si retiran muebles)">🔄 Indiferente (Vacío o Amueblado flexible)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1.5">🏠 Tipología de Vivienda (Pastillas)</label>
+            <div id="chips-typology" class="flex flex-wrap gap-1.5"></div>
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1.5">🏛️ Estilo de Finca (Pastillas)</label>
+            <div id="chips-style" class="flex flex-wrap gap-1.5"></div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-[#6E655C] mb-1.5">🌿 Climatización, Exteriores y Finca (Pastillas)</label>
+          <div id="chips-amenities" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+
+      <!-- BLOQUE 8: DIRECTRICES DEL MOTOR DE BÚSQUEDA (.PY) QUE PROGRAMA EL ALGORITMO -->
+      <div class="p-4 rounded-xl bg-[#E3EFF6]/60 border-2 border-[#24424D] space-y-3 font-mono text-xs">
+        <div class="flex items-center justify-between border-b border-[#24424D]/20 pb-1.5">
+          <span class="font-bold text-[#24424D]">🤖 8. REGLAS DEL MOTOR DE BÚSQUEDA (.PY) · ALGORITMO DE INYECCIÓN</span>
+          <span class="px-2 py-0.5 rounded bg-[#24424D] text-white text-[10px] font-bold">AUTO-GENERA SCRIPT .PY</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+          <div>
+            <label class="block font-bold text-[#2D241C] mb-1">Idioma Notas Sheet</label>
+            <select id="nc-eng-lang" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">
+              <option value="ES" selected>🇪🇸 Español (ES)</option>
+              <option value="RU">🇷🇺 Ruso + ES (RU)</option>
+              <option value="EN">🇬🇧 Inglés + ES (EN)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-[#2D241C] mb-1">Precio Mín (€)</label>
+            <input id="nc-eng-pmin" type="number" value="1700" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">
+          </div>
+          <div>
+            <label class="block font-bold text-[#2D241C] mb-1">Corte Pestaña 5 (€)</label>
+            <input id="nc-eng-pmax" type="number" value="2600" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">
+          </div>
+          <div>
+            <label class="block font-bold text-[#2D241C] mb-1">Techo Máx (€)</label>
+            <input id="nc-eng-pstretch" type="number" value="3500" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">
+          </div>
+          <div>
+            <label class="block font-bold text-[#2D241C] mb-1">Mín. m² / Habs</label>
+            <div class="flex gap-1">
+              <input id="nc-eng-m2" type="number" value="75" class="w-1/2 px-2 py-1.5 rounded-lg bg-white border border-[#D5CBB8]" title="m² mínimos">
+              <input id="nc-eng-rm" type="number" value="2" class="w-1/2 px-2 py-1.5 rounded-lg bg-white border border-[#D5CBB8]" title="Habs mínimas">
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-emerald-900 mb-1">➕ Palabras Clave Boost (Suman Score en el .py)</label>
+            <input id="nc-eng-boost" type="text" value="finca regia, terraza, ático, sobreático, reformado, techos altos, sol directo, sin amueblar" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">
+          </div>
+          <div>
+            <label class="block font-bold text-rose-900 mb-1">⛔ Palabras Veto Estricto (Descartan en el .py)</label>
+            <input id="nc-eng-veto" type="text" value="sagrada família, fort pienc, el raval, no se retiran muebles, solo estudiantes" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-[#24424D] mb-1">🧠 Regla Lógica / Prompt del Algoritmo para este Cliente (Tramos m²/precio, excepciones):</label>
+          <textarea id="nc-eng-prompt" rows="2" class="w-full px-3 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">Tramo hasta 2.300€ exigir >=75m². Tramo 2.301€-2.600€ exigir >=90m² salvo joya con terraza. Tramo >2.600€ hasta 3.500€ enviar a Pestaña 5 Recomendadas.</textarea>
+        </div>
+      </div>
+
+      <!-- BLOQUE 7: LÍNEAS ROJAS Y MATICES -->
+      <div class="p-4 rounded-xl bg-white border border-[#D5CBB8] space-y-3 font-mono text-xs">
+        <div class="font-bold text-[#24424D] border-b border-[#EFECE6] pb-1.5">🚫 7. LÍNEAS ROJAS (DEALBREAKERS) Y MATICES</div>
+        <div>
+          <label class="block font-bold text-[#6E655C] mb-1.5">❌ Dealbreakers / Líneas Rojas (Pastillas)</label>
+          <div id="chips-dealbreakers" class="flex flex-wrap gap-1.5"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">💎 Lo que les enamoraría</label>
+            <input id="nc-love" type="text" value="Finca Regia con techos altos, mucha luz natural, salón grande y terraza o balcones agradables." class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+          </div>
+          <div>
+            <label class="block font-bold text-[#6E655C] mb-1">📝 Matices y Explicación Detallada (Texto Libre)</label>
+            <input id="nc-notes" type="text" placeholder="Cualquier prioridad especial, colegio, parking, etc." class="w-full px-3 py-2 rounded-xl bg-[#FAF8F5] border border-[#D5CBB8]">
+          </div>
+        </div>
+      </div>
+
+      <div id="nc-status" class="hidden font-mono text-xs p-3 rounded-xl bg-[#E3EFF6] text-[#24424D]"></div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-[#D5CBB8] font-mono text-xs sticky bottom-0 bg-[#FAF8F5] py-2">
+        <button onclick="closeNewClientModal()" class="px-4 py-2.5 rounded-xl bg-[#EFECE6] text-[#6E655C] font-bold hover:bg-[#DFD7CA]">Cancelar</button>
+        <button id="btn-submit-nc" onclick="submitNewClientCRM()" class="px-5 py-2.5 rounded-xl bg-[#24424D] text-white font-bold hover:bg-[#345c6b] transition shadow">
+          🚀 Crear Carpeta Drive + Clonar Sheet + Activar CRM
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allClients = [];
+    let selectedSlug = 'mariona';
+    let activeDocTab = 'Documentación';
+
+    async function loadCRM(forceSheetSlug = '') {
+      try {
+        const url = forceSheetSlug ? `/api/crm/clients?force_sheet=${encodeURIComponent(forceSheetSlug)}` : '/api/crm/clients';
+        const res = await fetch(url);
+        const data = await res.json();
+        allClients = data.clients || [];
+        if (!allClients.find(c => c.slug === selectedSlug) && allClients.length > 0) {
+          selectedSlug = allClients[0].slug;
+        }
+        renderSidebar();
+        renderClientDetail();
+      } catch (e) {
+        console.error('Error cargando CRM:', e);
+      }
+    }
+
+    function renderSidebar() {
+      const box = document.getElementById('clients-list');
+      const isBajaFn = (c) => Boolean(c.archived_baja) || (c.status || '').toLowerCase().includes('baja');
+      const activeList = allClients.filter(c => !isBajaFn(c));
+      const archivedList = allClients.filter(c => isBajaFn(c));
+
+      if (!activeList.find(c => c.slug === selectedSlug) && activeList.length > 0) {
+        selectedSlug = activeList[0].slug;
+      }
+
+      const cardsHtml = activeList.map(c => {
+        const active = c.slug === selectedSlug;
+        const isPaused = (c.active === false) || (c.status || '').toLowerCase().includes('no activo');
+        const hasReq = c.profile && c.profile.has_pending_request;
+        const kycMap = (c.files && c.files.kyc_Badges) || {}; const kycCnt = ['dni','contrato','nominas','renta','mandato','factura'].filter(k => kycMap[k]).length;
+        return `
+          <div onclick="selectClient('${c.slug}')" class="cursor-pointer p-3 rounded-xl border transition ${active ? 'bg-[#24424D] text-white border-[#24424D] shadow-md' : (isPaused ? 'bg-gray-100 border-gray-300 opacity-80 hover:opacity-100' : 'bg-white border-[#D5CBB8] hover:bg-[#EFECE6]')}">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <img src="${c.avatar_url || '/api/pwa/avatar?client=' + c.slug}" class="w-8 h-8 rounded-full object-cover border border-[#D4AF37] bg-white shrink-0" onerror="this.style.display='none'">
+                <div class="font-bold text-sm truncate">${c.name}</div>
+              </div>
+              ${hasReq ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500 text-white animate-pulse">🔔 Cambio App</span>` : `<span class="text-[10px] font-mono opacity-80">${c.assigned_properties || 0} pisos</span>`}
+            </div>
+            <div class="flex items-center justify-between mt-1.5 text-[11px] font-mono ${active ? 'text-gray-200' : 'text-[#6E655C]'}">
+                <span>🚦 Docs ${kycCnt}/6 · 🎒 ${(c.bolsa && c.bolsa.total_in_bolsa) || 0} en bolsa</span>
+              <span>${isPaused ? '⚪ No Activo' : '🟢 Activo'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const archivedHtml = archivedList.length > 0 ? `
+        <div class="pt-3 mt-3 border-t border-[#D5CBB8]">
+          <div class="text-[10px] font-mono font-bold uppercase text-[#6E655C] mb-2">🗄️ Bajas / Histórico (${archivedList.length})</div>
+          <div class="space-y-1.5">
+            ${archivedList.map(c => `
+              <div class="p-2 rounded-xl bg-[#EFECE6] border border-[#D5CBB8] flex items-center justify-between gap-2 font-mono text-xs">
+                <span onclick="selectClient('${c.slug}')" class="truncate text-[#6E655C] cursor-pointer hover:underline">${c.name}</span>
+                <button onclick="restaurarClienteCRM('${c.slug}')" class="px-2 py-0.5 rounded bg-emerald-800 text-white text-[10px] font-bold hover:bg-emerald-900 cursor-pointer shrink-0">↺ Reactivar</button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : '';
+
+      box.innerHTML = cardsHtml + archivedHtml;
+    }
+
+    async function changeClientStatusCRM(slug, newAction) {
+      const cliObj = allClients.find(x => x.slug === slug);
+      const cName = cliObj ? cliObj.name : slug.toUpperCase();
+      if (newAction === 'archive_baja') {
+        const msg = '¿Dar de baja a "' + cName + '" del panel activo de :8088? (Su Google Sheet y su carpeta de Google Drive se conservan intactos al 100% y pasará al bloque inferior Bajas / Histórico).';
+        if (!confirm(msg)) {
+          renderClientDetail();
+          return;
+        }
+      }
+      try {
+        const res = await fetch('/api/crm/client/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: slug, action: newAction })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          if (newAction === 'archive_baja') {
+            const nextActive = allClients.find(x => x.slug !== slug && !x.archived_baja);
+            if (nextActive) selectedSlug = nextActive.slug;
+          } else {
+            selectedSlug = slug;
+          }
+          await loadCRM();
+        } else {
+          alert('Error cambiando estado: ' + (data.error || 'Desconocido'));
+          renderClientDetail();
+        }
+      } catch (e) {
+        console.error('Error cambiando estado:', e);
+        renderClientDetail();
+      }
+    }
+
+    async function restaurarClienteCRM(slug) {
+      await changeClientStatusCRM(slug, 'active');
+    }
+
+    function selectClient(slug) {
+      selectedSlug = slug;
+      renderSidebar();
+      renderClientDetail();
+    }
+
+      window.activeClientTab = window.activeClientTab || 'visitas';
+      const _ESC_AMP = String.fromCharCode(38);
+
+      function _escAttr(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, _ESC_AMP + 'amp;')
+          .replace(/"/g, _ESC_AMP + 'quot;')
+          .replace(/'/g, _ESC_AMP + '#39;')
+          .replace(/</g, _ESC_AMP + 'lt;')
+          .replace(/>/g, _ESC_AMP + 'gt;');
+      }
+
+      function switchClientMainTab(tab) {
+        window.activeClientTab = tab;
+        ['visitas', 'perfil', 'docs'].forEach(function(t) {
+          const panelEl = document.getElementById('crm-tab-panel-' + t);
+          const btnEl = document.getElementById('crm-tab-btn-' + t);
+          if (panelEl) panelEl.classList.toggle('hidden', t !== tab);
+          if (btnEl) {
+            btnEl.className = (t === tab)
+              ? 'px-4 py-2.5 rounded-xl font-mono text-xs font-bold bg-[#24424D] text-white shadow transition cursor-pointer flex items-center gap-2'
+              : 'px-4 py-2.5 rounded-xl font-mono text-xs font-bold bg-white text-[#6E655C] border border-[#D5CBB8] hover:bg-[#EFECE6] hover:text-[#2D241C] transition cursor-pointer flex items-center gap-2';
+          }
+        });
+      }
+
+      async function toggleClientKyc(slug, docKey) {
+        const c = allClients.find(function(x) { return x.slug === slug; });
+        if (!c) return;
+        c.files = c.files || {};
+        c.files.kyc_Badges = c.files.kyc_Badges || {};
+        const nextVal = !Boolean(c.files.kyc_Badges[docKey]);
+        c.files.kyc_Badges[docKey] = nextVal;
+        renderSidebar();
+        renderClientDetail();
+        try {
+          const res = await fetch('/api/crm/kyc/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: slug, key: docKey, value: nextVal })
+          });
+          const data = await res.json();
+          if (data && data.ok && data.kyc_Badges) {
+            c.files.kyc_Badges = data.kyc_Badges;
+            c.files.kyc_Manual = data.kyc_Manual || {};
+            renderSidebar();
+            renderClientDetail();
+          }
+        } catch (err) {
+          console.error('Error guardando KYC manual:', err);
+        }
+      }
+
+      async function copyClientAccessUrl(slug, btnEl) {
+        const c = allClients.find(function(x) { return x.slug === slug; });
+        if (!c) return;
+        if (!c.pwa_token) {
+          await activateClientAppAccess(slug);
+          return;
+        }
+        const mobileUrl = c.prod_pwa_url || ('https://app.navarroprivateproperties.com/?x=' + encodeURIComponent(c.pwa_token));
+        try {
+          await navigator.clipboard.writeText(mobileUrl);
+          if (btnEl) {
+            const prev = btnEl.innerHTML;
+            btnEl.innerHTML = '✅ Enlace Copiado';
+            setTimeout(function() { btnEl.innerHTML = prev; }, 2000);
+          }
+        } catch (err) {
+          prompt('Copia el enlace móvil 24/7 del cliente:', mobileUrl);
+        }
+      }
+
+      async function refreshClientSheetLive(slug, btnEl) {
+        if (btnEl) {
+          btnEl.disabled = true;
+          btnEl.innerHTML = '⏳ Leyendo...';
+        }
+        try {
+          await loadCRM(slug);
+        } finally {
+          if (btnEl) {
+            btnEl.disabled = false;
+            btnEl.innerHTML = '🔄 Actualizar';
+          }
+        }
+      }
+
+      function renderClientDetail() {
+        const panel = document.getElementById('client-detail-panel');
+        const c = allClients.find(function(x) { return x.slug === selectedSlug; });
+        if (!c) {
+          panel.innerHTML = '<div class="card-npp p-8 text-center font-mono text-sm">Selecciona un cliente a la izquierda.</div>';
+          return;
+        }
+
+        const curTab = window.activeClientTab || 'visitas';
+        const kyc = (c.files && c.files.kyc_Badges) || {};
+        const kycAuto = (c.files && c.files.kyc_Auto) || {};
+        const kycItems = [
+          ['dni', 'DNI / Pasaporte'],
+          ['contrato', 'Contrato Laboral'],
+          ['nominas', 'Nóminas'],
+          ['renta', 'Renta / Liquidez'],
+          ['mandato', 'Mandato Firmado'],
+          ['factura', 'Factura Anticipo']
+        ];
+        const kycDoneCount = kycItems.filter(function(it) { return Boolean(kyc[it[0]]); }).length;
+
+        const kycButton = function(key, label) {
+          const ok = Boolean(kyc[key]);
+          const inDrive = Boolean(kycAuto[key]);
+          const hint = inDrive ? ' <span title="Archivo detectado en Google Drive" class="opacity-75">📁</span>' : '';
+          return '<button type="button" onclick="toggleClientKyc(\'' + _escAttr(c.slug) + '\', \'' + key + '\')" ' +
+            'title="Clic para marcar o desmarcar documento (Clientes NPP / Dreamlife)" ' +
+            'class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold border transition cursor-pointer select-none flex items-center gap-1.5 ' +
+            (ok
+              ? 'bg-[#E4F2E9] text-emerald-900 border-emerald-500 shadow-2xs hover:bg-emerald-200'
+              : 'bg-[#FAF8F5] text-[#6E655C] border-[#D5CBB8] hover:bg-[#EFECE6] hover:text-[#2D241C]') +
+            '"><span>' + (ok ? '✓' : '○') + '</span><span>' + label + '</span>' + hint + '</button>';
+        };
+
+        const cats = (c.files && c.files.categories) || { 'Documentación': [], 'Contratos': [], 'Facturas': [], 'General': [] };
+        const curFiles = cats[activeDocTab] || [];
+        const totalFiles = (c.files && c.files.total_files) || 0;
+
+        const visits = (c.calendar && c.calendar.visits) || [];
+        const confirmedCount = visits.filter(function(v) { return (v.status || '').includes('CONFIRMADA') || (v.day && v.hour); }).length;
+        const pendingVisitCount = Math.max(0, visits.length - confirmedCount);
+        const bolsaCount = (c.bolsa && c.bolsa.total_in_bolsa) || 0;
+        const bolsaInterval = (c.bolsa && c.bolsa.interval_minutes) || 90;
+        const discardedHist = (c.bolsa && c.bolsa.descartados_historicos) || 0;
+
+        const pendingChanges = (c.profile && c.profile.pending_changes) || [];
+        const pendingBanner = pendingChanges.length > 0 ? `
+          <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-500 space-y-3 shadow-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h4 class="font-cinzel font-bold text-amber-950 text-sm">🔔 CAMBIO SOLICITADO EN LA APP (${_escAttr(c.profile.client_requested_at)})</h4>
+                <p class="text-xs font-mono text-amber-900">${_escAttr(c.name)} pide actualizar ${pendingChanges.length} campo(s):</p>
+              </div>
+              <div class="flex items-center gap-2 font-mono text-xs">
+                <button onclick="resolveProfileRequest('${c.slug}', 'approve_requested')" class="px-3.5 py-1.5 rounded-xl bg-emerald-700 text-white font-bold hover:bg-emerald-800 shadow cursor-pointer">✅ Aprobar</button>
+                <button onclick="resolveProfileRequest('${c.slug}', 'reject_requested')" class="px-3 py-1.5 rounded-xl bg-rose-100 text-rose-900 font-bold hover:bg-rose-200 cursor-pointer">✕ Rechazar</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
+              ${pendingChanges.map(function(ch) { return `
+                <div class="p-2.5 rounded-xl bg-white border border-amber-300">
+                  <div class="font-bold text-[#2D241C]">${_escAttr(ch.label)}</div>
+                  <div class="text-gray-500 line-through">Actual: ${_escAttr(ch.official || 'Vacío')}</div>
+                  <div class="text-emerald-800 font-bold">👉🏼 Pide: ${_escAttr(ch.requested)}</div>
+                </div>
+              `; }).join('')}
+            </div>
+          </div>
+        ` : '';
+
+        const rows = (c.profile && c.profile.rows) || [];
+        const blocksMap = {};
+        rows.forEach(function(r) {
+          if (!blocksMap[r.block]) blocksMap[r.block] = [];
+          blocksMap[r.block].push(r);
+        });
+
+        const profileBlocksHtml = Object.entries(blocksMap).map(function(entry) {
+          const bName = entry[0];
+          const bRows = entry[1];
+          return `
+            <div class="p-3.5 rounded-xl bg-white border border-[#D5CBB8] space-y-2.5">
+              <div class="font-mono font-bold text-xs text-[#24424D] border-b border-[#EFECE6] pb-1.5">${_escAttr(bName)}</div>
+              <div class="space-y-2">
+                ${bRows.map(function(r) { return `
+                  <div class="grid grid-cols-12 gap-2 items-start text-xs font-mono">
+                    <label class="col-span-12 sm:col-span-4 text-[#6E655C] font-semibold pt-1">${_escAttr(r.label)}</label>
+                    <div class="col-span-12 sm:col-span-8">
+                      <input data-prof-key="${_escAttr(r.key)}" type="text" value="${_escAttr(r.official || '')}" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border ${r.is_diff ? 'border-amber-500 bg-amber-50' : 'border-[#D5CBB8]'} text-[#2D241C] focus:outline-none focus:border-[#24424D]">
+                      ${r.is_diff ? `<div class="text-[11px] text-amber-800 font-bold mt-0.5">📩 Solicitado en App: ${_escAttr(r.requested)}</div>` : ''}
+                    </div>
+                  </div>
+                `; }).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const historyList = (c.profile && c.profile.history) || [];
+        const isBaja = Boolean(c.archived_baja) || (c.status || '').toLowerCase().includes('baja');
+        const isPaused = !isBaja && (c.active === false || (c.status || '').toLowerCase().includes('no activo'));
+        const statusCls = isBaja
+          ? 'bg-rose-100 text-rose-900 border-rose-400'
+          : (isPaused ? 'bg-gray-200 text-gray-800 border-gray-400' : 'bg-[#E4F2E9] text-emerald-900 border-emerald-500');
+
+        const tabBtnCls = function(t) {
+          return (t === curTab)
+            ? 'px-4 py-2.5 rounded-xl font-mono text-xs font-bold bg-[#24424D] text-white shadow transition cursor-pointer flex items-center gap-2'
+            : 'px-4 py-2.5 rounded-xl font-mono text-xs font-bold bg-white text-[#6E655C] border border-[#D5CBB8] hover:bg-[#EFECE6] hover:text-[#2D241C] transition cursor-pointer flex items-center gap-2';
+        };
+
+        panel.innerHTML = `
+          <!-- 1. CABECERA SIMPLIFICADA (4 BOTONES ÚNICOS) -->
+          <div class="card-npp p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <label title="Clic para cambiar foto del cliente" class="relative group shrink-0 cursor-pointer">
+                  <img id="crm-client-avatar" src="${_escAttr(c.avatar_url || '/api/pwa/avatar?client=' + c.slug)}" class="w-16 h-16 rounded-2xl object-cover border-2 border-[#D4AF37] shadow-sm bg-white" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'">
+                  <span class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#24424D] text-white text-[11px] flex items-center justify-center shadow border border-white group-hover:scale-110 transition">📸</span>
+                  <input type="file" accept="image/*" class="hidden" onchange="uploadClientAvatar('${c.slug}', this)">
+                </label>
+
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h1 class="font-cinzel font-bold text-xl sm:text-2xl text-[#2D241C]">${_escAttr(c.name)}</h1>
+                    <select onchange="changeClientStatusCRM('${c.slug}', this.value)" class="px-3 py-1 rounded-full font-mono text-xs font-bold border transition cursor-pointer outline-none ${statusCls}">
+                      <option value="active" ${(!isBaja && !isPaused) ? 'selected' : ''}>🟢 Activo</option>
+                      <option value="inactive" ${isPaused ? 'selected' : ''}>⚪ Pausado</option>
+                      <option value="archive_baja" ${isBaja ? 'selected' : ''}>🗑️ Dar de Baja</option>
+                    </select>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-1.5 mt-1.5 font-mono text-[11px]">
+                    <span class="px-2.5 py-0.5 rounded-md bg-[#E3EFF6] text-[#24424D] font-bold">📌 ${c.assigned_properties || 0} en Sheet</span>
+                    <span class="px-2.5 py-0.5 rounded-md ${visits.length > 0 ? 'bg-emerald-100 text-emerald-900 font-bold' : 'bg-[#EFECE6] text-[#6E655C]'}">🏠 ${visits.length} visitas</span>
+                    <span class="px-2.5 py-0.5 rounded-md ${bolsaCount > 0 ? 'bg-amber-100 text-amber-900 font-bold' : 'bg-[#EFECE6] text-[#6E655C]'}">🎒 Bolsa: ${bolsaCount}${bolsaCount > 0 ? ' (c/' + bolsaInterval + 'm)' : ''}</span>
+                    <button type="button" onclick="switchClientMainTab('docs')" title="Ir al checklist de documentos" class="px-2.5 py-0.5 rounded-md cursor-pointer transition ${kycDoneCount === 6 ? 'bg-[#E4F2E9] text-emerald-900 font-bold border border-emerald-400' : 'bg-[#EFECE6] text-[#2D241C] hover:bg-[#DFD7CA]'}">🚦 Docs ${kycDoneCount}/6</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4 ACCIONES ÚNICAS Y CLARAS -->
+              <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+                ${c.sheet_url ? `<a href="${_escAttr(c.sheet_url)}" target="_blank" class="px-3.5 py-2 rounded-xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition shadow-xs">📊 Google Sheet ↗</a>` : ''}
+                ${c.pwa_url ? `<a href="${_escAttr(c.pwa_url)}" target="_blank" class="px-3.5 py-2 rounded-xl bg-[#24424D] text-white font-bold hover:bg-[#345c6b] transition shadow-xs">📱 Abrir su App ↗</a>` : ''}
+                <button onclick="copyClientAccessUrl('${c.slug}', this)" class="px-3.5 py-2 rounded-xl bg-[#EFECE6] border border-[#D5CBB8] text-[#2D241C] font-bold hover:bg-[#DFD7CA] transition cursor-pointer">
+                  ${c.pwa_token ? '📋 Copiar Acceso Móvil' : '🔑 Activar Acceso Móvil'}
+                </button>
+                <button onclick="refreshClientSheetLive('${c.slug}', this)" class="px-3.5 py-2 rounded-xl bg-white border border-[#24424D] text-[#24424D] font-bold hover:bg-[#E3EFF6] transition cursor-pointer">
+                  🔄 Actualizar
+                </button>
+              </div>
+            </div>
+
+            <!-- BARRA DE 3 PESTAÑAS DE TRABAJO -->
+            <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-[#EFECE6]">
+              <button id="crm-tab-btn-visitas" onclick="switchClientMainTab('visitas')" class="${tabBtnCls('visitas')}">
+                <span>📅 Seguimiento y Visitas</span>
+                <span class="px-1.5 py-0.2 rounded-md text-[10px] bg-black/15">${visits.length}</span>
+              </button>
+              <button id="crm-tab-btn-perfil" onclick="switchClientMainTab('perfil')" class="${tabBtnCls('perfil')}">
+                <span>👤 Perfil y Búsqueda</span>
+                ${pendingChanges.length > 0 ? `<span class="px-1.5 py-0.2 rounded-md text-[10px] bg-amber-500 text-white">${pendingChanges.length}</span>` : ''}
+              </button>
+              <button id="crm-tab-btn-docs" onclick="switchClientMainTab('docs')" class="${tabBtnCls('docs')}">
+                <span>📂 Documentos y Solvencia</span>
+                <span class="px-1.5 py-0.2 rounded-md text-[10px] bg-black/15">${kycDoneCount}/6</span>
+              </button>
+            </div>
+          </div>
+
+          ${pendingBanner}
+
+          <!-- PESTAÑA 1: SEGUIMIENTO Y VISITAS -->
+          <div id="crm-tab-panel-visitas" class="${curTab === 'visitas' ? '' : 'hidden'} space-y-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
+              <div class="card-npp p-3.5">
+                <div class="text-[10px] uppercase text-[#6E655C] font-bold">✅ Visitas Confirmadas</div>
+                <div class="text-xl font-bold text-emerald-800 mt-0.5">${confirmedCount}</div>
+              </div>
+              <div class="card-npp p-3.5">
+                <div class="text-[10px] uppercase text-[#6E655C] font-bold">⏳ Por Agendar</div>
+                <div class="text-xl font-bold ${pendingVisitCount > 0 ? 'text-amber-700' : 'text-[#2D241C]'} mt-0.5">${pendingVisitCount}</div>
+              </div>
+              <div class="card-npp p-3.5">
+                <div class="text-[10px] uppercase text-[#6E655C] font-bold">🎒 En Cola de Goteo</div>
+                <div class="text-xl font-bold text-[#24424D] mt-0.5">${bolsaCount}</div>
+              </div>
+              <div class="card-npp p-3.5">
+                <div class="text-[10px] uppercase text-[#6E655C] font-bold">🗑️ Descartados Hist.</div>
+                <div class="text-xl font-bold text-[#6E655C] mt-0.5">${discardedHist}</div>
+              </div>
+            </div>
+
+            <div class="card-npp p-5 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#D5CBB8] pb-3">
+                <div>
+                  <h3 class="font-cinzel font-bold text-base text-[#2D241C]">📅 AGENDA DE VISITAS (${visits.length})</h3>
+                  <p class="text-xs font-mono text-[#6E655C]">Asigna Día, Hora, Dirección y Agente para subir la cita al Sheet y activar Google Calendar</p>
+                </div>
+                <button onclick="toggleCalendarGrid()" class="px-3.5 py-2 rounded-xl bg-[#EFECE6] border border-[#D5CBB8] text-[#2D241C] font-mono text-xs font-bold hover:bg-[#DFD7CA] cursor-pointer">
+                  🗓️ Ver / Ocultar Disponibilidad Horaria (09:30–19:00h)
+                </button>
+              </div>
+
+              <div id="cal-weekly-grid" class="hidden space-y-2 pt-1">
+                <div class="flex flex-wrap items-center justify-between gap-2 text-xs font-mono bg-[#EFECE6] px-3 py-2 rounded-xl">
+                  <span>💡 Clic en cualquier tramo para alternar <b class="text-emerald-800">🟢 Disponible</b> / <b class="text-rose-800">🔴 No disponible</b>:</span>
+                  <span class="text-[11px] text-[#6E655C]">Actualizado: ${_escAttr((c.calendar && c.calendar.updated_at) || '')}</span>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-[#D5CBB8]">
+                  <table class="w-full text-left font-mono text-[11px] border-collapse bg-white">
+                    <thead>
+                      <tr class="bg-[#24424D] text-white">
+                        <th class="p-2 border border-[#3A5A66] text-center w-20">⏰ HORA</th>
+                        ${((c.calendar && c.calendar.days) || []).map(function(d) { return `<th class="p-2 border border-[#3A5A66] text-center">${_escAttr(d)}</th>`; }).join('')}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${((c.calendar && c.calendar.hours) || []).map(function(h) {
+                        const rowMap = (c.calendar && c.calendar.grid && c.calendar.grid[h]) || {};
+                        return `
+                          <tr class="hover:bg-[#FAF8F5]">
+                            <td class="p-1.5 border border-[#D5CBB8] bg-[#EFECE6] font-bold text-center text-[#24424D]">${_escAttr(h)}</td>
+                            ${((c.calendar && c.calendar.days) || []).map(function(d) {
+                              const val = rowMap[d] || '';
+                              const isVisit = val.includes('🏠');
+                              const isBusy = /trabajo|no disponible/i.test(val);
+                              const isFree = /disponible/i.test(val) && !isBusy;
+                              const cellCls = isVisit ? 'bg-emerald-100 text-emerald-950 font-bold' : (isBusy ? 'bg-rose-100 text-rose-900 font-bold' : (isFree ? 'bg-emerald-50 text-emerald-800' : 'text-[#6E655C]'));
+                              return `<td data-slot-val="${_escAttr(val.replace(/\n/g, ' '))}" onclick="cycleCalendarSlot('${c.slug}', '${_escAttr(d)}', '${_escAttr(h)}', this.dataset.slotVal)" class="p-1.5 border border-[#D5CBB8] cursor-pointer hover:opacity-80 transition ${cellCls}" title="Clic para cambiar disponibilidad">${_escAttr(val).replace(/\n/g, '<br>') || '<span class="opacity-30">·</span>'}</td>`;
+                            }).join('')}
+                          </tr>
+                        `;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                ${visits.length === 0 ? `
+                  <div class="p-6 rounded-xl bg-white border border-dashed border-[#D5CBB8] text-center font-mono text-xs text-[#6E655C]">
+                    No hay inmuebles marcados con <b>«Pedir visita»</b> ahora mismo para ${_escAttr(c.name)}.
+                  </div>
+                ` : visits.map(function(v) {
+                  const isConfirmed = (v.status || '').includes('CONFIRMADA') || (v.day && v.hour);
+                  const isConflict = (v.status || '').includes('SOLAPA');
+                  const stClass = isConflict ? 'bg-rose-100 text-rose-900 border-rose-400' : (isConfirmed ? 'bg-[#E4F2E9] text-emerald-900 border-emerald-400' : 'bg-amber-100 text-amber-900 border-amber-400');
+                  const daysOpts = ((c.calendar && c.calendar.days) || []).map(function(d) { return `<option value="${_escAttr(d)}" ${v.day === d ? 'selected' : ''}>${_escAttr(d)}</option>`; }).join('');
+                  const hoursOpts = ((c.calendar && c.calendar.hours) || []).map(function(h) { return `<option value="${_escAttr(h)}" ${v.hour === h ? 'selected' : ''}>${_escAttr(h)}</option>`; }).join('');
+
+                  return `
+                    <div class="p-4 rounded-2xl bg-white border border-[#D5CBB8] shadow-2xs grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                      <div class="lg:col-span-4 flex items-start gap-3">
+                        ${v.photo ? `<img src="${_escAttr(v.photo)}" class="w-24 h-20 object-cover rounded-xl border border-[#D5CBB8] shrink-0" onerror="this.style.display='none'">` : `<div class="w-24 h-20 rounded-xl bg-[#EFECE6] flex items-center justify-center font-mono text-xs text-[#6E655C] shrink-0">🏠 ${_escAttr(v.ref_code)}</div>`}
+                        <div class="min-w-0 space-y-1">
+                          <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-[#24424D] text-white">${_escAttr(v.ref_code)}</span>
+                            <span class="px-2 py-0.5 rounded font-mono text-[10px] font-bold border ${stClass}">${_escAttr(v.status)}</span>
+                          </div>
+                          <div class="font-bold text-xs text-[#2D241C] line-clamp-2" title="${_escAttr(v.title)}">${_escAttr(v.title)}</div>
+                          <div class="font-mono text-[11px] text-[#24424D] font-bold">${_escAttr(v.specs)}</div>
+                          <div class="font-mono text-[10px] text-[#6E655C] truncate">${_escAttr(v.zone)}</div>
+                          <div class="flex items-center gap-2 pt-0.5 font-mono text-[10px]">
+                            ${v.ad_url ? `<a href="${_escAttr(v.ad_url)}" target="_blank" class="text-[#24424D] underline font-bold">🔗 Ver Anuncio ↗</a>` : ''}
+                            <span class="text-[#6E655C]">· ${_escAttr(v.requested_at)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-12 gap-2 font-mono text-xs">
+                        <div class="sm:col-span-4">
+                          <label class="block text-[10px] font-bold text-[#6E655C] mb-0.5">📅 Día</label>
+                          <select id="cal-day-${v.row_num}" class="w-full px-2 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8] font-bold text-[#24424D]">
+                            <option value="">-- Sin asignar --</option>
+                            ${daysOpts}
+                          </select>
+                        </div>
+                        <div class="sm:col-span-3">
+                          <label class="block text-[10px] font-bold text-[#6E655C] mb-0.5">⏰ Hora</label>
+                          <select id="cal-hour-${v.row_num}" class="w-full px-2 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8] font-bold text-[#24424D]">
+                            <option value="">-- Hora --</option>
+                            ${hoursOpts}
+                          </select>
+                        </div>
+                        <div class="sm:col-span-5">
+                          <label class="block text-[10px] font-bold text-[#6E655C] mb-0.5">👤 Agente y Móvil</label>
+                          <input id="cal-agent-${v.row_num}" type="text" value="${_escAttr(v.agent || '')}" placeholder="Agencia / Teléfono" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                        </div>
+                        <div class="sm:col-span-6">
+                          <label class="block text-[10px] font-bold text-[#6E655C] mb-0.5">📍 Dirección Exacta</label>
+                          <input id="cal-addr-${v.row_num}" type="text" value="${_escAttr(v.address || '')}" placeholder="Calle, Nº, Piso" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                        </div>
+                        <div class="sm:col-span-6">
+                          <label class="block text-[10px] font-bold text-[#6E655C] mb-0.5">📝 Notas</label>
+                          <input id="cal-notes-${v.row_num}" type="text" value="${_escAttr(v.notes || '')}" placeholder="Feedback o detalles..." class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                        </div>
+                      </div>
+
+                      <div class="lg:col-span-2 flex flex-col gap-2 font-mono text-xs">
+                        <button onclick="saveCalendarVisit('${c.slug}', ${v.row_num})" class="w-full px-3 py-2 rounded-xl bg-[#24424D] text-white font-bold hover:bg-[#345c6b] transition shadow text-center cursor-pointer">
+                          💾 Guardar Cita
+                        </button>
+                        ${v.gcal_url ? `
+                          <a href="${_escAttr(v.gcal_url)}" target="_blank" class="w-full px-3 py-2 rounded-xl bg-[#E4F2E9] text-emerald-900 border border-emerald-400 font-bold hover:bg-emerald-200 transition text-center">
+                            📲 Google Calendar ↗
+                          </a>
+                        ` : `
+                          <span class="w-full px-2 py-1.5 rounded-xl bg-[#EFECE6] text-[#6E655C] text-[10px] text-center">
+                            ⏳ Elige Día y Hora
+                          </span>
+                        `}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA 2: PERFIL Y REGLAS DE BÚSQUEDA -->
+          <div id="crm-tab-panel-perfil" class="${curTab === 'perfil' ? '' : 'hidden'} space-y-4">
+            <div class="card-npp p-5 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#D5CBB8] pb-3">
+                <div>
+                  <h3 class="font-cinzel font-bold text-base text-[#2D241C]">👤 CRITERIOS DE BÚSQUEDA Y PERFIL DE ${_escAttr(c.name)}</h3>
+                  <p class="text-xs font-mono text-[#6E655C]">Un único guardado actualiza a la vez las reglas del buscador (.py) y el Perfil Oficial del Sheet (${_escAttr((c.profile && c.profile.official_updated_at) || '')})</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+                  <button onclick="saveOfficialProfile('${c.slug}')" class="px-4 py-2 rounded-xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition shadow cursor-pointer">
+                    💾 Guardar Perfil
+                  </button>
+                  <button onclick="runClientEngineNow('${c.slug}')" class="px-3.5 py-2 rounded-xl bg-[#24424D] text-white font-bold hover:bg-[#345c6b] transition shadow cursor-pointer">
+                    ⚡ Buscar Pisos Ahora
+                  </button>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-white border border-[#D5CBB8] space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono font-bold text-xs text-[#24424D]">🤖 Filtros Automáticos del Motor</span>
+                  <span class="font-mono text-[10px] text-[#6E655C]">${_escAttr((c.engine && c.engine.script_file) || '')}</span>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-2.5 font-mono text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-[#6E655C] mb-1">Idioma</label>
+                    <input id="eng-lang" type="text" value="${_escAttr((c.engine && c.engine.lang) || 'ES')}" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8] font-bold">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-[#6E655C] mb-1">Precio Mín (€)</label>
+                    <input id="eng-pmin" type="number" value="${(c.engine && c.engine.min_price) || 1700}" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-[#6E655C] mb-1">Presupuesto (€)</label>
+                    <input id="eng-pmax" type="number" value="${(c.engine && c.engine.max_price_strict) || 2600}" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-[#6E655C] mb-1">Techo Máx (€)</label>
+                    <input id="eng-pstretch" type="number" value="${(c.engine && c.engine.max_price_stretch) || 3500}" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-[#6E655C] mb-1">Mín. m²</label>
+                    <input id="eng-m2" type="number" value="${(c.engine && c.engine.min_m2) || 75}" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-[#6E655C] mb-1">Mín. Habs</label>
+                    <input id="eng-rm" type="number" value="${(c.engine && c.engine.min_rooms) || 2}" class="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-xs">
+                  <div>
+                    <label class="block text-[11px] font-bold text-emerald-900 mb-1">➕ Palabras que suman puntos (Boost):</label>
+                    <input id="eng-boost" type="text" value="${_escAttr((c.engine && c.engine.boost_keywords) || '')}" class="w-full px-3 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-rose-900 mb-1">⛔ Palabras de descarte directo (Veto):</label>
+                    <input id="eng-veto" type="text" value="${_escAttr((c.engine && c.engine.veto_keywords) || '')}" class="w-full px-3 py-1.5 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">
+                  </div>
+                </div>
+
+                <div class="font-mono text-xs">
+                  <label class="block text-[11px] font-bold text-[#24424D] mb-1">🧠 Reglas específicas y excepciones:</label>
+                  <textarea id="eng-prompt" rows="2" class="w-full px-3 py-2 rounded-lg bg-[#FAF8F5] border border-[#D5CBB8]">${_escAttr((c.engine && c.engine.engine_prompt) || '')}</textarea>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                ${profileBlocksHtml}
+              </div>
+
+              ${historyList.length > 0 ? `
+                <details class="pt-1 font-mono text-xs text-[#6E655C]">
+                  <summary class="cursor-pointer font-bold hover:text-[#2D241C]">📜 Ver historial de cambios del perfil (${historyList.length})</summary>
+                  <div class="space-y-1.5 mt-2 max-h-40 overflow-y-auto pr-1">
+                    ${historyList.map(function(h) { return `
+                      <div class="px-3 py-1.5 rounded-lg bg-white border border-[#D5CBB8]">
+                        <b class="text-[#24424D]">[${_escAttr(h.ts)}]</b> · <b>${_escAttr(h.author)}:</b> ${_escAttr(h.detail)}
+                      </div>
+                    `; }).join('')}
+                  </div>
+                </details>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- PESTAÑA 3: DOCUMENTOS Y SOLVENCIA (MANUAL DREAMLIFE + GOOGLE DRIVE) -->
+          <div id="crm-tab-panel-docs" class="${curTab === 'docs' ? '' : 'hidden'} space-y-4">
+            <div class="card-npp p-5 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#D5CBB8] pb-3">
+                <div>
+                  <h3 class="font-cinzel font-bold text-base text-[#2D241C]">🚦 CHECKLIST DE DOCUMENTACIÓN Y SOLVENCIA</h3>
+                  <p class="text-xs font-mono text-[#6E655C]">Haz clic en cada documento para marcarlo o desmarcarlo manualmente (ideal para clientes Dreamlife sin archivos en nuestro Drive)</p>
+                </div>
+                <button onclick="saveOfficialProfile('${c.slug}')" class="px-3.5 py-2 rounded-xl bg-emerald-800 text-white font-mono text-xs font-bold hover:bg-emerald-900 transition shadow cursor-pointer">
+                  💾 Guardar Resumen
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                <div class="lg:col-span-6 space-y-2">
+                  <div class="text-[11px] font-mono font-bold uppercase text-[#24424D]">👆🏼 Documentos Verificados (${kycDoneCount}/6) · Clic para activar:</div>
+                  <div class="flex flex-wrap gap-2">
+                    ${kycItems.map(function(it) { return kycButton(it[0], it[1]); }).join('')}
+                  </div>
+                </div>
+                <div class="lg:col-span-6 space-y-1">
+                  <label class="text-[11px] font-mono font-bold uppercase text-[#6E655C]">🏛️ Resumen de Solvencia / Dossier:</label>
+                  <textarea id="exec-summary-input" rows="3" placeholder="Ingresos netos, empresa/actividad, garantías, liquidez..." class="w-full px-3 py-2 rounded-xl bg-white border border-[#D5CBB8] font-mono text-xs text-[#2D241C]">${_escAttr(c.executive_summary || '')}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-npp p-5 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#D5CBB8] pb-3">
+                <div>
+                  <h3 class="font-cinzel font-bold text-base text-[#2D241C]">📂 ARCHIVOS EN NUESTRO GOOGLE DRIVE (${totalFiles})</h3>
+                  <p class="text-xs font-mono text-[#6E655C]">Carpeta opcional: 2026/CLIENTES/${_escAttr(c.files && c.files.folder_name)}</p>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-xs">
+                  <label class="px-3.5 py-2 rounded-xl bg-[#24424D] text-white font-bold cursor-pointer hover:bg-[#345c6b] shadow">
+                    📤 Subir a «${_escAttr(activeDocTab)}»
+                    <input type="file" class="hidden" onchange="uploadFileToCategory('${c.slug}', '${_escAttr(activeDocTab)}', this)">
+                  </label>
+                  <button onclick="openFinderFolder('${c.slug}', '${_escAttr(activeDocTab)}')" class="px-3 py-2 rounded-xl bg-[#EFECE6] border border-[#D5CBB8] font-bold hover:bg-[#DFD7CA] cursor-pointer">
+                    📁 Abrir en Finder
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 font-mono text-xs">
+                ${['Documentación', 'Contratos', 'Facturas', 'General'].map(function(tab) {
+                  const count = (cats[tab] || []).length;
+                  const isAct = activeDocTab === tab;
+                  const icon = tab === 'Documentación' ? '🪪' : (tab === 'Contratos' ? '📜' : (tab === 'Facturas' ? '🧾' : '📎'));
+                  return `
+                    <button onclick="switchDocTab('${tab}')" class="px-4 py-2 rounded-xl font-bold border transition cursor-pointer ${isAct ? 'bg-[#24424D] text-white border-[#24424D] shadow' : 'bg-white text-[#2D241C] border-[#D5CBB8] hover:bg-[#EFECE6]'}">
+                      ${icon} ${tab} (${count})
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                ${curFiles.length === 0 ? `
+                  <div class="col-span-full p-5 rounded-xl bg-white border border-dashed border-[#D5CBB8] text-center font-mono text-xs text-[#6E655C]">
+                    Sin archivos físicos en <b>${_escAttr(activeDocTab)}</b> (si la documentación la custodia Dreamlife, márcala arriba con un clic).
+                  </div>
+                ` : curFiles.map(function(f) { return `
+                  <div class="p-3 rounded-xl bg-white border border-[#D5CBB8] hover:border-[#24424D] transition flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                      <div class="font-mono font-bold text-xs text-[#2D241C] truncate" title="${_escAttr(f.name)}">📄 ${_escAttr(f.name)}</div>
+                      <div class="font-mono text-[10px] text-[#6E655C] mt-0.5">${_escAttr(f.size_kb)} KB · ${_escAttr(f.mtime)}</div>
+                    </div>
+                    <a href="/api/crm/file/view?slug=${encodeURIComponent(c.slug)}&rel=${encodeURIComponent(f.rel_path)}" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#E3EFF6] text-[#24424D] font-mono text-[11px] font-bold hover:bg-[#24424D] hover:text-white transition shrink-0">Abrir</a>
+                  </div>
+                `; }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+
+    function toggleCalendarGrid() {
+      const el = document.getElementById('cal-weekly-grid');
+      if (el) el.classList.toggle('hidden');
+    }
+
+    async function saveCalendarVisit(slug, rowNum) {
+      const day = (document.getElementById('cal-day-' + rowNum) || {}).value || '';
+      const hour = (document.getElementById('cal-hour-' + rowNum) || {}).value || '';
+      const address = (document.getElementById('cal-addr-' + rowNum) || {}).value || '';
+      const agent = (document.getElementById('cal-agent-' + rowNum) || {}).value || '';
+      const notes = (document.getElementById('cal-notes-' + rowNum) || {}).value || '';
+
+      const res = await fetch('/api/crm/calendar/visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, row_num: rowNum, day, hour, address, agent, notes })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const c = allClients.find(x => x.slug === slug);
+        if (c && data.calendar) c.calendar = data.calendar;
+        renderClientDetail();
+        alert('✅ Cita guardada en la pestaña «📅 6. Calendario y Visitas» del Google Sheet.\nLa visita ya ha subido a la parrilla horaria y tiene activo el botón de Google Calendar.');
+      } else {
+        alert('⚠️ Error guardando cita: ' + (data.error || ''));
+      }
+    }
+
+    async function cycleCalendarSlot(slug, day, hour, currentVal) {
+      if (currentVal.includes('🏠')) {
+        alert('ℹ️ Esta franja tiene una visita concertada. Cambia el Día o la Hora abajo en la tarjeta de la propiedad.');
+        return;
+      }
+      let nextVal = 'Disponible';
+      if (/disponible/i.test(currentVal) && !/no disponible/i.test(currentVal)) {
+        nextVal = 'Trabajo / No disponible';
+      } else if (/trabajo|no disponible/i.test(currentVal)) {
+        nextVal = '';
+      }
+      const res = await fetch('/api/crm/calendar/slot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, day, hour, value: nextVal })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const c = allClients.find(x => x.slug === slug);
+        if (c && data.calendar) c.calendar = data.calendar;
+        renderClientDetail();
+        const el = document.getElementById('cal-weekly-grid');
+        if (el) el.classList.remove('hidden');
+      }
+    }
+
+    function switchDocTab(tab) {
+      activeDocTab = tab;
+      renderClientDetail();
+    }
+
+    async function saveOfficialProfile(slug) {
+      const inputs = document.querySelectorAll('[data-prof-key]');
+      const updates = {};
+      inputs.forEach(inp => {
+        updates[inp.getAttribute('data-prof-key')] = inp.value;
+      });
+      const summaryEl = document.getElementById('exec-summary-input');
+      const metaUpdates = {
+        executive_summary: summaryEl ? summaryEl.value : '',
+        engine_config: {
+          lang: (document.getElementById('eng-lang') || {}).value || 'ES',
+          min_price: parseInt((document.getElementById('eng-pmin') || {}).value || '1700', 10),
+          max_price_strict: parseInt((document.getElementById('eng-pmax') || {}).value || '2600', 10),
+          max_price_stretch: parseInt((document.getElementById('eng-pstretch') || {}).value || '3500', 10),
+          min_m2: parseInt((document.getElementById('eng-m2') || {}).value || '75', 10),
+          min_rooms: parseInt((document.getElementById('eng-rm') || {}).value || '2', 10),
+          boost_keywords: (document.getElementById('eng-boost') || {}).value || '',
+          veto_keywords: (document.getElementById('eng-veto') || {}).value || '',
+          engine_prompt: (document.getElementById('eng-prompt') || {}).value || ''
+        }
+      };
+
+      const res = await fetch('/api/crm/profile/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, mode: 'save_official', updates, meta_updates: metaUpdates })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert('✅ Perfil Oficial guardado y sincronizado con Google Sheets.');
+        loadCRM();
+      } else {
+        alert('⚠️ Error: ' + (data.error || 'No se pudo guardar'));
+      }
+    }
+
+    async function resolveProfileRequest(slug, mode) {
+      const res = await fetch('/api/crm/profile/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, mode, updates: {} })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert(mode === 'approve_requested' ? '✅ Solicitud del cliente aprobada y pasada a Perfil Oficial.' : '✅ Solicitud descartada (se mantiene el Perfil Oficial).');
+        loadCRM();
+      } else {
+        alert('⚠️ Error: ' + (data.error || ''));
+      }
+    }
+
+    async function uploadFileToCategory(slug, category, inputEl) {
+      if (!inputEl.files || !inputEl.files[0]) return;
+      const file = inputEl.files[0];
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        const base64Data = evt.target.result.split(',')[1];
+        const res = await fetch('/api/crm/file/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug,
+            category,
+            filename: file.name,
+            content_b64: base64Data
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          loadCRM();
+        } else {
+          alert('⚠️ Error subiendo archivo: ' + (data.error || ''));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function openFinderFolder(slug, sub) {
+      await fetch('/api/crm/folder/open', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, subfolder: sub })
+      });
+    }
+
+    function copyWelcomePack(slug) {
+      const c = allClients.find(x => x.slug === slug);
+      if (!c) return;
+      const txt = `🏛️ *NAVARRO PRIVATE PROPERTIES · Portal Privado ${c.name}*\n\n📊 *Google Sheet en vivo:* ${c.sheet_url}\n📱 *Concierge App Móvil:* ${c.pwa_url}`;
+      navigator.clipboard.writeText(txt).then(() => {
+        alert('📋 Pack de enlaces copiado al portapapeles.');
+      });
+    }
+
+    const NC_CHIP_GROUPS = {
+      'chips-pets': {
+        options: ['Sin mascotas', '🐕 Perro', '🐈 Gato'],
+        defaults: ['Sin mascotas']
+      },
+      'chips-guarantees': {
+        options: ['Nómina española', 'Nómina internacional / Expat', 'Solvencia demostrable', 'Aval bancario', 'Pago adelantado'],
+        defaults: ['Nómina española', 'Solvencia demostrable']
+      },
+      'chips-contracts': {
+        options: ['LAU Vivienda Habitual (5/7 años)', 'LAU Probable', 'Temporal con Causa', 'Temporal Vacacional'],
+        defaults: ['LAU Vivienda Habitual (5/7 años)', 'LAU Probable', 'Temporal con Causa']
+      },
+      'chips-zones': {
+        options: ["Sant Gervasi - Galvany", "Turó Park", "Les Tres Torres", "Sarrià", "La Bonanova", "Pedralbes", "Dreta de l'Eixample", "Antiga Esquerra Eixample", "Nova Esquerra Eixample", "Sant Antoni", "Vila de Gràcia", "Les Corts", "El Born / Ciutat Vella", "Poblenou / Diagonal Mar"],
+        defaults: ["Sant Gervasi - Galvany", "Turó Park", "Dreta de l'Eixample", "Antiga Esquerra Eixample", "Vila de Gràcia", "Sarrià"]
+      },
+      'chips-typology': {
+        options: ['Piso en planta', 'Ático / Sobreático', 'Dúplex', 'Planta baja con jardín'],
+        defaults: ['Piso en planta', 'Ático / Sobreático', 'Dúplex']
+      },
+      'chips-style': {
+        options: ['🏛️ Finca Regia / Clásica', '✨ Rehabilitación integral', '🏢 Obra nueva / Moderna', '🧱 Finca joven con parking'],
+        defaults: ['🏛️ Finca Regia / Clásica', '✨ Rehabilitación integral']
+      },
+      'chips-amenities': {
+        options: ['❄️ Aire acondicionado', '🔥 Calefacción', '🪟 Doble cristal Climalit', '🌿 Terraza (>10 m²)', 'Balcón clásico amplio', '🛗 Ascensor imprescindible', '🚗 Parking en finca', '🏊 Piscina / Comunitaria'],
+        defaults: ['❄️ Aire acondicionado', '🔥 Calefacción', '🌿 Terraza (>10 m²)', 'Balcón clásico amplio', '🛗 Ascensor imprescindible']
+      },
+      'chips-visit-slots': {
+        options: ['Mañanas (09:30–12:00h)', 'Mediodías (12:30–15:30h)', 'Tardes (16:00–19:00h)', 'Viernes tarde', 'Sábados mañana (10:00–14:00h)', 'Avisar con 24h de antelación'],
+        defaults: ['Mediodías (12:30–15:30h)', 'Tardes (16:00–19:00h)']
+      },
+      'chips-dealbreakers': {
+        options: ['❌ No Bajos ni Entresuelos oscuros', '❌ No Cocinas ni Baños sin reformar', '❌ No Muebles antiguos', '❌ No Calles muy ruidosas', '❌ No Sin ascensor'],
+        defaults: ['❌ No Bajos ni Entresuelos oscuros', '❌ No Cocinas ni Baños sin reformar', '❌ No Muebles antiguos']
+      }
+    };
+
+    function renderNewClientChips() {
+      Object.entries(NC_CHIP_GROUPS).forEach(([containerId, cfg]) => {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = cfg.options.map(opt => {
+          const active = cfg.defaults.includes(opt);
+          return `<button type="button" onclick="toggleNcChip(this)" data-val="${opt.replace(/"/g, '&quot;')}" class="nc-chip px-3 py-1.5 rounded-full font-mono text-[11px] font-bold border transition cursor-pointer ${active ? 'bg-[#24424D] text-white border-[#24424D] shadow-xs' : 'bg-[#FAF8F5] text-[#6E655C] border-[#D5CBB8] hover:bg-[#EFECE6]'}">${active ? '✓ ' : ''}${opt}</button>`;
+        }).join('');
+      });
+    }
+
+    function toggleNcChip(btn) {
+      const isAct = btn.classList.contains('bg-[#24424D]');
+      const val = btn.getAttribute('data-val');
+      if (isAct) {
+        btn.className = 'nc-chip px-3 py-1.5 rounded-full font-mono text-[11px] font-bold border transition cursor-pointer bg-[#FAF8F5] text-[#6E655C] border-[#D5CBB8] hover:bg-[#EFECE6]';
+        btn.textContent = val;
+      } else {
+        btn.className = 'nc-chip px-3 py-1.5 rounded-full font-mono text-[11px] font-bold border transition cursor-pointer bg-[#24424D] text-white border-[#24424D] shadow-xs';
+        btn.textContent = '✓ ' + val;
+      }
+    }
+
+    function getSelectedChips(containerId) {
+      const el = document.getElementById(containerId);
+      if (!el) return '';
+      const vals = [];
+      el.querySelectorAll('.nc-chip').forEach(b => {
+        if (b.classList.contains('bg-[#24424D]')) {
+          vals.push(b.getAttribute('data-val'));
+        }
+      });
+      return vals.join(', ');
+    }
+
+    
+    async function runClientEngineNow(slug) {
+      const res = await fetch('/api/crm/engine/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert('⚡ Motor ejecutado con éxito:\n\n' + (data.output || 'Sincronizado OK'));
+        loadCRM();
+      } else {
+        alert('⚠️ Aviso ejecutando motor:\n' + (data.output || data.error || ''));
+      }
+    }
+
+    
+    let newClientAvatarB64 = '';
+
+    function previewNewClientAvatar(inputEl) {
+      if (!inputEl.files || !inputEl.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        newClientAvatarB64 = evt.target.result;
+        const prev = document.getElementById('nc-avatar-preview');
+        if (prev) prev.src = newClientAvatarB64;
+      };
+      reader.readAsDataURL(inputEl.files[0]);
+    }
+
+    async function uploadClientAvatar(slug, inputEl) {
+      if (!inputEl.files || !inputEl.files[0]) return;
+      const file = inputEl.files[0];
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        const b64 = evt.target.result;
+        const res = await fetch('/api/crm/avatar/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug, avatar_b64: b64 })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          await loadCRM(slug);
+          alert('📸 Fotografía de perfil actualizada en el CRM y en la Concierge App.');
+        } else {
+          alert('⚠️ Error subiendo foto: ' + (data.error || ''));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function activateClientAppAccess(slug) {
+      const res = await fetch('/api/crm/app/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        await loadCRM(slug);
+        alert(`✅ Acceso a la Concierge APP activado y sincronizado:\n\n📱 Enlace 24/7: ${data.prod_url}\n💻 Enlace Local :8088: ${data.local_url}`);
+      } else {
+        alert('⚠️ Error: ' + (data.error || ''));
+      }
+    }
+
+    function openNewClientModal() {
+      renderNewClientChips();
+      document.getElementById('modal-create-client').classList.remove('hidden');
+    }
+
+    function closeNewClientModal() {
+      document.getElementById('modal-create-client').classList.add('hidden');
+      document.getElementById('nc-status').classList.add('hidden');
+    }
+
+    async function submitNewClientCRM() {
+      const name = document.getElementById('nc-name').value.trim();
+      if (!name) {
+        alert('Introduce el nombre del cliente.');
+        return;
+      }
+      const btn = document.getElementById('btn-submit-nc');
+      const st = document.getElementById('nc-status');
+      btn.disabled = true;
+      st.classList.remove('hidden');
+      st.textContent = '⏳ Creando carpeta en 2026/CLIENTES/ (Documentación, Facturas, Contratos) y clonando Plantilla en Google Drive...';
+
+      try {
+        const res = await fetch('/api/crm/client/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            phone: document.getElementById('nc-phone').value.trim(),
+            email: document.getElementById('nc-email').value.trim(),
+            avatar_b64: newClientAvatarB64,
+            executive_summary: document.getElementById('nc-summary').value.trim(),
+            engine: {
+              lang: document.getElementById('nc-eng-lang').value,
+              min_price: parseInt(document.getElementById('nc-eng-pmin').value || '1700', 10),
+              max_price_strict: parseInt(document.getElementById('nc-eng-pmax').value || '2600', 10),
+              max_price_stretch: parseInt(document.getElementById('nc-eng-pstretch').value || '3500', 10),
+              min_m2: parseInt(document.getElementById('nc-eng-m2').value || '75', 10),
+              min_rooms: parseInt(document.getElementById('nc-eng-rm').value || '2', 10),
+              boost_keywords: document.getElementById('nc-eng-boost').value.trim(),
+              veto_keywords: document.getElementById('nc-eng-veto').value.trim(),
+              engine_prompt: document.getElementById('nc-eng-prompt').value.trim()
+            },
+            profile: {
+              unit_type: document.getElementById('nc-unit').value,
+              adults_children: document.getElementById('nc-adults-children').value,
+              pets: getSelectedChips('chips-pets') || 'Sin mascotas',
+              home_office: document.getElementById('nc-home-office').value,
+              budget_ideal: document.getElementById('nc-b-ideal').value,
+              budget_max: document.getElementById('nc-b-max').value,
+              budget_stretch: document.getElementById('nc-b-stretch').value,
+              guarantees: getSelectedChips('chips-guarantees'),
+              contracts: getSelectedChips('chips-contracts'),
+              move_in: document.getElementById('nc-move-in').value,
+              zones_pref: getSelectedChips('chips-zones'),
+              zones_excl: document.getElementById('nc-zones-excl').value.trim(),
+              typology: getSelectedChips('chips-typology'),
+              building_style: getSelectedChips('chips-style'),
+              min_specs: document.getElementById('nc-specs').value,
+              floor_light: document.getElementById('nc-floor-light').value,
+              furniture_kitchen: document.getElementById('nc-furniture').value,
+              amenities: getSelectedChips('chips-amenities'),
+              dealbreakers: getSelectedChips('chips-dealbreakers'),
+              love_to_have: document.getElementById('nc-love').value.trim(),
+              free_notes: document.getElementById('nc-notes').value.trim()
+            }
+          })
+        });
+        const data = await res.json();
+        btn.disabled = false;
+        if (data.ok) {
+          closeNewClientModal();
+          selectedSlug = data.slug;
+          await loadCRM();
+          alert(`✅ Cliente "${name}" creado con éxito:\n\n📁 Drive: 2026/CLIENTES/${name}/ (Documentación, Facturas, Contratos)\n📊 Sheet compartido con radar-api\n📱 Token App activado.`);
+        } else {
+          st.textContent = '⚠️ Error: ' + (data.error || 'No se pudo crear');
+        }
+      } catch (e) {
+        btn.disabled = false;
+        st.textContent = '⚠️ Error de red: ' + e;
+      }
+    }
+
+    loadCRM();
+  
+      </script>
+<!-- START_DASH_YULIIA_INBOX -->
+<div id="dash-yqa-btn-wrap" style="position:fixed; bottom:22px; right:22px; z-index:9990;">
+  <button type="button" onclick="window.openDashYuliiaInbox()" style="background:#0F172A; color:#FFE066; border:2px solid #C5A059; border-radius:999px; padding:10px 18px; font-size:13px; font-weight:800; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 12px 28px rgba(15,23,42,0.45);">
+    <span>🎙️</span> <span>Consola Yuliia</span> <span id="dash-yqa-count" style="background:#475569; color:#FFF; padding:2px 8px; border-radius:999px; font-size:11px; font-family:monospace;">0</span>
+  </button>
+</div>
+
+<div id="dash-yqa-modal" onclick="if(event.target===this)window.closeDashYuliiaInbox()" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.78); backdrop-filter:blur(6px); overflow-y:auto; padding:18px 12px;">
+  <div style="max-width:740px; margin:12px auto 24px auto; background:#FFFFFF; color:#0F172A; border-radius:24px; border:2px solid #C5A059; box-shadow:0 24px 60px rgba(0,0,0,0.45); overflow:hidden; font-family:system-ui,-apple-system,sans-serif;">
+    <div style="background:#0F172A; color:#F8FAFC; padding:15px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px solid rgba(197,160,89,0.35);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:22px;">🎙️</span>
+        <div>
+          <h3 style="margin:0; font-size:16px; font-weight:800; letter-spacing:0.02em; color:#FFE066;">JUANMA ⇄ YULIIA · DICTADO E INCIDENCIAS</h3>
+          <p style="margin:2px 0 0 0; font-size:11px; color:#94A3B8; font-family:monospace;">Dictado por voz a texto y respuestas directas (:8088 ⇄ Nube 24/7)</p>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button type="button" onclick="window.openDashYuliiaInbox(true)" style="padding:6px 11px; border-radius:10px; font-size:12px; font-weight:700; background:#1E293B; color:#E2E8F0; border:1px solid #475569; cursor:pointer;">🔄 Actualizar</button>
+        <button type="button" onclick="window.closeDashYuliiaInbox()" style="padding:6px 12px; border-radius:10px; font-size:12px; font-weight:800; background:#DC2626; color:#FFF; border:none; cursor:pointer;">✕ Cerrar</button>
+      </div>
+    </div>
+
+    <div style="padding:18px 20px;">
+      <div id="dyqa-reply-banner" style="display:none; margin-bottom:12px; padding:10px 14px; border-radius:14px; background:#EFF6FF; border:1.5px solid #3B82F6; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <div style="min-width:0; flex:1;">
+          <div id="dyqa-reply-title" style="font-size:12px; font-weight:800; color:#1E40AF;">↩️ Respondiendo a incidencia de YULIIA</div>
+          <div id="dyqa-reply-sub" style="font-size:11px; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;"></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <label style="display:flex; align-items:center; gap:5px; font-size:11px; font-weight:800; color:#15803D; cursor:pointer;">
+            <input type="checkbox" id="dyqa-reply-resolve" checked style="accent-color:#16A34A; width:14px; height:14px;" />
+            Marcar Resuelta
+          </label>
+          <button type="button" onclick="window.cancelDashYqaReplyMode()" style="padding:4px 9px; border-radius:8px; font-size:11px; font-weight:700; background:#DBEAFE; color:#1E3A8A; border:none; cursor:pointer;">✕ Nueva nota libre</button>
+        </div>
+      </div>
+
+      <div id="dyqa-selectors-grid" style="display:grid; grid-template-columns:150px 155px 1fr; gap:10px; margin-bottom:12px;">
+        <div style="background:#F8FAFC; padding:10px 12px; border-radius:14px; border:1px solid #E2E8F0;">
+          <div style="font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase;">Cliente / Клиент</div>
+          <select id="dyqa-client" onchange="window.loadDashYqaClientProps(this.value)" style="width:100%; margin-top:6px; font-size:12.5px; font-weight:800; padding:7px 8px; border-radius:8px; border:1px solid #CBD5E1; background:#FFF; color:#0F172A;">
+            <option value="vladimir">👤 Vladimir</option>
+            <option value="mariona">👤 Mariona & Thomas</option>
+            <option value="olga">👤 Olga</option>
+            <option value="general">🌐 General :8088</option>
+          </select>
+        </div>
+
+        <div style="background:#F8FAFC; padding:10px 12px; border-radius:14px; border:1px solid #E2E8F0;">
+          <div style="font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase;">Idioma de voz / Язык</div>
+          <select id="dyqa-lang" style="width:100%; margin-top:6px; font-size:12.5px; font-weight:700; padding:7px 8px; border-radius:8px; border:1px solid #CBD5E1; background:#FFF; color:#0F172A;">
+            <option value="es-ES">🇪🇸 Español</option>
+            <option value="ru-RU">🇷🇺 Русский (Ruso)</option>
+            <option value="uk-UA">🇺🇦 Українська</option>
+          </select>
+        </div>
+
+        <div style="background:#F8FAFC; padding:10px 12px; border-radius:14px; border:1px solid #E2E8F0; position:relative;">
+          <div style="font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase; margin-bottom:4px;">Piso afectado (con foto y precio)</div>
+          <input type="hidden" id="dyqa-property" value="General" />
+          <input type="hidden" id="dyqa-property-img" value="" />
+          <input type="hidden" id="dyqa-property-price" value="" />
+
+          <button type="button" onclick="window.toggleDashYqaPropDropdown()" style="width:100%; text-align:left; padding:6px 10px; border-radius:9px; border:1px solid #CBD5E1; background:#FFFFFF; display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; min-height:36px;">
+            <div id="dyqa-prop-selected-view" style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+              <span style="font-size:15px;">🌐</span>
+              <span style="font-size:12px; font-weight:700; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">General del cliente</span>
+            </div>
+            <span style="font-size:11px; color:#64748B; font-weight:800;">▼</span>
+          </button>
+
+          <div id="dyqa-prop-dropdown" style="display:none; flex-direction:column; position:absolute; left:0; right:0; top:100%; margin-top:6px; background:#FFFFFF; border:2px solid #0F172A; border-radius:14px; box-shadow:0 18px 40px rgba(15,23,42,0.28); z-index:10020; overflow:hidden;">
+            <div style="padding:8px; background:#F1F5F9; border-bottom:1px solid #CBD5E1;">
+              <input id="dyqa-prop-search" type="text" placeholder="🔍 Buscar por precio (ej: 1450), calle, zona o código..." oninput="window.filterDashYqaPropList(this.value)" style="width:100%; padding:7px 10px; border-radius:8px; border:1px solid #94A3B8; font-size:12px; color:#0F172A; background:#FFF;" />
+            </div>
+            <div id="dyqa-prop-options" style="max-height:260px; overflow-y:auto; padding:6px; display:flex; flex-direction:column; gap:5px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; padding:10px 14px; border-radius:14px; background:#FEF9C3; border:1.5px solid #FACC15;">
+        <div style="font-size:12px; font-weight:700; color:#854D0E;">
+          <span id="dyqa-rec-status">🎤 Pulsa el botón verde para hablar y transcribir automáticamente</span>
+        </div>
+        <button type="button" id="dyqa-rec-btn" onclick="window.toggleDashYqaVoiceRec()" style="padding:10px 18px; border-radius:999px; font-size:12.5px; font-weight:800; background:#16A34A; color:#FFFFFF; border:none; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(22,163,74,0.35);">
+          <span>🎙️</span> <span id="dyqa-rec-btn-txt">Hablar / Dictar voz</span>
+        </button>
+      </div>
+
+      <textarea id="dyqa-text" rows="3" placeholder="Habla con el micrófono o escribe aquí tu respuesta o mensaje para Yuliia..." style="width:100%; padding:11px 13px; border-radius:14px; border:1.5px solid #CBD5E1; font-size:13px; font-weight:600; color:#0F172A; background:#FFFFFF; margin-bottom:10px; resize:vertical; box-sizing:border-box;"></textarea>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+        <span id="dyqa-ctx-badge" style="font-size:11px; font-family:monospace; color:#475569; font-weight:700;">👤 JUANMA · Sincronizado con el panel QA de Yuliia</span>
+        <button type="button" id="dyqa-send-btn" onclick="window.submitDashYqaMessage()" style="padding:10px 22px; border-radius:14px; font-size:13px; font-weight:800; background:#2563EB; color:#FFFFFF; border:none; cursor:pointer; box-shadow:0 6px 16px rgba(37,99,235,0.3);">
+          📩 Guardar y Enviar a Yuliia
+        </button>
+      </div>
+
+      <div style="border-top:1px solid #E2E8F0; padding-top:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <span style="font-size:12px; font-weight:800; color:#334155; text-transform:uppercase;">📋 Historial de Incidencias y Respuestas (🟢 Resuelto / 🟠 Pendiente)</span>
+          <div style="display:flex; gap:6px;">
+            <button type="button" id="dyqa-flt-all" onclick="window.setDashYqaFilter('all')" style="padding:4px 10px; border-radius:999px; font-size:11px; font-weight:800; background:#0F172A; color:#FFE066; border:none; cursor:pointer;">Todas</button>
+            <button type="button" id="dyqa-flt-pend" onclick="window.setDashYqaFilter('pendiente')" style="padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; background:#F1F5F9; color:#334155; border:none; cursor:pointer;">🟠 Pendientes</button>
+            <button type="button" id="dyqa-flt-res" onclick="window.setDashYqaFilter('resuelto')" style="padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; background:#F1F5F9; color:#334155; border:none; cursor:pointer;">🟢 Resueltas</button>
+          </div>
+        </div>
+        <div id="dash-yqa-list" style="max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:9px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var DEFAULT_THUMB = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=75";
+  window._dashYqaItems = [];
+  window._dashYqaPropCatalog = [];
+  window._dashYqaReplyTargetId = "";
+  window._dashYqaFilter = "all";
+  var dyqaRecognition = null;
+  var dyqaIsRec = false;
+
+  function escHtml(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  window.refreshDashYuliiaCount = async function() {
+    try {
+      var r = await fetch("/api/pwa/yuliia-qa");
+      var d = await r.json();
+      window._dashYqaItems = (d && d.items) ? d.items : [];
+      var pend = window._dashYqaItems.filter(function(x){ return x.status !== "resuelto"; }).length;
+      var cEl = document.getElementById("dash-yqa-count");
+      if (cEl) {
+        cEl.textContent = String(pend);
+        cEl.style.background = pend > 0 ? "#DC2626" : "#16A34A";
+      }
+    } catch(e) {}
+  };
+
+  window.loadDashYqaClientProps = async function(clientSlug) {
+    var slug = String(clientSlug || "vladimir").trim();
+    window.selectDashYqaPropOption(-1);
+    if (slug === "general") {
+      window._dashYqaPropCatalog = [];
+      return;
+    }
+    try {
+      var r = await fetch("/api/pwa/sheet?client=" + encodeURIComponent(slug));
+      var d = await r.json();
+      var arr = (d && d.items) ? d.items : [];
+      window._dashYqaPropCatalog = arr.map(function(it) {
+        var pRaw = String(it.price_fmt || it.price || "").replace(/[^\d]/g, "");
+        var pFmt = pRaw ? (Number(pRaw).toLocaleString("es-ES") + " €/mes") : "S/P";
+        return {
+          val: (it.box_id || "") + " | " + String(it.title || "").replace(/"/g, ""),
+          box_id: it.box_id || "",
+          row: it.row ? ("F" + it.row) : "",
+          title: String(it.title || "Vivienda"),
+          zone: String(it.zone || ""),
+          price: pFmt,
+          img: it.img || DEFAULT_THUMB,
+          status: String(it.status || "")
+        };
+      });
+    } catch (e) {
+      window._dashYqaPropCatalog = [];
+    }
+  };
+
+  window.toggleDashYqaPropDropdown = function() {
+    var dd = document.getElementById("dyqa-prop-dropdown");
+    if (!dd) return;
+    if (dd.style.display === "flex") {
+      dd.style.display = "none";
+    } else {
+      window.filterDashYqaPropList("");
+      var sInp = document.getElementById("dyqa-prop-search");
+      if (sInp) sInp.value = "";
+      dd.style.display = "flex";
+      setTimeout(function(){ if (sInp) sInp.focus(); }, 40);
+    }
+  };
+
+  window.selectDashYqaPropOption = function(idx) {
+    var hidVal = document.getElementById("dyqa-property");
+    var hidImg = document.getElementById("dyqa-property-img");
+    var hidPrice = document.getElementById("dyqa-property-price");
+    var view = document.getElementById("dyqa-prop-selected-view");
+    var dd = document.getElementById("dyqa-prop-dropdown");
+    if (idx === -1 || !window._dashYqaPropCatalog[idx]) {
+      if (hidVal) hidVal.value = "General";
+      if (hidImg) hidImg.value = "";
+      if (hidPrice) hidPrice.value = "";
+      if (view) view.innerHTML = '<span style="font-size:15px;">🌐</span><span style="font-size:12px; font-weight:700; color:#0F172A;">General del cliente</span>';
+    } else {
+      var item = window._dashYqaPropCatalog[idx];
+      if (hidVal) hidVal.value = item.val;
+      if (hidImg) hidImg.value = item.img;
+      if (hidPrice) hidPrice.value = item.price;
+      if (view) {
+        view.innerHTML =
+          '<img src="' + escHtml(item.img) + '" onerror="this.onerror=null;this.src=\'' + DEFAULT_THUMB + '\';" style="width:42px; height:30px; object-fit:cover; border-radius:6px; flex-shrink:0;" />' +
+          '<div style="overflow:hidden; line-height:1.15;">' +
+            '<div style="display:flex; align-items:center; gap:5px;">' +
+              '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:10.5px; font-weight:800; padding:1px 5px; border-radius:4px;">' + escHtml(item.price) + '</span>' +
+              '<span style="font-family:monospace; font-size:10px; font-weight:800; color:#475569;">' + escHtml(item.box_id) + '</span>' +
+            '</div>' +
+            '<div style="font-size:11px; font-weight:700; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(item.title) + '</div>' +
+          '</div>';
+      }
+    }
+    if (dd) dd.style.display = "none";
+  };
+
+  window.filterDashYqaPropList = function(query) {
+    var box = document.getElementById("dyqa-prop-options");
+    if (!box) return;
+    var q = String(query || "").toLowerCase().trim();
+    var html = [
+      '<div onclick="window.selectDashYqaPropOption(-1)" style="padding:8px 10px; border-radius:10px; background:#F8FAFC; border:1px solid #E2E8F0; display:flex; align-items:center; gap:8px; cursor:pointer;">' +
+        '<span style="font-size:16px;">🌐</span>' +
+        '<div style="font-size:12px; font-weight:800; color:#0F172A;">General del cliente / Aviso global</div>' +
+      '</div>'
+    ];
+    window._dashYqaPropCatalog.forEach(function(it, idx) {
+      var hay = (it.box_id + " " + it.row + " " + it.title + " " + it.zone + " " + it.price).toLowerCase();
+      if (q && hay.indexOf(q) === -1) return;
+      html.push(
+        '<div onclick="window.selectDashYqaPropOption(' + idx + ')" style="padding:6px 8px; border-radius:10px; background:#FFFFFF; border:1px solid #E2E8F0; display:flex; align-items:center; gap:8px; cursor:pointer;">' +
+          '<img src="' + escHtml(it.img) + '" onerror="this.onerror=null;this.src=\'' + DEFAULT_THUMB + '\';" style="width:56px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0;" />' +
+          '<div style="flex:1; min-width:0;">' +
+            '<div style="display:flex; align-items:center; gap:6px; margin-bottom:2px; flex-wrap:wrap;">' +
+              '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:11px; font-weight:800; padding:1px 6px; border-radius:5px;">' + escHtml(it.price) + '</span>' +
+              '<span style="font-family:monospace; font-size:10px; font-weight:800; color:#1D4ED8; background:#EFF6FF; padding:1px 6px; border-radius:5px;">' + escHtml(it.box_id) + '</span>' +
+            '</div>' +
+            '<div style="font-size:12px; font-weight:800; color:#0F172A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(it.title) + '</div>' +
+            '<div style="font-size:10px; color:#64748B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📍 ' + escHtml(it.zone) + ' · ' + escHtml(it.status) + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    });
+    box.innerHTML = html.join("");
+  };
+
+  window.toggleDashYqaVoiceRec = function() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var stEl = document.getElementById("dyqa-rec-status");
+    var btn = document.getElementById("dyqa-rec-btn");
+    var btnTxt = document.getElementById("dyqa-rec-btn-txt");
+    var txtArea = document.getElementById("dyqa-text");
+    if (!SR) {
+      alert("Usa Google Chrome para el dictado por voz directo.");
+      return;
+    }
+    if (dyqaIsRec && dyqaRecognition) {
+      try { dyqaRecognition.stop(); } catch (e) {}
+      dyqaIsRec = false;
+      if (btn) btn.style.background = "#16A34A";
+      if (btnTxt) btnTxt.textContent = "Hablar / Dictar voz";
+      if (stEl) stEl.textContent = "✅ Texto transcrito. Puedes revisarlo y pulsar Guardar.";
+      return;
+    }
+    dyqaRecognition = new SR();
+    var langSel = document.getElementById("dyqa-lang");
+    dyqaRecognition.lang = (langSel && langSel.value) ? langSel.value : "es-ES";
+    dyqaRecognition.continuous = true;
+    dyqaRecognition.interimResults = true;
+    var baseText = (txtArea && txtArea.value) ? (txtArea.value.trim() + " ") : "";
+
+    dyqaRecognition.onstart = function() {
+      dyqaIsRec = true;
+      if (btn) btn.style.background = "#DC2626";
+      if (btnTxt) btnTxt.textContent = "⏹️ Parar grabación";
+      if (stEl) stEl.textContent = "🔴 Grabando dictado (" + dyqaRecognition.lang + ")... Pulsa el botón rojo para parar";
+    };
+    dyqaRecognition.onresult = function(event) {
+      var interim = "", finalChunk = "";
+      for (var i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) finalChunk += event.results[i][0].transcript + " ";
+        else interim += event.results[i][0].transcript;
+      }
+      if (finalChunk) baseText += finalChunk;
+      if (txtArea) txtArea.value = (baseText + interim).trim();
+    };
+    dyqaRecognition.onerror = function() {
+      dyqaIsRec = false;
+      if (btn) btn.style.background = "#16A34A";
+      if (btnTxt) btnTxt.textContent = "Hablar / Dictar voz";
+    };
+    dyqaRecognition.onend = function() {
+      dyqaIsRec = false;
+      if (btn) btn.style.background = "#16A34A";
+      if (btnTxt) btnTxt.textContent = "Hablar / Dictar voz";
+    };
+    dyqaRecognition.start();
+  };
+
+  window.startDashYqaReply = function(idx) {
+    var it = window._dashYqaItems[idx];
+    if (!it || !it.id) return;
+    window._dashYqaReplyTargetId = it.id;
+    var banner = document.getElementById("dyqa-reply-banner");
+    var bTitle = document.getElementById("dyqa-reply-title");
+    var bSub = document.getElementById("dyqa-reply-sub");
+    var selGrid = document.getElementById("dyqa-selectors-grid");
+    var sendBtn = document.getElementById("dyqa-send-btn");
+    if (bTitle) bTitle.textContent = "↩️ Respondiendo a " + String(it.author || "YULIIA").toUpperCase() + " · Cliente: " + (it.client || "General") + " · 🏠 " + (it.box_id || "General");
+    if (bSub) bSub.textContent = "«" + String(it.text || "").substring(0, 120) + "»";
+    if (banner) banner.style.display = "flex";
+    if (selGrid) selGrid.style.opacity = "0.55";
+    if (sendBtn) sendBtn.textContent = "📩 Enviar Respuesta a Yuliia";
+    var txtArea = document.getElementById("dyqa-text");
+    if (txtArea) {
+      txtArea.placeholder = "Dicta por voz o escribe tu respuesta para esta incidencia de Yuliia...";
+      txtArea.focus();
+    }
+  };
+
+  window.cancelDashYqaReplyMode = function() {
+    window._dashYqaReplyTargetId = "";
+    var banner = document.getElementById("dyqa-reply-banner");
+    var selGrid = document.getElementById("dyqa-selectors-grid");
+    var sendBtn = document.getElementById("dyqa-send-btn");
+    var txtArea = document.getElementById("dyqa-text");
+    if (banner) banner.style.display = "none";
+    if (selGrid) selGrid.style.opacity = "1";
+    if (sendBtn) sendBtn.textContent = "📩 Guardar y Enviar a Yuliia";
+    if (txtArea) txtArea.placeholder = "Habla con el micrófono o escribe aquí tu respuesta o mensaje para Yuliia...";
+  };
+
+  window.submitDashYqaMessage = async function() {
+    if (dyqaIsRec && dyqaRecognition) {
+      try { dyqaRecognition.stop(); } catch (e) {}
+      dyqaIsRec = false;
+    }
+    var txtArea = document.getElementById("dyqa-text");
+    var text = String((txtArea && txtArea.value) || "").trim();
+    if (!text) return;
+    var sendBtn = document.getElementById("dyqa-send-btn");
+    if (sendBtn) sendBtn.textContent = "⏳ Guardando...";
+
+    var payload = window._dashYqaReplyTargetId
+      ? {
+          qa_action: "reply",
+          id: window._dashYqaReplyTargetId,
+          author: "JUANMA",
+          text: text,
+          mark_resolved: Boolean((document.getElementById("dyqa-reply-resolve") || {}).checked)
+        }
+      : {
+          qa_action: "add",
+          author: "JUANMA",
+          client: (document.getElementById("dyqa-client") || {}).value || "vladimir",
+          active_tab: "8088_console",
+          box_id: (document.getElementById("dyqa-property") || {}).value || "General",
+          box_img: (document.getElementById("dyqa-property-img") || {}).value || "",
+          box_price: (document.getElementById("dyqa-property-price") || {}).value || "",
+          lang: (document.getElementById("dyqa-lang") || {}).value || "es-ES",
+          text: text,
+          device: "MacBook :8088 Console"
+        };
+
+    try {
+      await fetch("/api/pwa/yuliia-qa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (txtArea) txtArea.value = "";
+      window.cancelDashYqaReplyMode();
+      await window.openDashYuliiaInbox(true);
+    } catch (e) {}
+    if (sendBtn) sendBtn.textContent = window._dashYqaReplyTargetId ? "📩 Enviar Respuesta a Yuliia" : "📩 Guardar y Enviar a Yuliia";
+  };
+
+  window.setDashYqaFilter = function(flt) {
+    window._dashYqaFilter = flt;
+    ["all", "pendiente", "resuelto"].forEach(function(k) {
+      var b = document.getElementById("dyqa-flt-" + (k === "all" ? "all" : (k === "pendiente" ? "pend" : "res")));
+      if (b) {
+        b.style.background = (k === flt) ? "#0F172A" : "#F1F5F9";
+        b.style.color = (k === flt) ? "#FFE066" : "#334155";
+      }
+    });
+    renderDashYqaHistory();
+  };
+
+  function renderDashYqaHistory() {
+    var box = document.getElementById("dash-yqa-list");
+    if (!box) return;
+    var visible = window._dashYqaItems.filter(function(it) {
+      if (window._dashYqaFilter === "pendiente") return it.status !== "resuelto";
+      if (window._dashYqaFilter === "resuelto") return it.status === "resuelto";
+      return true;
+    });
+    if (!visible.length) {
+      box.innerHTML = '<div style="padding:14px; color:#64748B; font-size:13px;">No hay mensajes en este filtro.</div>';
+      return;
+    }
+    box.innerHTML = window._dashYqaItems.map(function(it, idx) {
+      if (window._dashYqaFilter === "pendiente" && it.status === "resuelto") return "";
+      if (window._dashYqaFilter === "resuelto" && it.status !== "resuelto") return "";
+      var isRes = it.status === "resuelto";
+      var who = String(it.author || "YULIIA").toUpperCase();
+      var isJuanma = (who === "JUANMA");
+      var thumbHtml = it.box_img
+        ? '<img src="' + escHtml(it.box_img) + '" onerror="this.style.display=\'none\'" style="width:56px; height:42px; object-fit:cover; border-radius:8px; flex-shrink:0; border:1px solid #CBD5E1;" />'
+        : '';
+      var priceHtml = it.box_price
+        ? '<span style="background:#0F172A; color:#FFE066; font-family:monospace; font-size:11px; font-weight:800; padding:1px 6px; border-radius:5px; margin-right:6px;">' + escHtml(it.box_price) + '</span>'
+        : '';
+      var repliesArr = Array.isArray(it.replies) ? it.replies : [];
+      var repliesHtml = repliesArr.length
+        ? '<div style="margin-top:9px; padding-top:8px; border-top:1px dashed #CBD5E1; display:flex; flex-direction:column; gap:6px;">' +
+            repliesArr.map(function(rp) {
+              var rWho = String(rp.author || "JUANMA").toUpperCase();
+              return '<div style="padding:7px 11px; border-radius:10px; background:' + (rWho === 'JUANMA' ? '#EFF6FF' : '#FFFBEB') + '; border-left:3px solid ' + (rWho === 'JUANMA' ? '#2563EB' : '#D97706') + ';">' +
+                '<div style="font-size:10.5px; font-family:monospace; font-weight:800; color:#334155; margin-bottom:2px;">💬 ' + escHtml(rWho) + ' · ' + escHtml(rp.created_at || "") + '</div>' +
+                '<div style="font-size:12.5px; font-weight:700; color:#0F172A; white-space:pre-wrap;">' + escHtml(rp.text || "") + '</div>' +
+              '</div>';
+            }).join("") +
+          '</div>'
+        : '';
+
+      return '<div style="padding:12px 14px; border-radius:14px; background:' + (isRes ? '#DCFCE7' : (isJuanma ? '#EFF6FF' : '#FEFCE8')) + '; border:1.5px solid ' + (isRes ? '#86EFAC' : (isJuanma ? '#93C5FD' : '#FDE047')) + ';">' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px; flex-wrap:wrap;">' +
+          '<div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+            '<span style="background:' + (isRes ? '#16A34A' : '#EA580C') + '; color:#FFF; font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px;">' + (isRes ? '🟢 RESUELTO' : '🟠 PENDIENTE') + '</span>' +
+            '<span style="font-family:monospace; font-weight:800; font-size:11.5px; color:#0F172A;">👤 ' + escHtml(who) + ' · 🕒 ' + escHtml(it.created_at || '') + ' · 📍 ' + escHtml(it.client || 'General') + '</span>' +
+          '</div>' +
+          '<div style="display:flex; gap:5px; flex-wrap:wrap;">' +
+            '<button type="button" onclick="window.startDashYqaReply(' + idx + ')" style="padding:4px 10px; border-radius:8px; background:#2563EB; color:#FFF; font-size:11px; font-weight:800; border:none; cursor:pointer;">↩️ Responder</button>' +
+            '<button type="button" onclick="window.toggleDashYqa(' + idx + ')" style="padding:4px 9px; border-radius:8px; background:#16A34A; color:#FFF; font-size:11px; font-weight:700; border:none; cursor:pointer;">' + (isRes ? 'Reabrir' : '✅ Resolver') + '</button>' +
+            '<button type="button" onclick="window.copyDashYqa(' + idx + ')" style="padding:4px 9px; border-radius:8px; background:#0F172A; color:#FFE066; font-size:11px; font-weight:700; border:none; cursor:pointer;">📋 Copiar</button>' +
+            '<button type="button" onclick="window.deleteDashYqa(' + idx + ')" title="Eliminar" style="padding:4px 8px; border-radius:8px; background:#FEE2E2; color:#B91C1C; font-size:11px; font-weight:700; border:none; cursor:pointer;">🗑️</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex; align-items:flex-start; gap:10px;">' +
+          thumbHtml +
+          '<div style="min-width:0; flex:1;">' +
+            '<div style="font-size:11.5px; font-weight:800; color:#1D4ED8; margin-bottom:3px;">' + priceHtml + '🏠 ' + escHtml(it.box_id || 'General') + '</div>' +
+            '<div style="font-size:13px; color:#0F172A; font-weight:700; white-space:pre-wrap;">' + escHtml(it.text || '') + '</div>' +
+          '</div>' +
+        '</div>' +
+        repliesHtml +
+      '</div>';
+    }).join("");
+  }
+
+  window.openDashYuliiaInbox = async function(keepProps) {
+    var m = document.getElementById("dash-yqa-modal");
+    if (m) m.style.display = "block";
+    var box = document.getElementById("dash-yqa-list");
+    if (box) box.innerHTML = '<div style="padding:14px; color:#64748B; font-size:13px;">⏳ Consultando incidencias y respuestas...</div>';
+    if (!keepProps && !window._dashYqaPropCatalog.length) {
+      var cSel = document.getElementById("dyqa-client");
+      window.loadDashYqaClientProps(cSel ? cSel.value : "vladimir");
+    }
+    await window.refreshDashYuliiaCount();
+    renderDashYqaHistory();
+  };
+
+  window.closeDashYuliiaInbox = function() {
+    if (dyqaIsRec && dyqaRecognition) {
+      try { dyqaRecognition.stop(); } catch (e) {}
+      dyqaIsRec = false;
+    }
+    var m = document.getElementById("dash-yqa-modal");
+    if (m) m.style.display = "none";
+  };
+
+  window.copyDashYqa = function(idx) {
+    var it = window._dashYqaItems[idx];
+    if (!it) return;
+    var reps = (it.replies || []).map(function(r){ return "   ↳ [" + r.author + "]: " + r.text; }).join("\n");
+    var txt = "[🎙️ " + String(it.author || "YULIIA").toUpperCase() + " QA · " + (it.created_at || "") + "] Cliente: " + (it.client || "") + " | Piso: " + (it.box_id || "General") + "\nTexto: " + (it.text || "") + (reps ? ("\n" + reps) : "");
+    if (navigator.clipboard) navigator.clipboard.writeText(txt);
+    alert("✅ Copiado al portapapeles.");
+  };
+
+  window.toggleDashYqa = async function(idx) {
+    var it = window._dashYqaItems[idx];
+    if (!it) return;
+    await fetch("/api/pwa/yuliia-qa", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({qa_action: "toggle_status", id: it.id}) });
+    await window.openDashYuliiaInbox(true);
+  };
+
+  window.deleteDashYqa = async function(idx) {
+    var it = window._dashYqaItems[idx];
+    if (!it || !confirm("¿Eliminar este reporte de la bandeja?")) return;
+    await fetch("/api/pwa/yuliia-qa", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({qa_action: "delete", id: it.id}) });
+    await window.openDashYuliiaInbox(true);
+  };
+
+  setTimeout(window.refreshDashYuliiaCount, 800);
+  setInterval(window.refreshDashYuliiaCount, 25000);
+})();
+</script>
+<!-- END_DASH_YULIIA_INBOX -->
+<!-- START_CRM_SECURITY_LOCK -->
+<div id="crm-security-lock-overlay" style="position:fixed; inset:0; z-index:20000; background:linear-gradient(145deg,#182C34 0%,#0F172A 100%); display:flex; align-items:center; justify-content:center; padding:20px;">
+  <div style="max-width:400px; width:100%; background:#FAF8F5; color:#2D241C; border-radius:24px; border:2px solid #D4AF37; box-shadow:0 28px 70px rgba(0,0,0,0.55); padding:28px 26px; text-align:center;">
+    <div style="width:54px; height:54px; margin:0 auto 12px auto; border-radius:16px; background:#24424D; color:#D4AF37; font-family:'Cinzel',serif; font-size:26px; font-weight:700; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(36,66,77,0.3);">N</div>
+    <h2 style="font-family:'Cinzel',serif; font-weight:700; font-size:17px; letter-spacing:0.04em; color:#2D241C; margin:0;">ACCESO PRIVADO · CLIENTES & CRM</h2>
+    <p id="crm-lock-subtitle" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#6E655C; margin:6px 0 16px 0;">Protección anti-intrusión activa · Auto-bloqueo tras 5 min sin uso</p>
+    <form onsubmit="event.preventDefault(); window.submitCrmUnlock();" style="margin:0;">
+      <input id="crm-lock-pwd" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••••"
+        style="width:100%; text-align:center; font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; letter-spacing:0.28em; padding:12px 14px; border-radius:14px; border:1.5px solid #D5CBB8; background:#FFFFFF; color:#24424D; outline:none; margin-bottom:10px;" />
+      <div id="crm-lock-err" style="display:none; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:#B91C1C; background:#FEE2E2; border:1px solid #FCA5A5; border-radius:10px; padding:7px 10px; margin-bottom:10px;"></div>
+      <button id="crm-lock-btn" type="submit" style="width:100%; padding:12px 16px; border-radius:14px; background:#24424D; color:#FFFFFF; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; border:none; cursor:pointer; box-shadow:0 6px 16px rgba(36,66,77,0.28);">
+        🔓 Desbloquear Expedientes
+      </button>
+    </form>
+  </div>
+</div>
+
+<div id="crm-idle-pill" style="display:none; position:fixed; bottom:22px; left:22px; z-index:9990; background:#24424D; color:#FAF8F5; border:1.5px solid #D4AF37; border-radius:999px; padding:7px 14px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; align-items:center; gap:10px; box-shadow:0 10px 24px rgba(15,23,42,0.3);">
+  <span>🛡️ Auto-bloqueo: <b id="crm-idle-countdown" style="color:#FFE066;">05:00</b></span>
+  <button type="button" onclick="window.lockCrmNow('Bloqueado manualmente')" style="background:#FAF8F5; color:#24424D; border:none; border-radius:999px; padding:3px 9px; font-size:10.5px; font-weight:700; cursor:pointer;">🔒 Bloquear</button>
+</div>
+
+<script>
+(function() {
+  var GAS_CRM_ENDPOINT = "https://script.google.com/macros/s/AKfycbx_X5ZgrwKz0FWi7KlS2_4g9ksQS-OaM7ACqovKGN7___rnJwT1CcHSesxSPhSf2WBQ/exec";
+  var IDLE_LIMIT_MS = 300000;
+  var hName = String(window.location.hostname || "");
+  var IS_CLOUD_CRM = !(hName === "localhost" || hName === "127.0.0.1");
+  window.__IS_CLOUD_CRM = IS_CLOUD_CRM;
+
+  var crmSessionToken = "";
+  var lastActivityTs = 0;
+  var idleInterval = null;
+  var origFetch = window.fetch.bind(window);
+
+  function bumpActivity() {
+    if (!crmSessionToken) return;
+    lastActivityTs = Date.now();
+  }
+
+  ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"].forEach(function(ev) {
+    window.addEventListener(ev, bumpActivity, { passive: true });
+  });
+
+  document.addEventListener("visibilitychange", function() {
+    if (!document.hidden && crmSessionToken && (Date.now() - lastActivityTs >= IDLE_LIMIT_MS)) {
+      window.lockCrmNow("Sesión bloqueada tras 5 minutos sin uso");
+    }
+  });
+
+  // Añadir token temporal al abrir archivos locales en pestaña nueva desde :8088
+  document.addEventListener("click", function(ev) {
+    if (IS_CLOUD_CRM || !crmSessionToken) return;
+    var a = ev.target && ev.target.closest ? ev.target.closest('a[href^="/api/crm/file/view"]') : null;
+    if (a) {
+      var u = new URL(a.getAttribute("href"), window.location.origin);
+      u.searchParams.set("crm_s", crmSessionToken);
+      a.setAttribute("href", u.pathname + u.search);
+    }
+  }, true);
+
+  function applyCloudUiRestrictions() {
+    if (!IS_CLOUD_CRM) return;
+    document.querySelectorAll("header nav").forEach(function(n) { n.style.display = "none"; });
+    document.querySelectorAll('button[onclick*="openNewClientModal"], button[onclick*="openFinderFolder"], button[onclick*="runClientEngineNow"]').forEach(function(b) {
+      b.style.display = "none";
+    });
+    document.querySelectorAll('select[onchange*="changeClientStatusCRM"]').forEach(function(s) {
+      s.disabled = true;
+      s.title = "Estado gestionado desde central";
+    });
+  }
+
+  function startIdleWatchdog() {
+    if (idleInterval) clearInterval(idleInterval);
+    lastActivityTs = Date.now();
+    var pill = document.getElementById("crm-idle-pill");
+    if (pill) pill.style.display = "inline-flex";
+    idleInterval = setInterval(function() {
+      if (!crmSessionToken) return;
+      var remMs = IDLE_LIMIT_MS - (Date.now() - lastActivityTs);
+      if (remMs <= 0) {
+        window.lockCrmNow("Sesión bloqueada automáticamente tras 5 minutos de inactividad");
+        return;
+      }
+      var totSec = Math.ceil(remMs / 1000);
+      var mm = String(Math.floor(totSec / 60)).padStart(2, "0");
+      var ss = String(totSec % 60).padStart(2, "0");
+      var cd = document.getElementById("crm-idle-countdown");
+      if (cd) {
+        cd.textContent = mm + ":" + ss;
+        cd.style.color = totSec <= 60 ? "#FCA5A5" : "#FFE066";
+      }
+    }, 1000);
+  }
+
+  window.lockCrmNow = function(reasonMsg) {
+    var tokToClose = crmSessionToken;
+    crmSessionToken = "";
+    if (idleInterval) { clearInterval(idleInterval); idleInterval = null; }
+    try { allClients = []; } catch (e) {}
+    var panel = document.getElementById("client-detail-panel");
+    if (panel) panel.innerHTML = '<div class="card-npp p-8 text-center font-mono text-sm text-[#6E655C]">🔒 Expedientes protegidos. Desbloquea con contraseña.</div>';
+    var listEl = document.getElementById("clients-list");
+    if (listEl) listEl.innerHTML = "";
+    var pill = document.getElementById("crm-idle-pill");
+    if (pill) pill.style.display = "none";
+    var ov = document.getElementById("crm-security-lock-overlay");
+    if (ov) ov.style.display = "flex";
+    var sub = document.getElementById("crm-lock-subtitle");
+    if (sub && reasonMsg) sub.textContent = "🔒 " + reasonMsg;
+    var inp = document.getElementById("crm-lock-pwd");
+    if (inp) { inp.value = ""; setTimeout(function() { inp.focus(); }, 60); }
+    if (tokToClose) {
+      if (IS_CLOUD_CRM) {
+        origFetch(GAS_CRM_ENDPOINT, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ _endpoint: "crm_portal", crm_op: "logout", crm_token: tokToClose }) }).catch(function(){});
+      } else {
+        origFetch("/api/crm/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ crm_action: "logout", token: tokToClose }) }).catch(function(){});
+      }
+    }
+  };
+
+  async function cloudGasCall(payload) {
+    var r = await origFetch(GAS_CRM_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    var data = await r.json();
+    if (data && data.crm_locked) {
+      window.lockCrmNow(data.error || "Sesión expirada");
+    }
+    return new Response(JSON.stringify(data), { status: (data && data.crm_locked) ? 401 : 200, headers: { "Content-Type": "application/json" } });
+  }
+
+  window.fetch = async function(input, init) {
+    var urlStr = (typeof input === "string") ? input : (input && input.url ? input.url : "");
+    init = init ? Object.assign({}, init) : {};
+
+    if (IS_CLOUD_CRM) {
+      if (urlStr.indexOf("/api/crm/clients") === 0) {
+        if (!crmSessionToken) return new Response(JSON.stringify({ ok: false, clients: [] }), { status: 401 });
+        var qsM = urlStr.split("?")[1] || "";
+        var sp = new URLSearchParams(qsM);
+        var fSlug = sp.get("force_sheet") || (typeof selectedSlug !== "undefined" ? selectedSlug : "");
+        return cloudGasCall({ _endpoint: "crm_portal", crm_op: "list", crm_token: crmSessionToken, slug: fSlug });
+      }
+      if (urlStr === "/api/crm/kyc/toggle") {
+        var bK = JSON.parse(init.body || "{}");
+        return cloudGasCall({ _endpoint: "crm_portal", crm_op: "kyc_toggle", crm_token: crmSessionToken, slug: bK.slug, key: bK.key, value: bK.value });
+      }
+      if (urlStr === "/api/crm/calendar/visit") {
+        var bV = JSON.parse(init.body || "{}");
+        return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "save_visit", crm_token: crmSessionToken }, bV));
+      }
+      if (urlStr === "/api/crm/calendar/slot") {
+        var bS = JSON.parse(init.body || "{}");
+        return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "save_slot", crm_token: crmSessionToken }, bS));
+      }
+      if (urlStr === "/api/crm/profile/save") {
+        var bP = JSON.parse(init.body || "{}");
+        return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "save_profile", crm_token: crmSessionToken }, bP));
+      }
+      if (urlStr.indexOf("/api/pwa/yuliia-qa") === 0) {
+        if ((init.method || "GET").toUpperCase() === "GET") {
+          return origFetch(GAS_CRM_ENDPOINT + "?api=yuliia_qa");
+        }
+        var bY = JSON.parse(init.body || "{}");
+        bY._endpoint = "yuliia-qa";
+        bY.action = "yuliia_qa";
+        return origFetch(GAS_CRM_ENDPOINT, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(bY) });
+      }
+      if (urlStr.indexOf("/api/pwa/sheet") === 0) {
+        var spS = new URLSearchParams(urlStr.split("?")[1] || "");
+        return origFetch(GAS_CRM_ENDPOINT + "?api=sheet&client=" + encodeURIComponent(spS.get("client") || "vladimir"));
+      }
+    } else if (urlStr.indexOf("/api/crm/") === 0 && urlStr !== "/api/crm/auth") {
+      if (!crmSessionToken) {
+        return new Response(JSON.stringify({ ok: false, crm_locked: true }), { status: 401, headers: { "Content-Type": "application/json" } });
+      }
+      var hdrs = new Headers(init.headers || {});
+      hdrs.set("X-CRM-Session", crmSessionToken);
+      init.headers = hdrs;
+      var respLocal = await origFetch(input, init);
+      if (respLocal.status === 401) {
+        window.lockCrmNow("Sesión bloqueada tras 5 minutos sin uso");
+      }
+      return respLocal;
+    }
+    return origFetch(input, init);
+  };
+
+  window.submitCrmUnlock = async function() {
+    var inp = document.getElementById("crm-lock-pwd");
+    var err = document.getElementById("crm-lock-err");
+    var btn = document.getElementById("crm-lock-btn");
+    var pwd = String((inp && inp.value) || "").trim();
+    if (!pwd) return;
+    if (err) err.style.display = "none";
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ Verificando..."; }
+    try {
+      var res, data;
+      if (IS_CLOUD_CRM) {
+        res = await origFetch(GAS_CRM_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ _endpoint: "crm_portal", crm_op: "login", password: pwd })
+        });
+        data = await res.json();
+      } else {
+        res = await origFetch("/api/crm/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ crm_action: "login", password: pwd })
+        });
+        data = await res.json();
+      }
+      if (data && data.ok && data.token) {
+        crmSessionToken = data.token;
+        if (inp) inp.value = "";
+        var ov = document.getElementById("crm-security-lock-overlay");
+        if (ov) ov.style.display = "none";
+        startIdleWatchdog();
+        applyCloudUiRestrictions();
+        await loadCRM(typeof selectedSlug !== "undefined" ? selectedSlug : "");
+        applyCloudUiRestrictions();
+      } else {
+        if (err) {
+          err.textContent = "❌ " + ((data && data.error) || "Contraseña incorrecta");
+          err.style.display = "block";
+        }
+        if (inp) { inp.value = ""; inp.focus(); }
+      }
+    } catch (e) {
+      if (err) {
+        err.textContent = "⚠️ Error de conexión verificando acceso.";
+        err.style.display = "block";
+      }
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = "🔓 Desbloquear Expedientes"; }
+    }
+  };
+
+  var origSelect = window.selectClient;
+  if (typeof origSelect === "function") {
+    window.selectClient = async function(slug) {
+      selectedSlug = slug;
+      var found = (allClients || []).find(function(x) { return x.slug === slug; });
+      if (IS_CLOUD_CRM && found && found._summary_only && crmSessionToken) {
+        renderSidebar();
+        var p = document.getElementById("client-detail-panel");
+        if (p) p.innerHTML = '<div class="card-npp p-8 text-center font-mono text-sm text-[#6E655C]">⏳ Cargando expediente de ' + found.name + '...</div>';
+        await loadCRM(slug);
+        applyCloudUiRestrictions();
+        return;
+      }
+      origSelect(slug);
+      applyCloudUiRestrictions();
+    };
+  }
+
+  var origRenderDetail = window.renderClientDetail;
+  if (typeof origRenderDetail === "function") {
+    window.renderClientDetail = function() {
+      origRenderDetail();
+      applyCloudUiRestrictions();
+    };
+  }
+
+  setTimeout(function() {
+    applyCloudUiRestrictions();
+    var inp = document.getElementById("crm-lock-pwd");
+    if (inp) inp.focus();
+  }, 80);
+})();
+</script>
+<!-- END_CRM_SECURITY_LOCK -->
+</body>
+</html>
