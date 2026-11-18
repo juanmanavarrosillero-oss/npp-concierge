@@ -482,7 +482,7 @@
 
       function switchClientMainTab(tab) {
         window.activeClientTab = tab;
-        ['visitas', 'perfil', 'docs'].forEach(function(t) {
+        ['visitas', 'enlaces', 'perfil', 'docs'].forEach(function(t) {
           const panelEl = document.getElementById('crm-tab-panel-' + t);
           const btnEl = document.getElementById('crm-tab-btn-' + t);
           if (panelEl) panelEl.classList.toggle('hidden', t !== tab);
@@ -715,6 +715,9 @@
               <button id="crm-tab-btn-visitas" onclick="switchClientMainTab('visitas')" class="${tabBtnCls('visitas')}">
                 <span>📅 Seguimiento y Visitas</span>
                 <span class="px-1.5 py-0.2 rounded-md text-[10px] bg-black/15">${visits.length}</span>
+              </button>
+                            <button id="crm-tab-btn-enlaces" onclick="switchClientMainTab('enlaces')" class="${tabBtnCls('enlaces')}">
+                <span>🔗 Enlaces Cliente</span>
               </button>
               <button id="crm-tab-btn-perfil" onclick="switchClientMainTab('perfil')" class="${tabBtnCls('perfil')}">
                 <span>👤 Perfil y Búsqueda</span>
@@ -1035,6 +1038,79 @@
                     <a href="/api/crm/file/view?slug=${encodeURIComponent(c.slug)}&rel=${encodeURIComponent(f.rel_path)}" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#E3EFF6] text-[#24424D] font-mono text-[11px] font-bold hover:bg-[#24424D] hover:text-white transition shrink-0">Abrir</a>
                   </div>
                 `; }).join('')}
+              </div>
+            </div>
+          </div>
+          <!-- PESTAÑA ENLACES DEL CLIENTE (EXCLUSIVO YULIIA) -->
+          <div id="crm-tab-panel-enlaces" class="${curTab === 'enlaces' ? '' : 'hidden'} space-y-4">
+            <!-- BLOQUEO SI NO ES YULIIA -->
+            <div id="crm-yuliia-links-gate" class="card-npp p-6 text-center space-y-3 hidden">
+              <div class="text-2xl">🔐</div>
+              <h3 class="font-bold text-sm text-[#24424D]">Ruta Exclusiva · Gestión Yuliia</h3>
+              <p class="text-xs font-mono text-[#6E655C] max-w-md mx-auto">Solo Yuliia está autorizada para incorporar enlaces externos enviados por clientes a través de esta ruta.</p>
+              <div class="flex items-center justify-center gap-2 pt-1 max-w-xs mx-auto">
+                <input id="crm-yuliia-pin-input" type="password" inputmode="numeric" placeholder="Clave personal Yuliia" onkeydown="if(event.key==='Enter') unlockYuliiaLinksPanel('${c.slug}')" class="w-full rounded-xl border border-[#D5CBB8] bg-white px-3.5 py-2 font-mono text-xs text-center text-[#2D241C] focus:outline-none focus:border-[#24424D]">
+                <button type="button" onclick="unlockYuliiaLinksPanel('${c.slug}')" class="px-4 py-2 rounded-xl bg-[#24424D] hover:bg-[#1B323B] text-white font-mono text-xs font-bold shadow cursor-pointer shrink-0">Desbloquear</button>
+              </div>
+              <div id="crm-yuliia-pin-err" class="text-[11px] font-mono text-rose-700"></div>
+            </div>
+
+            <!-- PANEL DE TRABAJO YULIIA (OCULTO HASTA VALIDAR PIN) -->
+            <div id="crm-yuliia-links-workspace" class="space-y-4 hidden">
+              <div class="card-npp p-5 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#EFECE6] pb-3">
+                  <div>
+                    <h3 class="font-bold text-sm text-[#24424D]">🔗 Añadir Enlaces Enviados por ${_escAttr(c.name)}</h3>
+                    <p class="text-[11px] font-mono text-[#6E655C] mt-0.5">Pega uno o varios enlaces (Idealista, Fotocasa, Habitaclia, Yaencontre o mensaje de WhatsApp). Entran blindados con sello «📌 Manual / Yuliia».</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 font-mono text-[10px] text-emerald-900 font-bold">👩‍💼 Sesión Yuliia Activa</span>
+                    <button type="button" onclick="lockYuliiaLinksPanel()" class="px-2.5 py-1 rounded-lg bg-[#EFECE6] hover:bg-[#E2DDD2] font-mono text-[10px] text-[#2D241C] font-bold cursor-pointer" title="Bloquear panel de enlaces">🔒 Bloquear</button>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div>
+                    <label class="block font-mono text-[11px] font-bold text-[#2D241C] mb-1">Enlaces de anuncios pasados por el cliente (uno por línea o texto pegado)</label>
+                    <textarea id="crm-clinks-urls" rows="3" placeholder="https://www.idealista.com/inmueble/...
+https://www.fotocasa.es/es/alquiler/vivienda/..." class="w-full rounded-xl border border-[#D5CBB8] bg-white px-3.5 py-2.5 font-mono text-xs text-[#2D241C] focus:outline-none focus:border-[#24424D]"></textarea>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+                    <div>
+                      <label class="block text-[11px] font-bold text-[#2D241C] mb-1">Estado inicial en su App / Sheet</label>
+                      <select id="crm-clinks-status" class="w-full rounded-xl border border-[#D5CBB8] bg-white px-3 py-2 text-xs text-[#2D241C]">
+                        <option value="pending">📥 Por valorar / На оценку</option>
+                        <option value="visit">📅 Pedir visita / Запросить визит</option>
+                        <option value="doubt">🤔 En duda / Под вопросом</option>
+                      </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="block text-[11px] font-bold text-[#2D241C] mb-1">Nota o contexto del cliente (opcional)</label>
+                      <input id="crm-clinks-note" type="text" placeholder="Ej: Enviado por el cliente en WhatsApp · Consultar disponibilidad" class="w-full rounded-xl border border-[#D5CBB8] bg-white px-3 py-2 text-xs text-[#2D241C] focus:outline-none focus:border-[#24424D]">
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2.5 pt-1">
+                    <button type="button" onclick="analyzeClientSubmittedLinks('${c.slug}')" class="px-4 py-2.5 rounded-xl bg-[#24424D] hover:bg-[#1B323B] text-white font-mono text-xs font-bold shadow cursor-pointer transition">
+                      🔍 Analizar y Previsualizar
+                    </button>
+                    <button type="button" onclick="directCommitClientSubmittedLinks('${c.slug}')" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-xs font-bold shadow cursor-pointer transition">
+                      ⚡ Incorporar Directo al Sheet
+                    </button>
+                    <span id="crm-clinks-feedback" class="font-mono text-xs text-[#6E655C]"></span>
+                  </div>
+                </div>
+
+                <div id="crm-clinks-staging" class="space-y-3"></div>
+              </div>
+
+              <div class="card-npp p-5 space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-bold text-xs font-mono uppercase tracking-wider text-[#6E655C]">📋 Enlaces añadidos por Yuliia / Cliente en ${_escAttr(c.name)}</h4>
+                  <button type="button" onclick="loadClientSubmittedLinksHistory('${c.slug}')" class="px-3 py-1 rounded-lg bg-[#EFECE6] hover:bg-[#E3DEC9] text-[#2D241C] font-mono text-[11px] font-bold cursor-pointer">🔄 Actualizar lista</button>
+                </div>
+                <div id="crm-clinks-history-box" class="font-mono text-xs text-[#6E655C]">Cargando historial de enlaces manuales...</div>
               </div>
             </div>
           </div>
@@ -2144,6 +2220,7 @@
           extras: it.extras || "",
           notes: it.notes || "",
           desc: rm.desc || "",
+          url: it.url || "",
           img: it.img || "",
           photos: phs
         };
@@ -2614,6 +2691,14 @@
         var bS = JSON.parse(init.body || "{}");
         return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "save_slot", crm_token: crmSessionToken }, bS));
       }
+            if (urlStr === "/api/crm/client-links/import") {
+        var bCli = JSON.parse(init.body || "{}");
+        return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "import_client_url", crm_token: crmSessionToken }, bCli));
+      }
+      if (urlStr === "/api/crm/client-links/list") {
+        var bCll = JSON.parse(init.body || "{}");
+        return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "list_client_urls", crm_token: crmSessionToken }, bCll));
+      }
       if (urlStr === "/api/crm/profile/save") {
         var bP = JSON.parse(init.body || "{}");
         return cloudGasCall(Object.assign({ _endpoint: "crm_portal", crm_op: "save_profile", crm_token: crmSessionToken }, bP));
@@ -2735,5 +2820,362 @@
 })();
 </script>
 <!-- END_CRM_SECURITY_LOCK -->
+
+<!-- START_CRM_CLIENT_LINKS_MODULE -->
+<script>
+(function() {
+  window.__crmStagingCards = [];
+  var STORAGE_KEY_YULIIA = "npp_yuliia_links_pin_v1";
+
+  function escH(s) {
+    return String(s == null ? "" : s)
+      .replace(/\x26/g, "\x26amp;")
+      .replace(/\x3c/g, "\x26lt;")
+      .replace(/\x3e/g, "\x26gt;")
+      .replace(/\x22/g, "\x26quot;")
+      .replace(/'/g, "\x26#39;");
+  }
+
+  function getStoredYuliiaPin() {
+    try {
+      return sessionStorage.getItem(STORAGE_KEY_YULIIA)
+        || localStorage.getItem("npp_yuliia_qa_pin")
+        || localStorage.getItem("npp_yuliia_qa")
+        || "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function setStoredYuliiaPin(val) {
+    try {
+      if (val) {
+        sessionStorage.setItem(STORAGE_KEY_YULIIA, val);
+      } else {
+        sessionStorage.removeItem(STORAGE_KEY_YULIIA);
+      }
+    } catch (e) {}
+  }
+
+  window.syncYuliiaLinksGateUi = async function(slugOpt) {
+    var gate = document.getElementById("crm-yuliia-links-gate");
+    var ws = document.getElementById("crm-yuliia-links-workspace");
+    if (!gate || !ws) return;
+    var pin = getStoredYuliiaPin();
+    if (!pin) {
+      gate.classList.remove("hidden");
+      ws.classList.add("hidden");
+      return;
+    }
+    gate.classList.add("hidden");
+    ws.classList.remove("hidden");
+    var slug = slugOpt || (typeof selectedSlug !== "undefined" ? selectedSlug : "");
+    if (slug) {
+      await window.loadClientSubmittedLinksHistory(slug);
+    }
+  };
+
+  window.unlockYuliiaLinksPanel = async function(slug) {
+    var inp = document.getElementById("crm-yuliia-pin-input");
+    var err = document.getElementById("crm-yuliia-pin-err");
+    var cand = inp ? String(inp.value || "").trim() : "";
+    if (!cand) {
+      if (err) err.textContent = "Introduce tu clave personal de Yuliia.";
+      return;
+    }
+    if (err) err.textContent = "⏳ Verificando autorización...";
+    try {
+      var r = await fetch("/api/crm/client-links/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: slug || "mariona", yuliia_pin: cand })
+      });
+      var d = await r.json();
+      if (d && d.ok) {
+        setStoredYuliiaPin(cand);
+        if (inp) inp.value = "";
+        if (err) err.textContent = "";
+        await window.syncYuliiaLinksGateUi(slug);
+      } else {
+        setStoredYuliiaPin("");
+        if (err) err.textContent = "🚫 " + ((d && d.error) || "Clave no autorizada. Acceso exclusivo Yuliia.");
+      }
+    } catch (e) {
+      if (err) err.textContent = "⚠️ Error verificando acceso.";
+    }
+  };
+
+  window.lockYuliiaLinksPanel = function() {
+    setStoredYuliiaPin("");
+    try {
+      localStorage.removeItem("npp_yuliia_qa_pin");
+      localStorage.removeItem("npp_yuliia_qa");
+    } catch (e) {}
+    window.syncYuliiaLinksGateUi();
+  };
+
+  window.extractUrlsFromFreeText = function(raw) {
+    var m = String(raw || "").match(/https?:\/\/[^\s"'<>]+/gi) || [];
+    var seen = {};
+    var out = [];
+    for (var i = 0; i < m.length; i++) {
+      var u = m[i].replace(/[.,;)\]]+$/, "");
+      if (!seen[u]) { seen[u] = true; out.push(u); }
+    }
+    return out;
+  };
+
+  window.loadClientSubmittedLinksHistory = async function(slug) {
+    var box = document.getElementById("crm-clinks-history-box");
+    var pin = getStoredYuliiaPin();
+    if (!box || !slug || !pin) return;
+    box.innerHTML = "⏳ Leyendo enlaces manuales del Google Sheet...";
+    try {
+      var r = await fetch("/api/crm/client-links/list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: slug, yuliia_pin: pin })
+      });
+      var d = await r.json();
+      if (d && d.yuliia_locked) {
+        setStoredYuliiaPin("");
+        window.syncYuliiaLinksGateUi(slug);
+        return;
+      }
+      if (!d || !d.ok) {
+        box.innerHTML = "⚠️ " + escH((d && d.error) || "No se pudo leer el historial.");
+        return;
+      }
+      var items = d.items || [];
+      if (!items.length) {
+        box.innerHTML = '<div class="p-4 rounded-xl bg-[#FAF8F4] border border-[#E5DEC9] text-center text-[#6E655C]">Aún no hay enlaces manuales de Yuliia / cliente en este expediente.</div>';
+        return;
+      }
+      var rowsHtml = items.map(function(it) {
+        var pr = it.price_fmt || (it.price_num ? (it.price_num + " €/mes") : "—");
+        return '<tr class="border-b border-[#EFECE6] hover:bg-[#FAF8F4]">' +
+          '<td class="py-2.5 px-2 font-bold text-[#2D241C]">' + escH(it.title || it.box_id || "Propiedad") +
+            '<div class="text-[10px] font-normal text-[#6E655C]">' + escH(it.zone || "Barcelona") + ' · ' + escH(it.agency || "") + '</div></td>' +
+          '<td class="py-2.5 px-2 whitespace-nowrap font-bold text-[#24424D]">' + escH(pr) +
+            '<div class="text-[10px] font-normal text-[#6E655C]">' + escH(it.m2 ? (it.m2 + " m²") : "") + (it.rooms ? (" · " + escH(it.rooms) + " hab") : "") + '</div></td>' +
+          '<td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded-md bg-[#EFECE6] text-[#2D241C] text-[10px] font-bold">' + escH(it.status || "Por valorar") + '</span>' +
+            '<div class="text-[10px] text-[#6E655C] mt-0.5">' + escH(it.tab || "") + ' · Fila ' + escH(it.row || "") + '</div></td>' +
+          '<td class="py-2.5 px-2 text-[11px] text-[#6E655C] max-w-xs">' + escH(it.client_comment || "") + '</td>' +
+          '<td class="py-2.5 px-2 text-right whitespace-nowrap">' +
+            (it.url ? ('<a href="' + escH(it.url) + '" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-[#24424D] text-white text-[10px] font-bold hover:opacity-90">↗ Abrir</a>') : '') +
+          '</td></tr>';
+      }).join("");
+      box.innerHTML = '<div class="overflow-x-auto"><table class="w-full text-left font-mono text-[11px] border-collapse bg-white">' +
+        '<thead><tr class="border-b-2 border-[#D5CBB8] text-[#6E655C] text-[10px] uppercase">' +
+        '<th class="py-2 px-2">Propiedad / Zona</th><th class="py-2 px-2">Precio</th><th class="py-2 px-2">Estado / Hoja</th><th class="py-2 px-2">Nota / Sello Yuliia</th><th class="py-2 px-2 text-right">Anuncio</th>' +
+        '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
+    } catch (e) {
+      box.innerHTML = "⚠️ Error de red leyendo historial: " + escH(e.message || e);
+    }
+  };
+
+  window.analyzeClientSubmittedLinks = async function(slug) {
+    var pin = getStoredYuliiaPin();
+    if (!pin) { window.syncYuliiaLinksGateUi(slug); return; }
+    var ta = document.getElementById("crm-clinks-urls");
+    var fb = document.getElementById("crm-clinks-feedback");
+    var stg = document.getElementById("crm-clinks-staging");
+    var urls = window.extractUrlsFromFreeText(ta ? ta.value : "");
+    if (!urls.length) {
+      if (fb) fb.textContent = "⚠️ Pega al menos un enlace http:// o https://";
+      return;
+    }
+    window.__crmStagingCards = [];
+    if (stg) stg.innerHTML = "";
+    for (var i = 0; i < urls.length; i++) {
+      if (fb) fb.textContent = "⏳ Analizando enlace " + (i + 1) + " de " + urls.length + "...";
+      try {
+        var r = await fetch("/api/crm/client-links/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug: slug, url: urls[i], mode: "analyze", yuliia_pin: pin })
+        });
+        var d = await r.json();
+        if (d && d.yuliia_locked) {
+          setStoredYuliiaPin("");
+          window.syncYuliiaLinksGateUi(slug);
+          return;
+        }
+        window.__crmStagingCards.push({ url: urls[i], res: d });
+      } catch (e) {
+        window.__crmStagingCards.push({ url: urls[i], res: { ok: false, error: String(e) } });
+      }
+    }
+    if (fb) fb.textContent = "✅ " + urls.length + " enlace(s) analizados. Revisa y confirma.";
+    renderClientLinksStaging(slug);
+  };
+
+  function renderClientLinksStaging(slug) {
+    var stg = document.getElementById("crm-clinks-staging");
+    if (!stg) return;
+    var list = window.__crmStagingCards || [];
+    if (!list.length) { stg.innerHTML = ""; return; }
+
+    var batchBtn = list.length > 1
+      ? '<div class="flex justify-end"><button type="button" data-slug="' + escH(slug) + '" onclick="commitAllStagedClientLinks(this.dataset.slug)" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-xs font-bold shadow cursor-pointer">✅ Confirmar e Incorporar Todos (' + list.length + ')</button></div>'
+      : '';
+
+    var cardsHtml = list.map(function(entry, idx) {
+      var d = entry.res || {};
+      if (!d.ok) {
+        return '<div class="p-3.5 rounded-xl bg-red-50 border border-red-200 font-mono text-xs text-red-800">❌ ' + escH(entry.url) + ' -> ' + escH(d.error || "Error") + '</div>';
+      }
+      var c = d.card || {};
+      var tabs = d.available_tabs || ["1. LAU Habitual", "2. LAU Probable"];
+      var badgeCls = d.found_origin === "SHEET_CLIENTE"
+        ? "bg-amber-100 text-amber-900 border-amber-300"
+        : (d.found_origin && d.found_origin.indexOf("NUEVO") === -1 ? "bg-emerald-100 text-emerald-900 border-emerald-300" : "bg-sky-100 text-sky-900 border-sky-300");
+      var badgeTxt = d.found_origin === "SHEET_CLIENTE"
+        ? "📌 Ya en el Sheet del cliente"
+        : (d.found_origin && d.found_origin.indexOf("NUEVO") === -1 ? ("📡 Rescatado de " + d.found_origin) : "🆕 Nuevo Anuncio Externo");
+      var reasonsHtml = (d.reasons || []).map(function(rs) { return "<li>• " + escH(rs) + "</li>"; }).join("");
+      var tabOpts = tabs.map(function(tb) {
+        var sel = (tb === c.target_tab) ? " selected" : "";
+        return '<option value="' + escH(tb) + '"' + sel + '>' + escH(tb) + '</option>';
+      }).join("");
+
+      return '<div id="crm-stg-card-' + idx + '" class="p-4 rounded-xl bg-[#FAF8F4] border border-[#D5CBB8] space-y-3 font-mono text-xs">' +
+        '<div class="flex flex-wrap items-center justify-between gap-2">' +
+          '<span class="px-2.5 py-0.5 rounded-lg border text-[11px] font-bold ' + badgeCls + '">' + escH(badgeTxt) + ' · ' + escH(c.box_id || "") + '</span>' +
+          '<a href="' + escH(entry.url) + '" target="_blank" rel="noopener noreferrer" class="text-[#24424D] underline text-[11px] font-bold">↗ Ver anuncio original</a>' +
+        '</div>' +
+        '<ul class="text-[11px] text-[#6E655C] space-y-0.5">' + reasonsHtml + '</ul>' +
+        '<div class="grid grid-cols-2 sm:grid-cols-6 gap-2">' +
+          '<div class="col-span-2"><label class="block text-[10px] text-[#6E655C]">Título</label><input id="stg-title-' + idx + '" value="' + escH(c.title || "") + '" class="w-full rounded-lg border border-[#D5CBB8] bg-white px-2.5 py-1.5 text-xs"></div>' +
+          '<div><label class="block text-[10px] text-[#6E655C]">Zona / Municipio</label><input id="stg-zone-' + idx + '" value="' + escH(c.zone || "Barcelona") + '" class="w-full rounded-lg border border-[#D5CBB8] bg-white px-2.5 py-1.5 text-xs"></div>' +
+          '<div><label class="block text-[10px] text-[#6E655C]">Precio (€/mes)</label><input id="stg-price-' + idx + '" type="number" value="' + escH(c.price_num || 0) + '" class="w-full rounded-lg border border-[#D5CBB8] bg-white px-2.5 py-1.5 text-xs"></div>' +
+          '<div><label class="block text-[10px] text-[#6E655C]">m² / Hab.</label><div class="flex gap-1"><input id="stg-m2-' + idx + '" type="number" value="' + escH(c.m2 || 0) + '" class="w-1/2 rounded-lg border border-[#D5CBB8] bg-white px-2 py-1.5 text-xs" title="m²"><input id="stg-rooms-' + idx + '" type="number" value="' + escH(c.rooms || 2) + '" class="w-1/2 rounded-lg border border-[#D5CBB8] bg-white px-2 py-1.5 text-xs" title="Habitaciones"></div></div>' +
+          '<div><label class="block text-[10px] text-[#6E655C]">Pestaña Sheet</label><select id="stg-tab-' + idx + '" class="w-full rounded-lg border border-[#D5CBB8] bg-white px-2 py-1.5 text-xs">' + tabOpts + '</select></div>' +
+        '</div>' +
+        '<div class="flex items-center justify-between gap-2 pt-1">' +
+          '<div class="flex items-center gap-2"><span class="text-[10px] text-[#6E655C]">Agencia:</span><input id="stg-ag-' + idx + '" value="' + escH(c.agency || "") + '" class="rounded-lg border border-[#D5CBB8] bg-white px-2 py-1 text-[11px]"></div>' +
+          '<button type="button" id="stg-btn-' + idx + '" data-slug="' + escH(slug) + '" data-idx="' + idx + '" onclick="commitSingleStagedClientLink(this.dataset.slug, Number(this.dataset.idx))" class="px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold cursor-pointer">✅ Guardar en Sheet</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+
+    stg.innerHTML = batchBtn + cardsHtml;
+  }
+
+  window.commitSingleStagedClientLink = async function(slug, idx) {
+    var pin = getStoredYuliiaPin();
+    if (!pin) { window.syncYuliiaLinksGateUi(slug); return; }
+    var entry = (window.__crmStagingCards || [])[idx];
+    if (!entry || !entry.res || !entry.res.ok) return;
+    var btn = document.getElementById("stg-btn-" + idx);
+    if (btn) { btn.disabled = true; btn.textContent = "⏳ Guardando..."; }
+    var stSel = (document.getElementById("crm-clinks-status") || {}).value || "pending";
+    var noteVal = (document.getElementById("crm-clinks-note") || {}).value || "";
+    var c = entry.res.card || {};
+    var overrides = {
+      title: (document.getElementById("stg-title-" + idx) || {}).value || c.title,
+      zone: (document.getElementById("stg-zone-" + idx) || {}).value || c.zone,
+      price_num: (document.getElementById("stg-price-" + idx) || {}).value || c.price_num,
+      m2: (document.getElementById("stg-m2-" + idx) || {}).value || c.m2,
+      rooms: (document.getElementById("stg-rooms-" + idx) || {}).value || c.rooms,
+      agency: (document.getElementById("stg-ag-" + idx) || {}).value || c.agency,
+      target_tab: (document.getElementById("stg-tab-" + idx) || {}).value || c.target_tab,
+      img: c.img || ""
+    };
+    try {
+      var r = await fetch("/api/crm/client-links/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: slug, url: entry.url, mode: "commit", initial_status: stSel, client_note: noteVal, overrides: overrides, yuliia_pin: pin })
+      });
+      var d = await r.json();
+      if (d && d.yuliia_locked) {
+        setStoredYuliiaPin("");
+        window.syncYuliiaLinksGateUi(slug);
+        return;
+      }
+      if (d && d.ok) {
+        if (btn) {
+          btn.className = "px-3.5 py-1.5 rounded-xl bg-[#24424D] text-white text-xs font-bold";
+          btn.textContent = "✓ En " + (d.tab || "Sheet") + " (Fila " + (d.row || "?") + ")";
+        }
+        window.loadClientSubmittedLinksHistory(slug);
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = "❌ Reintentar"; }
+        alert("Error guardando enlace: " + ((d && d.error) || "Desconocido"));
+      }
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.textContent = "❌ Reintentar"; }
+    }
+  };
+
+  window.commitAllStagedClientLinks = async function(slug) {
+    var list = window.__crmStagingCards || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].res && list[i].res.ok) {
+        await window.commitSingleStagedClientLink(slug, i);
+      }
+    }
+  };
+
+  window.directCommitClientSubmittedLinks = async function(slug) {
+    var pin = getStoredYuliiaPin();
+    if (!pin) { window.syncYuliiaLinksGateUi(slug); return; }
+    var ta = document.getElementById("crm-clinks-urls");
+    var fb = document.getElementById("crm-clinks-feedback");
+    var stSel = (document.getElementById("crm-clinks-status") || {}).value || "pending";
+    var noteVal = (document.getElementById("crm-clinks-note") || {}).value || "";
+    var urls = window.extractUrlsFromFreeText(ta ? ta.value : "");
+    if (!urls.length) {
+      if (fb) fb.textContent = "⚠️ Pega al menos un enlace válido primero.";
+      return;
+    }
+    var okCnt = 0;
+    for (var i = 0; i < urls.length; i++) {
+      if (fb) fb.textContent = "⚡ Incorporando " + (i + 1) + "/" + urls.length + " al Sheet...";
+      try {
+        var r = await fetch("/api/crm/client-links/import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug: slug, url: urls[i], mode: "commit", initial_status: stSel, client_note: noteVal, yuliia_pin: pin })
+        });
+        var d = await r.json();
+        if (d && d.yuliia_locked) {
+          setStoredYuliiaPin("");
+          window.syncYuliiaLinksGateUi(slug);
+          return;
+        }
+        if (d && d.ok) okCnt++;
+      } catch (e) {}
+    }
+    if (ta) ta.value = "";
+    if (fb) fb.textContent = "✅ " + okCnt + " de " + urls.length + " anuncio(s) incorporados con sello Manual / Yuliia.";
+    await window.loadClientSubmittedLinksHistory(slug);
+    if (typeof loadCRM === "function") loadCRM(slug);
+  };
+
+  var origSwitch = window.switchClientMainTab;
+  if (typeof origSwitch === "function") {
+    window.switchClientMainTab = function(tab) {
+      origSwitch(tab);
+      if (tab === "enlaces") {
+        window.syncYuliiaLinksGateUi(typeof selectedSlug !== "undefined" ? selectedSlug : "");
+      }
+    };
+  }
+
+  var origRender = window.renderClientDetail;
+  if (typeof origRender === "function") {
+    window.renderClientDetail = function() {
+      origRender.apply(this, arguments);
+      if (window.activeClientTab === "enlaces") {
+        window.syncYuliiaLinksGateUi(typeof selectedSlug !== "undefined" ? selectedSlug : "");
+      }
+    };
+  }
+})();
+</script>
+<!-- END_CRM_CLIENT_LINKS_MODULE -->
+
 </body>
 </html>
