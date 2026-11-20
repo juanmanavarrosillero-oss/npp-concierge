@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>👥 [8088] Clientes & CRM | NPP</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2324424D'/><text x='50' y='68' font-family='Georgia,serif' font-size='58' font-weight='bold' fill='%23D4AF37' text-anchor='middle'>N</text></svg>">
+  <title>👥 [8088] Clientes & CRM | FOCUS</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzI0MjMyMCIvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTQ4IiBmaWxsPSJub25lIiBzdHJva2U9IiNGNUY0RjAiIHN0cm9rZS13aWR0aD0iNDQiLz48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjU0IiBmaWxsPSIjQjg5NzU4Ii8+PC9zdmc+">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -19,10 +19,10 @@
   <header class="bg-[#EFECE6] border-b border-[#D5CBB8] px-6 py-3.5 sticky top-0 z-40">
     <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-[#24424D] text-[#D4AF37] font-cinzel font-bold flex items-center justify-center text-lg shadow">N</div>
+        <div class="w-9 h-9 rounded-xl bg-[#24424D] text-[#D4AF37] font-cinzel font-bold flex items-center justify-center text-lg shadow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="display:block;"><circle cx="12" cy="12" r="8.8" stroke="#F5F4F0" stroke-width="2.4"/><circle cx="12" cy="12" r="3" fill="#B89758"/></svg></div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-cinzel font-bold text-base tracking-wide text-[#2D241C]">NAVARRO PRIVATE PROPERTIES</span>
+            <span class="font-cinzel font-bold text-base tracking-wide text-[#2D241C]"><span class="inline-flex items-center gap-1.5 select-none font-sans"><span style="font-size:0.68em;font-weight:400;opacity:0.78;text-transform:lowercase;letter-spacing:0.02em;">by</span><span class="inline-flex items-center font-bold" style="letter-spacing:0.18em;text-transform:uppercase;"><span>F</span><svg width="0.88em" height="0.88em" viewBox="0 0 24 24" fill="none" style="display:inline-block;margin:0 0.14em 0 -0.02em;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5"/><circle cx="12" cy="12" r="3" fill="#B89758"/></svg><span>CUS</span></span></span></span>
             <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#24424D] text-white">:8088 ALQUILER</span>
           </div>
           <p class="text-[11px] font-mono text-[#6E655C]">4. Clientes & CRM · Expedientes Drive + Perfil 360º + Concierge App</p>
@@ -582,7 +582,7 @@
           const inDrive = Boolean(kycAuto[key]);
           const hint = inDrive ? ' <span title="Archivo detectado en Google Drive" class="opacity-75">📁</span>' : '';
           return '<button type="button" onclick="toggleClientKyc(\'' + _escAttr(c.slug) + '\', \'' + key + '\')" ' +
-            'title="Clic para marcar o desmarcar documento (Clientes NPP / Dreamlife)" ' +
+            'title="Clic para marcar o desmarcar documento (Clientes FOCUS / Dreamlife)" ' +
             'class="px-3 py-1.5 rounded-xl font-mono text-xs font-bold border transition cursor-pointer select-none flex items-center gap-1.5 ' +
             (ok
               ? 'bg-[#E4F2E9] text-emerald-900 border-emerald-500 shadow-2xs hover:bg-emerald-200'
@@ -1265,7 +1265,7 @@ https://www.fotocasa.es/es/alquiler/vivienda/..." class="w-full rounded-xl borde
     function copyWelcomePack(slug) {
       const c = allClients.find(x => x.slug === slug);
       if (!c) return;
-      const txt = `🏛️ *NAVARRO PRIVATE PROPERTIES · Portal Privado ${c.name}*\n\n📊 *Google Sheet en vivo:* ${c.sheet_url}\n📱 *Concierge App Móvil:* ${c.pwa_url}`;
+      const txt = `🏛️ *FOCUS · Portal Privado ${c.name}*\n\n📊 *Google Sheet en vivo:* ${c.sheet_url}\n📱 *Concierge App Móvil:* ${c.pwa_url}`;
       navigator.clipboard.writeText(txt).then(() => {
         alert('📋 Pack de enlaces copiado al portapapeles.');
       });
@@ -2004,8 +2004,8 @@ https://www.fotocasa.es/es/alquiler/vivienda/..." class="w-full rounded-xl borde
   <div style="max-width:560px; width:100%; background:#FAF8F5; color:#2D241C; border-radius:22px; border:2px solid #D4AF37; box-shadow:0 26px 65px rgba(0,0,0,0.5); padding:24px; font-family:'Inter',sans-serif;">
     <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #D5CBB8; padding-bottom:12px; margin-bottom:14px;">
       <div>
-        <h3 style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#24424D; margin:0;">✨ GENERAR EXPOSÉ MARCA BLANCA (0% NPP)</h3>
-        <p style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#6E655C; margin:3px 0 0 0;">Sin logotipos ni datos de NPP · Con botones en vivo «Descartar» y «Pedir Agendar»</p>
+        <h3 style="font-family:'Cinzel',serif; font-weight:700; font-size:16px; color:#24424D; margin:0;">✨ GENERAR EXPOSÉ MARCA BLANCA (0% FOCUS)</h3>
+        <p style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#6E655C; margin:3px 0 0 0;">Sin logotipos ni datos de FOCUS · Con botones en vivo «Descartar» y «Pedir Agendar»</p>
       </div>
       <button type="button" onclick="document.getElementById('wl-expose-modal').style.display='none'" style="font-weight:800; font-size:16px; color:#6E655C; background:none; border:none; cursor:pointer;">✕</button>
     </div>
